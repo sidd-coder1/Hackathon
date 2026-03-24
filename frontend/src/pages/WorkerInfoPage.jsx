@@ -4,17 +4,19 @@ import { Users, MapPin, Ban, Eye, RefreshCw } from 'lucide-react'
 import { Badge, StatusDot, SecureBadge } from '../components/ui/UIComponents'
 import { mockWorkers } from '../data/mockData'
 import clsx from 'clsx'
+import WorkerDetailsModal from '../components/worker/WorkerDetailsModal'
 
 export default function WorkerInfoPage() {
   const [filter, setFilter] = useState('all')
   const [realWorkers, setRealWorkers] = useState([])
   const [realAttendance, setRealAttendance] = useState([])
   const [refreshing, setRefreshing] = useState(false)
+  const [selectedWorkerId, setSelectedWorkerId] = useState(null)
 
   const loadData = async () => {
     try {
       const [users, attendance] = await Promise.all([getUsers(), getAttendance()])
-      setRealWorkers(users)
+      setRealWorkers(users.filter(item => item.role === 'worker'))
       setRealAttendance(attendance)
     } catch (err) {
       console.error(err)
@@ -47,9 +49,10 @@ export default function WorkerInfoPage() {
     : generatedWorkers.filter(w => w.status === filter)
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+    <>
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">Worker Info</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Ground Force Status · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
@@ -144,7 +147,7 @@ export default function WorkerInfoPage() {
                   <td className="px-4 py-3 text-xs text-gray-500">{w.lastSeen}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
-                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-500 transition-colors" title="View">
+                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-500 transition-colors" title="View" onClick={() => setSelectedWorkerId(w.id)}>
                         <Eye size={14} />
                       </button>
                     </div>
@@ -156,5 +159,12 @@ export default function WorkerInfoPage() {
         </div>
       </div>
     </div>
+
+    {selectedWorkerId && (
+      <WorkerDetailsModal workerId={selectedWorkerId} onClose={() => setSelectedWorkerId(null)} />
+    )}
+    </>
   )
 }
+
+// Force Vite cache invalidation
