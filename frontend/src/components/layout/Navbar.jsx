@@ -17,28 +17,28 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
   }
 
   return (
-    <header className="sticky top-0 z-50 h-16 flex items-center px-4 md:px-6 bg-gradient-to-r from-gray-900 via-gray-900/95 to-black/90 backdrop-blur-md border-b border-saffron-500/50 shadow-[0_4px_20px_-4px_rgba(255,153,51,0.15)] gap-2">
+    <header className="sticky top-0 z-50 h-16 flex items-center px-4 md:px-6 bg-white border-b border-gray-200 gap-2">
       
       {/* Menu toggle - visible on mobile, or on desktop when sidebar is closed */}
       <button
         onClick={onMenuToggle}
         className={clsx(
-          "mr-3 flex flex-col items-center justify-center gap-[5px] w-9 h-9 rounded-xl hover:bg-white/10 transition-all flex-shrink-0 group",
+          "mr-3 flex flex-col items-center justify-center gap-[5px] w-9 h-9 rounded-xl hover:bg-gray-100 transition-all flex-shrink-0 group",
           menuOpen ? "md:hidden" : "flex"
         )}
         aria-label="Toggle menu"
       >
-        <span className="block w-5 h-[2px] rounded-full bg-saffron-400 group-hover:bg-saffron-300 transition-colors" />
-        <span className="block w-4 h-[2px] rounded-full bg-gray-400 group-hover:bg-white transition-colors" />
-        <span className="block w-5 h-[2px] rounded-full bg-gray-400 group-hover:bg-white transition-colors" />
+        <span className="block w-5 h-[2px] rounded-full bg-orange-500 group-hover:bg-orange-600 transition-colors" />
+        <span className="block w-4 h-[2px] rounded-full bg-gray-500 group-hover:bg-gray-800 transition-colors" />
+        <span className="block w-5 h-[2px] rounded-full bg-gray-500 group-hover:bg-gray-800 transition-colors" />
       </button>
 
       {/* Logo (Always Visible & Non-Toggleable) */}
       <div className="flex items-center gap-3 select-none">
-        <img src="/emblem.svg" alt="logo" className="h-8 w-auto invert drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] brightness-150" />
+        <img src="/emblem.svg" alt="logo" className="h-8 w-auto mix-blend-multiply" />
         <div className="flex flex-col leading-tight">
-          <span className="text-base sm:text-lg font-extrabold text-[#FF9933] tracking-tight">SwachhDrishti</span>
-          <span className="text-[10px] sm:text-xs text-[#138808] font-bold tracking-wide">Empowering India's Municipal Workforce</span>
+          <span className="text-base sm:text-lg font-extrabold text-orange-600 tracking-tight">SwachhDrishti</span>
+          <span className="text-[10px] sm:text-xs text-green-700 font-bold tracking-wide">Empowering India's Municipal Workforce</span>
         </div>
       </div>
 
@@ -47,14 +47,14 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
       {/* Right section */}
       <div className="flex items-center gap-4 sm:gap-6">
         <div className="hidden sm:flex items-center h-full">
-          <div className="py-1 px-3 bg-white/5 border border-white/10 rounded-full flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_4px_rgba(34,197,94,0.6)]" />
-            <span className="text-[10px] uppercase tracking-wider text-green-400 font-bold">SSL Secured</span>
+          <div className="py-1 px-3 bg-green-50 border border-green-100 rounded-full flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[10px] uppercase tracking-wider text-green-700 font-bold">SSL Secured</span>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="hidden sm:block w-px h-6 bg-white/10" />
+        <div className="hidden sm:block w-px h-6 bg-gray-200" />
 
         <div className="flex items-center gap-3 md:gap-4">
           {/* Notification bell */}
@@ -65,12 +65,12 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
                 if (profileOpen) setProfileOpen(false);
               }}
               className={clsx(
-                "relative p-2 rounded-xl text-gray-400 hover:text-white transition-all border border-transparent hover:border-white/10 group",
-                notificationsOpen ? "bg-white/10 text-white border-white/10" : "hover:bg-white/10"
+                "relative p-2 rounded-xl transition-all border border-transparent group",
+                notificationsOpen ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
               )}
             >
               <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_6px_rgba(239,68,68,0.8)] animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
             </button>
 
             {notificationsOpen && (
@@ -107,30 +107,30 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
                 if (notificationsOpen) setNotificationsOpen(false);
               }}
               className={clsx(
-                "flex items-center gap-3 p-1.5 pr-3 rounded-full transition-all border border-transparent hover:border-white/10",
-                profileOpen ? "bg-white/10 border-white/10" : "hover:bg-white/10"
+                "flex items-center gap-3 p-1.5 pr-3 rounded-full transition-all border border-transparent",
+                profileOpen ? "bg-gray-100" : "hover:bg-gray-50"
               )}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-saffron-500 to-saffron-600 shadow-md flex items-center justify-center border border-saffron-400">
-                <span className="text-xs font-bold text-white shadow-sm">{user?.name?.charAt(0) || 'U'}</span>
+              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
+                <span className="text-xs font-bold text-orange-600">{user?.name?.charAt(0) || 'U'}</span>
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-xs font-bold text-white leading-tight mb-0.5">{user?.name}</p>
-                <p className="text-[10px] text-saffron-400 uppercase tracking-widest font-bold leading-tight">{user?.role}</p>
+                <p className="text-xs font-bold text-gray-900 leading-tight mb-0.5">{user?.name}</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold leading-tight">{user?.role}</p>
               </div>
             </button>
 
             {profileOpen && (
-              <div className="absolute right-0 top-full mt-2 w-56 glass-card p-2 shadow-2xl shadow-black/50 border border-white/10 z-50">
-                <div className="px-3 py-2 mb-1 border-b border-white/8 pb-2">
-                  <p className="text-sm font-semibold text-white">{user?.name}</p>
-                  <p className="text-xs text-gray-400">{user?.email}</p>
+              <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl p-2 shadow-xl shadow-gray-200/50 border border-gray-100 z-50 animate-fade-in origin-top-right">
+                <div className="px-3 py-2 border-b border-gray-100 pb-3">
+                  <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
+                  <p className="text-xs text-gray-500">{user?.email}</p>
                   <div className="mt-2"><RoleBadge role={user?.role} /></div>
                 </div>
-                <div className="mt-1 pt-1">
+                <div className="mt-1 flex flex-col gap-1">
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors font-medium"
                   >
                     <LogOut size={15} />
                     Sign Out

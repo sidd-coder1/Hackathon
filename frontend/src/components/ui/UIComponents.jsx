@@ -37,20 +37,20 @@ export function StatusDot({ status }) {
 // StatCard component
 export function StatCard({ label, value, icon: Icon, trend, color = 'saffron', children }) {
   const colorMap = {
-    saffron: 'text-saffron-600 bg-saffron-50 border-saffron-100',
-    green:   'text-green-600    bg-green-50   border-green-100',
-    blue:    'text-blue-600     bg-blue-50    border-blue-100',
-    red:     'text-red-600      bg-red-50     border-red-100',
-    purple:  'text-purple-600   bg-purple-50  border-purple-100',
+    saffron: 'text-orange-600 bg-orange-50 border-orange-100',
+    green:   'text-green-600 bg-green-50 border-green-100',
+    blue:    'text-blue-600 bg-blue-50 border-blue-100',
+    red:     'text-red-600 bg-red-50 border-red-100',
+    purple:  'text-purple-600 bg-purple-50 border-purple-100',
   }
   return (
-    <div className="stat-card animate-slide-up">
+    <div className="bg-white p-5 rounded-2xl border border-gray-200 animate-slide-up">
       <div className="flex items-start justify-between mb-4">
         <div>
           <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">{label}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
           {trend && (
-            <p className={clsx('text-xs mt-1 font-medium', trend > 0 ? 'text-green-600' : 'text-red-600')}>
+            <p className={clsx('text-xs mt-1 font-bold', trend > 0 ? 'text-green-600' : 'text-red-600')}>
               {trend > 0 ? '▲' : '▼'} {Math.abs(trend)}% vs last week
             </p>
           )}
@@ -109,14 +109,12 @@ export function SecureBadge({ label = 'Secured', size = 'sm' }) {
   const isSm = size === 'sm';
   return (
     <div className={clsx(
-      'group inline-flex items-center gap-2 font-semibold text-green-700 bg-white border border-green-200 rounded-full shadow-sm hover:shadow-md hover:border-green-300 transition-all duration-300 cursor-default',
+      'inline-flex items-center gap-2 font-semibold text-green-700 bg-green-50 border border-green-100 rounded-full',
       isSm ? 'px-3 py-1 text-xs' : 'px-4 py-2 text-sm'
     )}>
-      <div className="relative flex items-center justify-center p-1.5 rounded bg-gradient-to-br from-green-50 to-green-100 group-hover:scale-110 group-hover:shadow-[0_0_12px_rgba(34,197,94,0.3)] border border-green-300/50 transition-all duration-300">
-        <Lock size={isSm ? 12 : 14} className="text-green-600 relative z-10" />
-      </div>
+      <Lock size={isSm ? 12 : 14} className="text-green-600" />
       <div className="flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_4px_rgba(34,197,94,0.5)]" />
+        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
         {label}
       </div>
     </div>
@@ -127,7 +125,7 @@ export function SecureBadge({ label = 'Secured', size = 'sm' }) {
 export function RoleBadge({ role }) {
   const map = {
     user:       { label: 'Area Watchman', variant: 'saffron' },
-    supervisor: { label: 'Supervisor',    variant: 'info'    },
+    supervisor: { label: 'Supervisor',    variant: 'default' },
     worker:     { label: 'Field Worker',  variant: 'success' },
   }
   const r = map[role] || { label: role, variant: 'default' }
