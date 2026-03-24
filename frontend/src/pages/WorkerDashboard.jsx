@@ -4,6 +4,9 @@ import { MapPin, Camera, CheckCircle2, Clock, AlertCircle, ChevronRight, Battery
 import { StatCard, Badge, StatusDot, Spinner } from '../components/ui/UIComponents'
 import { workerTasks } from '../data/mockData'
 import clsx from 'clsx'
+import { useRewards } from '../hooks/useRewards'
+import PointsCard from '../components/worker/PointsCard'
+import TaskList from '../components/worker/TaskList'
 
 export default function WorkerDashboard() {
   const { user } = useAuth()
@@ -13,6 +16,7 @@ export default function WorkerDashboard() {
   const [photoUploaded, setPhotoUploaded] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [coords, setCoords] = useState(null)
+  const { points, tasks: dailyTasks, completeTask, level } = useRewards()
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -33,14 +37,14 @@ export default function WorkerDashboard() {
 
   const taskStatusMap = {
     'in-progress': { label: 'In Progress', variant: 'saffron' },
-    'pending':     { label: 'Pending',     variant: 'default' },
-    'completed':   { label: 'Completed',   variant: 'success' },
+    'pending': { label: 'Pending', variant: 'default' },
+    'completed': { label: 'Completed', variant: 'success' },
   }
 
   const priorityColor = {
-    high:   'border-l-red-500',
+    high: 'border-l-red-500',
     medium: 'border-l-amber-500',
-    low:    'border-l-blue-500',
+    low: 'border-l-blue-500',
   }
 
   return (
@@ -93,9 +97,9 @@ export default function WorkerDashboard() {
         ) : (
           <div className="grid grid-cols-3 gap-2 text-xs">
             {[
-              ['Latitude',  coords?.lat],
+              ['Latitude', coords?.lat],
               ['Longitude', coords?.lng],
-              ['Accuracy',  coords?.acc],
+              ['Accuracy', coords?.acc],
             ].map(([k, v]) => (
               <div key={k} className="bg-gray-100 rounded-lg p-2">
                 <p className="text-gray-500 mb-0.5">{k}</p>
@@ -104,6 +108,15 @@ export default function WorkerDashboard() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Rewards System Section */}
+      <div className="space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
+        <PointsCard points={points} level={level} />
+        
+        <div className="glass-card p-5">
+          <TaskList tasks={dailyTasks} onCompleteTask={completeTask} />
+        </div>
       </div>
 
       {/* Mark Attendance */}
@@ -137,7 +150,7 @@ export default function WorkerDashboard() {
               ) : (
                 <>
                   <MapPin size={28} className="text-saffron-500" />
-                  <span className="text-xs font-bold text-saffron-600 tracking-wide">MARK<br/>ATTENDANCE</span>
+                  <span className="text-xs font-bold text-saffron-600 tracking-wide">MARK<br />ATTENDANCE</span>
                 </>
               )}
             </button>
@@ -154,8 +167,8 @@ export default function WorkerDashboard() {
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: 'Attendance', value: '96%', color: 'text-green-600' },
-          { label: 'Tasks Done', value: '3/4',  color: 'text-saffron-600' },
-          { label: 'Trust Score', value: '92',  color: 'text-blue-600' },
+          { label: 'Tasks Done', value: '3/4', color: 'text-saffron-600' },
+          { label: 'Trust Score', value: '92', color: 'text-blue-600' },
         ].map(s => (
           <div key={s.label} className="glass-card p-3 text-center">
             <p className={clsx('text-xl font-bold', s.color)}>{s.value}</p>
@@ -215,8 +228,8 @@ export default function WorkerDashboard() {
                 {task.status === 'completed'
                   ? <CheckCircle2 size={16} className="text-green-500" />
                   : task.status === 'in-progress'
-                  ? <div className="w-4 h-4 rounded-full border-2 border-saffron-500 border-t-transparent animate-spin" />
-                  : <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
+                    ? <div className="w-4 h-4 rounded-full border-2 border-saffron-500 border-t-transparent animate-spin" />
+                    : <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
                 }
               </div>
               <div className="flex-1 min-w-0">
