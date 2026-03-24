@@ -95,7 +95,7 @@ export default function WorkerInfoPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                {['Worker', 'Ward', 'Status', 'GPS', 'Attendance', 'Trust Score', 'Last Seen', 'Action'].map(h => (
+                {['Worker', 'Ward', 'Status', 'GPS', 'Attendance', 'Trust Score', 'Last Seen'].map(h => (
                   <th key={h} className="text-left text-xs text-gray-500 font-semibold uppercase tracking-wide px-4 py-3 first:pl-5">{h}</th>
                 ))}
               </tr>
@@ -109,7 +109,12 @@ export default function WorkerInfoPage() {
                         <span className="text-xs font-bold text-gray-700">{w.name.charAt(0)}</span>
                       </div>
                       <div>
-                        <p className="text-gray-900 font-medium text-xs">{w.name}</p>
+                        <p 
+                          className="cursor-pointer hover:text-saffron-600 font-semibold transition text-xs"
+                          onClick={() => setSelectedWorkerId(w.id)}
+                        >
+                          {w.name}
+                        </p>
                         <p className="text-gray-600 text-xs">{w.id}</p>
                       </div>
                     </div>
@@ -145,13 +150,6 @@ export default function WorkerInfoPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500">{w.lastSeen}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5">
-                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-500 transition-colors" title="View" onClick={() => setSelectedWorkerId(w.id)}>
-                        <Eye size={14} />
-                      </button>
-                    </div>
-                  </td>
                 </tr>
               ))}
             </tbody>

@@ -9,6 +9,7 @@ import clsx from 'clsx'
 const supervisorNav = [
   { to: '/supervisor', label: 'Monitor Dashboard', icon: LayoutDashboard, end: true },
   { to: '/supervisor/workers', label: 'Worker Info', icon: Users },
+  { to: '/user-info', label: 'User Info', icon: Users },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 

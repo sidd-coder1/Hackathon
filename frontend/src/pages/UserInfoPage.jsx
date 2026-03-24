@@ -9,7 +9,7 @@ export default function UserInfoPage() {
   const [filter, setFilter] = useState('all')
   const [realUsers, setRealUsers] = useState([])
   const [refreshing, setRefreshing] = useState(false)
-  const [selectedUserId, setSelectedUserId] = useState(null)
+  const [selectedWorkerId, setSelectedWorkerId] = useState(null)
 
   const loadData = async () => {
     try {
@@ -33,6 +33,7 @@ export default function UserInfoPage() {
   // Fallback to empty state natively if data is empty 
   const generatedUsers = realUsers.map(u => ({
     id: u.employeeId || u.id,
+    employeeId: u.employeeId || u.id,
     name: u.name || 'Unknown',
     ward: u.ward || 'Unknown Ward',
     status: 'active',
@@ -86,11 +87,11 @@ export default function UserInfoPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200">
-                  {['User', 'Ward', 'Status', 'Last Seen', 'Action'].map(h => (
+                  {['User', 'Ward', 'Status', 'Last Seen'].map(h => (
                     <th key={h} className="text-left text-xs text-gray-500 font-semibold uppercase tracking-wide px-4 py-3 first:pl-5">{h}</th>
                   ))}
                 </tr>
@@ -98,7 +99,7 @@ export default function UserInfoPage() {
               <tbody className="divide-y divide-gray-100">
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-8 text-gray-500">
+                    <td colSpan="4" className="text-center py-8 text-gray-500">
                       No data available
                     </td>
                   </tr>
@@ -111,7 +112,12 @@ export default function UserInfoPage() {
                             <span className="text-xs font-bold text-gray-700">{u.name.charAt(0)}</span>
                           </div>
                           <div>
-                            <p className="text-gray-900 font-medium text-xs">{u.name}</p>
+                            <p 
+                              className="cursor-pointer hover:text-saffron-600 font-semibold transition text-xs"
+                              onClick={() => setSelectedWorkerId(u.employeeId)}
+                            >
+                              {u.name}
+                            </p>
                             <p className="text-gray-600 text-xs">{u.id}</p>
                           </div>
                         </div>
@@ -126,20 +132,6 @@ export default function UserInfoPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500">{u.lastSeen}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5">
-                          <button 
-                            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-500 transition-colors" 
-                            title="View"
-                            onClick={() => {
-                              const idToUse = u.employeeId || u.id
-                              setSelectedUserId(idToUse)
-                            }}
-                          >
-                            <Eye size={14} />
-                          </button>
-                        </div>
-                      </td>
                     </tr>
                   ))
                 )}
@@ -149,8 +141,8 @@ export default function UserInfoPage() {
         </div>
       </div>
 
-      {selectedUserId && (
-        <WorkerDetailsModal workerId={selectedUserId} onClose={() => setSelectedUserId(null)} />
+      {selectedWorkerId && (
+        <WorkerDetailsModal workerId={selectedWorkerId} onClose={() => setSelectedWorkerId(null)} />
       )}
     </>
   )

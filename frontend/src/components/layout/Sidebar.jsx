@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { LayoutDashboard, Users, BarChart3, MapPin, Bell, LogOut, ShieldCheck, CheckCircle2 } from 'lucide-react'
+import {
+  LayoutDashboard, Users, BarChart3, MapPin, Bell, LogOut,
+  ShieldCheck, CheckCircle2, Shield, Menu, X, ChevronRight, Settings, FileText, Scan, Camera, Star, QrCode, Target
+} from 'lucide-react'
 import { RoleBadge, SecureBadge } from '../ui/UIComponents'
-<<<<<<< HEAD
 import clsx from 'clsx'
 
 const supervisorNav = [
   { to: '/supervisor',         label: 'Monitor Dashboard', icon: LayoutDashboard, end: true },
   { to: '/supervisor/workers', label: 'Worker Info',       icon: Users },
+  { to: '/user-info',          label: 'User Info',         icon: Users },
   { to: '/analytics',          label: 'Analytics',         icon: BarChart3 },
 ]
 
@@ -22,33 +25,6 @@ const userNav = [
   { to: '/user/report',   label: 'Report Issue',    icon: CheckCircle2 },
   { to: '/user/feedback', label: 'Worker Feedback', icon: Star },
   { to: '/analytics',     label: 'Analytics',       icon: BarChart3 },
-=======
-import {
-  LayoutDashboard, Users, BarChart3, MapPin, Bell, LogOut,
-  Shield, Menu, X, ChevronRight, Settings, FileText, Scan, Camera, Star, QrCode, Target
-} from 'lucide-react'
-import clsx from 'clsx'
-
-const supervisorNav = [
-  { to: '/supervisor',         label: 'Dashboard',   icon: LayoutDashboard, end: true },
-  { to: '/supervisor/workers', label: 'Worker Info', icon: Users },
-  { to: '/supervisor/users',   label: 'User Info',   icon: Users },
-  { to: '/analytics',         label: 'Analytics',   icon: BarChart3 },
-]
-
-const userNav = [
-  { to: '/user',          label: 'Dashboard',   icon: LayoutDashboard, end: true },
-  { to: '/user/scan',     label: 'Daily QR Code', icon: QrCode },
-  { to: '/user/report',   label: 'Report Issue', icon: Camera },
-  { to: '/user/feedback', label: 'Worker Feedback', icon: Star },
-  { to: '/analytics',     label: 'Analytics',    icon: BarChart3 },
-]
-
-const workerNav = [
-  { to: '/worker',          label: 'Dashboard',      icon: LayoutDashboard, end: true },
-  { to: '/worker/missions', label: 'Daily Missions', icon: Target },
-  { to: '/analytics',       label: 'Analytics',      icon: BarChart3 },
->>>>>>> 273ca79bae6481c2f401110e536fca4d1873ec66
 ]
 
 export default function Sidebar({ collapsed }) {

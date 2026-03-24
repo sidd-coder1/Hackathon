@@ -76,7 +76,7 @@ function AppRoutes() {
             <WorkerInfoPage />
           </ProtectedRoute>
         } />
-        <Route path="/supervisor/users" element={
+        <Route path="/user-info" element={
           <ProtectedRoute roles={['supervisor']}>
             <UserInfoPage />
           </ProtectedRoute>
