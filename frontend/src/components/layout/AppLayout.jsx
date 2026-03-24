@@ -4,7 +4,7 @@ import Sidebar from './Sidebar'
 import Navbar from './Navbar'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { LayoutDashboard, Users, BarChart3, MapPin, Bell, X, Scan, Camera, Star, QrCode } from 'lucide-react'
+import { LayoutDashboard, Users, BarChart3, MapPin, Bell, X, Scan, Camera, Star, QrCode, Target } from 'lucide-react'
 import clsx from 'clsx'
 
 const supervisorNav = [
@@ -21,8 +21,9 @@ const userNav = [
   { to: '/analytics',     label: 'Analytics',    icon: BarChart3 },
 ]
 const workerNav = [
-  { to: '/worker',     label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/analytics',  label: 'Analytics', icon: BarChart3 },
+  { to: '/worker',          label: 'Dashboard',      icon: LayoutDashboard, end: true },
+  { to: '/worker/missions', label: 'Daily Missions', icon: Target },
+  { to: '/analytics',       label: 'Analytics',      icon: BarChart3 },
 ]
 
 export default function AppLayout() {

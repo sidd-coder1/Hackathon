@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { RoleBadge, SecureBadge } from '../ui/UIComponents'
 import {
   LayoutDashboard, Users, BarChart3, MapPin, Bell, LogOut,
-  Shield, Menu, X, ChevronRight, Settings, FileText, Scan, Camera, Star, QrCode
+  Shield, Menu, X, ChevronRight, Settings, FileText, Scan, Camera, Star, QrCode, Target
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -23,8 +23,9 @@ const userNav = [
 ]
 
 const workerNav = [
-  { to: '/worker',     label: 'Dashboard',   icon: LayoutDashboard, end: true },
-  { to: '/analytics',  label: 'Analytics',   icon: BarChart3 },
+  { to: '/worker',          label: 'Dashboard',      icon: LayoutDashboard, end: true },
+  { to: '/worker/missions', label: 'Daily Missions', icon: Target },
+  { to: '/analytics',       label: 'Analytics',      icon: BarChart3 },
 ]
 
 export default function Sidebar({ collapsed, setCollapsed }) {
