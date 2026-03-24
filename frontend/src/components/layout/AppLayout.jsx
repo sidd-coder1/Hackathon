@@ -2,27 +2,27 @@ import React, { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import { useAuth } from '../../context/AuthContext'
-import { LayoutDashboard, Users, BarChart3, X, Camera, Star, QrCode, Target, ShieldCheck, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, BarChart3, X, Camera, Star, QrCode, Target, LogOut } from 'lucide-react'
 import { SecureBadge, RoleBadge } from '../ui/UIComponents'
 import clsx from 'clsx'
 
 const supervisorNav = [
-  { to: '/supervisor',         label: 'Monitor Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/supervisor/workers', label: 'Worker Info',       icon: Users },
-  { to: '/analytics',          label: 'Analytics',         icon: BarChart3 },
+  { to: '/supervisor', label: 'Monitor Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/supervisor/workers', label: 'Worker Info', icon: Users },
+  { to: '/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
 const workerNav = [
-  { to: '/worker',          label: 'Dashboard',      icon: LayoutDashboard, end: true },
+  { to: '/worker', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/worker/missions', label: 'Daily Missions', icon: Target },
-  { to: '/analytics',       label: 'Analytics',      icon: BarChart3 },
+  { to: '/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
 const userNav = [
-  { to: '/user/scan',     label: 'Daily QR Code',   icon: QrCode },
-  { to: '/user/report',   label: 'Report Issue',    icon: Camera },
+  { to: '/user/scan', label: 'Daily QR Code', icon: QrCode },
+  { to: '/user/report', label: 'Report Issue', icon: Camera },
   { to: '/user/feedback', label: 'Worker Feedback', icon: Star },
-  { to: '/analytics',     label: 'Analytics',       icon: BarChart3 },
+  { to: '/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
 export default function AppLayout() {
@@ -31,8 +31,8 @@ export default function AppLayout() {
   const navigate = useNavigate()
 
   const navItems = user?.role === 'worker' ? workerNav
-                 : user?.role === 'supervisor' ? supervisorNav
-                 : userNav
+    : user?.role === 'supervisor' ? supervisorNav
+      : userNav
 
   const handleLogout = () => {
     logout()
@@ -55,8 +55,14 @@ export default function AppLayout() {
         'fixed md:relative top-0 left-0 h-full w-[280px] bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none flex-shrink-0',
         sidebarOpen ? 'translate-x-0 md:ml-0' : '-translate-x-full md:translate-x-0 md:-ml-[280px]'
       )}>
+<<<<<<< HEAD
         {/* Sidebar Header — hamburger toggle lives here */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+=======
+
+        {/* Sidebar Header — only X close button, no Quick Menu */}
+        <div className="flex items-center justify-end p-5 border-b border-gray-100">
+>>>>>>> 7e1276704ac37b3a278b8e279293df0f8c9a491a
           <button
             onClick={() => setSidebarOpen(v => !v)}
             className="flex flex-col items-center justify-center gap-[5px] w-9 h-9 rounded-xl hover:bg-gray-100 transition-all group"
