@@ -56,11 +56,7 @@ export default function AppLayout() {
         sidebarOpen ? 'translate-x-0 md:ml-0' : '-translate-x-full md:translate-x-0 md:-ml-[280px]'
       )}>
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <div className="flex items-center gap-2 text-saffron-600">
-            <ShieldCheck size={20} />
-            <span className="font-bold text-gray-900 tracking-widest uppercase text-xs">Quick Menu</span>
-          </div>
+        <div className="flex items-center justify-end p-5 border-b border-gray-100">
           <button 
             onClick={() => setSidebarOpen(false)} 
             className="text-gray-400 hover:text-gray-900 p-1.5 rounded-xl hover:bg-gray-100 transition-all"
