@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import { useAuth } from '../../context/AuthContext'
-import { QrCode, Camera, Star, BarChart3, X, LogOut, ShieldCheck, LayoutDashboard, Users, Target } from 'lucide-react'
+import { LayoutDashboard, Users, BarChart3, X, Camera, Star, QrCode, Target, ShieldCheck, LogOut } from 'lucide-react'
 import { SecureBadge, RoleBadge } from '../ui/UIComponents'
 import clsx from 'clsx'
 
@@ -30,8 +30,8 @@ export default function AppLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-  const navItems = user?.role === 'worker' ? workerNav 
-                 : user?.role === 'supervisor' ? supervisorNav 
+  const navItems = user?.role === 'worker' ? workerNav
+                 : user?.role === 'supervisor' ? supervisorNav
                  : userNav
 
   const handleLogout = () => {
@@ -41,8 +41,8 @@ export default function AppLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      
-      {/* Mobile-only Dark overlay (hidden on desktop to allow side-by-side view) */}
+
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden pointer-events-auto"
@@ -50,22 +50,32 @@ export default function AppLayout() {
         />
       )}
 
-      {/* Sidebar - Acts as sliding overlay on Mobile, and side-by-side push layout on Desktop */}
+      {/* Sidebar */}
       <div className={clsx(
         'fixed md:relative top-0 left-0 h-full w-[280px] bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none flex-shrink-0',
         sidebarOpen ? 'translate-x-0 md:ml-0' : '-translate-x-full md:translate-x-0 md:-ml-[280px]'
       )}>
         {/* Sidebar Header */}
+<<<<<<< HEAD
         <div className="flex items-center justify-end p-5 border-b border-gray-100">
           <button 
             onClick={() => setSidebarOpen(false)} 
+=======
+        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <div className="flex items-center gap-2 text-saffron-600">
+            <ShieldCheck size={20} />
+            <span className="font-bold text-gray-900 tracking-widest uppercase text-xs">Quick Menu</span>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+>>>>>>> cc7a624fde2f54d1bc8e3fd49c5c95ff73f5271b
             className="text-gray-400 hover:text-gray-900 p-1.5 rounded-xl hover:bg-gray-100 transition-all"
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* User Profile Block */}
+        {/* User Profile */}
         {user && (
           <div className="p-5 border-b border-gray-100 bg-gray-50/50">
             <div className="flex items-center gap-3 mb-3">
@@ -81,20 +91,18 @@ export default function AppLayout() {
           </div>
         )}
 
-        {/* Specific Navigation Items */}
+        {/* Nav Items */}
         <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
-              onClick={() => {
-                if(window.innerWidth < 768) setSidebarOpen(false);
-              }}
+              onClick={() => { if (window.innerWidth < 768) setSidebarOpen(false) }}
               className={({ isActive }) => clsx(
                 'flex items-center gap-3 px-3 py-3 rounded-xl transition-all font-semibold text-sm',
-                isActive 
-                  ? 'bg-saffron-50 text-saffron-700 relative before:w-1 before:h-8 before:bg-saffron-500 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:rounded-r-md shadow-sm' 
+                isActive
+                  ? 'bg-saffron-50 text-saffron-700 relative before:w-1 before:h-8 before:bg-saffron-500 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:rounded-r-md shadow-sm'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               )}
             >
@@ -104,7 +112,7 @@ export default function AppLayout() {
           ))}
         </nav>
 
-        {/* 4. Logout icon at the bottom (red) */}
+        {/* Logout */}
         <div className="p-4 border-t border-gray-100 bg-gray-50">
           <div className="px-1 py-1 mb-3">
             <SecureBadge label="SSL Secured Session" size="sm" />
@@ -119,11 +127,11 @@ export default function AppLayout() {
         </div>
       </div>
 
-      {/* 7. The main content area takes full width when sidebar is hidden */}
+      {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden w-full relative z-0">
-        <Navbar 
+        <Navbar
           onMenuToggle={() => setSidebarOpen(v => !v)}
-          menuOpen={sidebarOpen} 
+          menuOpen={sidebarOpen}
         />
         <main className="flex-1 overflow-y-auto px-4 py-5 md:px-6 md:py-6 animate-fade-in bg-transparent w-full">
           <Outlet />
