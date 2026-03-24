@@ -77,7 +77,7 @@ export default function WorkerDashboard() {
   }
 
   return (
-    <div className="max-w-lg mx-auto space-y-5 pb-8 animate-fade-in">
+    <div className="space-y-5 pb-8 animate-fade-in w-full">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

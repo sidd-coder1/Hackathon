@@ -26,10 +26,9 @@ const workerNav = [
   { to: '/analytics',  label: 'Analytics',   icon: BarChart3 },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const [collapsed, setCollapsed] = useState(false)
   const navItems = user?.role === 'worker' ? workerNav 
                  : user?.role === 'supervisor' ? supervisorNav 
                  : userNav
@@ -41,33 +40,12 @@ export default function Sidebar() {
 
   return (
     <aside className={clsx(
-      'hidden md:flex flex-col h-screen sticky top-0 bg-white/90 backdrop-blur-xl border-r border-gray-200 transition-all duration-300 z-40 shadow-sm',
+      'hidden md:flex flex-col h-screen sticky top-0 bg-white/90 backdrop-blur-xl border-r border-gray-200 transition-all duration-300 ease-in-out z-40 shadow-sm',
       collapsed ? 'w-16' : 'w-64'
     )}>
-      {/* Logo */}
-      <div className="flex items-center gap-3 p-4 border-b border-gray-200 min-h-[64px]">
-        <img 
-          src="/emblem.svg" 
-          alt="Government of India" 
-          className="w-8 h-auto flex-shrink-0"
-        />
-        {!collapsed && (
-          <div className="min-w-0 border-l-2 border-saffron-500 pl-3 ml-1">
-            <h1 className="text-sm font-bold text-gray-900 truncate">SwachhDrishti</h1>
-            <p className="text-xs text-gray-500 truncate font-medium">Municipal Tracking</p>
-          </div>
-        )}
-        <button
-          onClick={() => setCollapsed(v => !v)}
-          className="ml-auto text-gray-500 hover:text-gray-900 transition-colors p-1 rounded-lg hover:bg-gray-100"
-        >
-          {collapsed ? <ChevronRight size={16} /> : <X size={16} />}
-        </button>
-      </div>
-
       {/* User Info */}
       {!collapsed && user && (
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-200 animate-fade-in">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-saffron-50 to-green-50 border border-saffron-200 flex items-center justify-center flex-shrink-0">
               <span className="text-sm font-bold text-gray-700">{user.name.charAt(0)}</span>
