@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { RoleBadge, SecureBadge } from '../ui/UIComponents'
 import {
   LayoutDashboard, Users, BarChart3, MapPin, Bell, LogOut,
-  Shield, Menu, X, ChevronRight, Settings, FileText
+  Shield, Menu, X, ChevronRight, Settings, FileText, Scan, Camera, Star, QrCode
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -14,8 +14,11 @@ const supervisorNav = [
 ]
 
 const userNav = [
-  { to: '/user',       label: 'Dashboard',   icon: LayoutDashboard, end: true },
-  { to: '/analytics',  label: 'Analytics',   icon: BarChart3 },
+  { to: '/user',          label: 'Dashboard',   icon: LayoutDashboard, end: true },
+  { to: '/user/scan',     label: 'Daily QR Code', icon: QrCode },
+  { to: '/user/report',   label: 'Report Issue', icon: Camera },
+  { to: '/user/feedback', label: 'Worker Feedback', icon: Star },
+  { to: '/analytics',     label: 'Analytics',    icon: BarChart3 },
 ]
 
 const workerNav = [

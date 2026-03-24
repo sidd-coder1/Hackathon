@@ -112,13 +112,6 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Top stat row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Avg Attendance"    value={`${88.4}%`}  color="green"   trend={2.3} />
-        <StatCard label="Perf. Score"       value="89.1"         color="saffron" trend={4.1} />
-        <StatCard label="Tasks/Day"         value="44.6"         color="blue"    trend={1.2} />
-        <StatCard label="GPS Compliance"    value={`${96.2}%`}  color="purple"  trend={0.7} />
-      </div>
 
       {/* Attendance Area Chart */}
       <div className="glass-card p-6">
