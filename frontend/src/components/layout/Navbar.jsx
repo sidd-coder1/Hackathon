@@ -9,6 +9,7 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -57,16 +58,58 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
 
         <div className="flex items-center gap-3 md:gap-4">
           {/* Notification bell */}
-          <button className="relative p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 group">
-            <Bell size={18} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_6px_rgba(239,68,68,0.8)] animate-pulse" />
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => {
+                setNotificationsOpen(v => !v);
+                if (profileOpen) setProfileOpen(false);
+              }}
+              className={clsx(
+                "relative p-2 rounded-xl text-gray-400 hover:text-white transition-all border border-transparent hover:border-white/10 group",
+                notificationsOpen ? "bg-white/10 text-white border-white/10" : "hover:bg-white/10"
+              )}
+            >
+              <Bell size={18} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_6px_rgba(239,68,68,0.8)] animate-pulse" />
+            </button>
+
+            {notificationsOpen && (
+              <div className="absolute right-0 top-full mt-2 w-72 md:w-80 glass-card p-0 shadow-2xl shadow-black/50 border border-white/10 z-50 overflow-hidden animate-fade-in">
+                <div className="px-4 py-3 border-b border-white/10 bg-white/5 flex justify-between items-center">
+                  <h3 className="text-sm font-bold text-white tracking-wide">Notifications</h3>
+                  <span className="text-[10px] bg-saffron-500 text-white px-2 py-0.5 rounded-full font-bold">2 New</span>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer relative bg-white/5">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-saffron-500" />
+                    <p className="text-[13px] font-bold text-white mb-1">New complaint registered</p>
+                    <p className="text-xs text-gray-400 leading-relaxed">Sector 7 dustbin area requires immediate cleanup operation.</p>
+                    <p className="text-[10px] text-saffron-400 mt-2 font-mono uppercase tracking-widest font-bold">10 mins ago</p>
+                  </div>
+                  <div className="p-4 hover:bg-white/5 transition-colors cursor-pointer">
+                    <p className="text-[13px] font-bold text-white mb-1">Attendance anomaly</p>
+                    <p className="text-xs text-gray-400 leading-relaxed">3 workers have marked themselves absent today in South Zone.</p>
+                    <p className="text-[10px] text-gray-500 mt-2 font-mono uppercase tracking-widest font-bold">1 hour ago</p>
+                  </div>
+                </div>
+                <div className="p-3 border-t border-white/10 bg-black/20 text-center cursor-pointer hover:bg-white/5 transition-colors text-xs text-saffron-500 font-bold uppercase tracking-widest">
+                  Mark all as read
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Profile */}
           <div className="relative">
             <button
-              onClick={() => setProfileOpen(v => !v)}
-              className="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+              onClick={() => {
+                setProfileOpen(v => !v);
+                if (notificationsOpen) setNotificationsOpen(false);
+              }}
+              className={clsx(
+                "flex items-center gap-3 p-1.5 pr-3 rounded-full transition-all border border-transparent hover:border-white/10",
+                profileOpen ? "bg-white/10 border-white/10" : "hover:bg-white/10"
+              )}
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-saffron-500 to-saffron-600 shadow-md flex items-center justify-center border border-saffron-400">
                 <span className="text-xs font-bold text-white shadow-sm">{user?.name?.charAt(0) || 'U'}</span>

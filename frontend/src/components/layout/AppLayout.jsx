@@ -59,13 +59,27 @@ export default function AppLayout() {
         'fixed md:relative top-0 left-0 h-full w-[280px] bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none flex-shrink-0',
         sidebarOpen ? 'translate-x-0 md:ml-0' : '-translate-x-full md:translate-x-0 md:-ml-[280px]'
       )}>
-        {/* Sidebar Header — only X close button */}
-        <div className="flex items-center justify-end p-5 border-b border-gray-100">
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-2 select-none">
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="flex flex-col items-center justify-center gap-[5px] w-8 h-8 rounded-xl hover:bg-gray-100 transition-all flex-shrink-0 group"
+              aria-label="Close menu"
+            >
+              <span className="block w-5 h-[2px] rounded-full bg-saffron-500 group-hover:bg-saffron-600 transition-colors" />
+              <span className="block w-4 h-[2px] rounded-full bg-gray-600 group-hover:bg-gray-900 transition-colors" />
+              <span className="block w-5 h-[2px] rounded-full bg-gray-600 group-hover:bg-gray-900 transition-colors" />
+            </button>
+            <div className="flex flex-col ml-1">
+              <span className="text-sm font-bold text-gray-900 leading-tight tracking-tight">SwachhDrishti</span>
+            </div>
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
             className="text-gray-400 hover:text-gray-900 p-1.5 rounded-xl hover:bg-gray-100 transition-all"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
