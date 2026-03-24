@@ -1,5 +1,5 @@
 import { db } from "../firebase";
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, updateDoc, doc } from "firebase/firestore";
 
 // ✅ Add User
 export const addUser = async (data) => {
@@ -27,4 +27,48 @@ export const getAttendance = async () => {
         id: doc.id,
         ...doc.data()
     }));
+};
+
+// ✅ Check if attendance exists
+export const checkAttendanceExists = async (userId, date) => {
+    const q = query(collection(db, "attendance"), where("userId", "==", userId), where("date", "==", date));
+    const snapshot = await getDocs(q);
+    return !snapshot.empty;
+};
+
+// ✅ Update User Stats
+export const updateUserStats = async (userId) => {
+    const q = query(collection(db, "users"), where("id", "==", userId));
+    const snapshot = await getDocs(q);
+    
+    if (!snapshot.empty) {
+        const userDoc = snapshot.docs[0];
+        const userData = userDoc.data();
+        
+        const currentScore = userData.score || 0;
+        const currentStreak = userData.streak || 0;
+        const totalAttendance = userData.totalAttendance || 0;
+        const lastDate = userData.lastAttendanceDate;
+        
+        const today = new Date().toISOString().split('T')[0];
+        
+        if (lastDate === today) return null; // Already updated today
+        
+        let newStreak = currentStreak + 1;
+        let newScore = currentScore + 10;
+        
+        if (newStreak % 5 === 0) {
+            newScore += 20; // Bonus
+        }
+        
+        await updateDoc(doc(db, "users", userDoc.id), {
+            score: newScore,
+            streak: newStreak,
+            totalAttendance: totalAttendance + 1,
+            lastAttendanceDate: today
+        });
+        
+        return { score: newScore, streak: newStreak };
+    }
+    return null;
 };

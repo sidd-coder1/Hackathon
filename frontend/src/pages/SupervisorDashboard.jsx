@@ -1,5 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { getUsers, getAttendance } from '../services/firebaseService'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
+
+const createCustomIcon = (status) => L.divIcon({
+  html: `<div class="w-3.5 h-3.5 rounded-full border-2 border-white shadow-lg ${status === 'active' ? 'bg-green-500 animate-pulse-slow' : 'bg-red-500'}"></div>`,
+  className: '',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7]
+})
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -30,48 +39,74 @@ function CustomTooltip({ active, payload, label }) {
   )
 }
 
-function MapPlaceholder() {
-  return (
-    <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
-      <div className="absolute inset-0"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-gray-200" />
+function RealTimeMap({ attendanceList }) {
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
 
-      {[
-        { top: '20%', left: '30%', color: 'bg-green-500', name: 'WRK-1001' },
-        { top: '45%', left: '55%', color: 'bg-green-500', name: 'WRK-1004' },
-        { top: '30%', left: '70%', color: 'bg-green-500', name: 'WRK-1006' },
-        { top: '60%', left: '25%', color: 'bg-red-500',   name: 'WRK-1003' },
-        { top: '70%', left: '65%', color: 'bg-amber-500', name: 'WRK-1005' },
-        { top: '55%', left: '42%', color: 'bg-green-500', name: 'WRK-1007' },
-      ].map((pin, i) => (
-        <div
-          key={i}
-          className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
-          style={{ top: pin.top, left: pin.left }}
-        >
-          <div className={clsx('w-3.5 h-3.5 rounded-full border-2 border-white shadow-lg', pin.color, 'animate-pulse-slow')} />
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-white rounded-lg text-xs text-gray-800 shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-gray-200">
-            {pin.name}
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+    const map = L.map(mapContainerRef.current).setView([28.6448, 77.2167], 11);
+    
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+    
+    mapInstanceRef.current = map;
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    map.eachLayer((layer) => {
+      if (layer instanceof L.Marker) {
+        map.removeLayer(layer);
+      }
+    });
+
+    const today = new Date().toISOString().split('T')[0];
+    const activePins = attendanceList.filter(a => a.date === today && a.location);
+
+    activePins.forEach(pin => {
+      if (pin.location?.lat && pin.location?.lng) {
+        const marker = L.marker([pin.location.lat, pin.location.lng], {
+          icon: createCustomIcon('active')
+        }).addTo(map);
+        
+        const timeStr = pin.timestamp ? new Date(pin.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+        marker.bindPopup(`
+          <div class="p-1 -m-1 min-w-[140px] font-sans">
+            <p class="font-bold text-gray-900 text-sm mb-0.5">${pin.userName || 'Unknown Worker'}</p>
+            <div class="flex items-center gap-1.5 text-xs text-green-600 font-medium mb-1">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Active Now
+            </div>
+            <p class="text-[10px] text-gray-500 mt-1">${pin.ward || 'Unknown Ward'}</p>
+            <p class="text-[10px] text-gray-400">Verified: ${timeStr}</p>
           </div>
-        </div>
-      ))}
+        `);
+      }
+    });
+  }, [attendanceList]);
 
-      <div className="absolute top-3 left-3 glass-card px-3 py-1.5 text-xs flex items-center gap-2">
+  const today = new Date().toISOString().split('T')[0];
+  const activePinsCount = attendanceList.filter(a => a.date === today && a.location).length;
+
+  return (
+    <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200" style={{ isolation: 'isolate' }}>
+      <div ref={mapContainerRef} className="w-full h-full z-0" />
+      
+      <div className="absolute top-3 left-3 px-3 py-1.5 text-xs flex items-center gap-2 z-[400] shadow-sm bg-white/95 backdrop-blur-md border border-gray-100/50 rounded-lg">
         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-        <span className="text-green-600 font-medium">Live Tracking</span>
+        <span className="text-green-600 font-bold tracking-wide uppercase text-[10px] mt-0.5">Live Tracking</span>
       </div>
-      <div className="absolute top-3 right-3 glass-card px-3 py-1.5 text-xs text-gray-600">
-        New Delhi Region
-      </div>
-      <div className="absolute bottom-3 left-3 flex items-center gap-3 text-xs text-gray-700">
-        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-green-500" /> Active</span>
-        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Offline</span>
-        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> On Leave</span>
+      <div className="absolute bottom-3 left-3 flex items-center gap-3 text-[10px] font-bold tracking-wide text-gray-600 z-[400] px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-lg shadow-sm border border-gray-100/50">
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-green-500" /> ACTIVE ({activePinsCount})</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-400" /> OFFLINE</span>
       </div>
     </div>
   )
@@ -100,10 +135,12 @@ function CivicTrustScore({ score = 84.7 }) {
 export default function SupervisorDashboard() {
   const [dismissedAlerts, setDismissedAlerts] = useState([])
   const [refreshing, setRefreshing] = useState(false)
+  const [realAttendance, setRealAttendance] = useState([])
 
   const loadData = async () => {
     try {
-      await Promise.all([getUsers(), getAttendance()])
+      const [users, attendance] = await Promise.all([getUsers(), getAttendance()])
+      setRealAttendance(attendance)
     } catch (err) {
       console.error(err)
     }
@@ -155,9 +192,9 @@ export default function SupervisorDashboard() {
             <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
               <MapPin size={16} className="text-saffron-500" /> Ward Real-time Map
             </h2>
-            <Badge variant="success">6 Active Pins</Badge>
+            <Badge variant="success">{realAttendance.filter(a => a.date === new Date().toISOString().split('T')[0]).length} Active Pins</Badge>
           </div>
-          <MapPlaceholder />
+          <RealTimeMap attendanceList={realAttendance} />
         </div>
         <CivicTrustScore score={stats.civicTrustScore} />
       </div>

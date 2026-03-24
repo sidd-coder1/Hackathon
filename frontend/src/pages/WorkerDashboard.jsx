@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { MapPin, Camera, CheckCircle2, AlertCircle, ChevronRight, Battery, Wifi, Fingerprint, ImagePlus } from 'lucide-react'
+import { MapPin, Camera, CheckCircle2, AlertCircle, ChevronRight, Battery, Wifi, Fingerprint, ImagePlus, X } from 'lucide-react'
 import { StatCard, Badge, StatusDot, Spinner } from '../components/ui/UIComponents'
 import clsx from 'clsx'
-import { addAttendance } from '../services/firebaseService'
+import { addAttendance, checkAttendanceExists, updateUserStats } from '../services/firebaseService'
+import { Scanner } from '@yudiel/react-qr-scanner'
 
 export default function WorkerDashboard() {
   const { user } = useAuth()
@@ -25,39 +26,77 @@ export default function WorkerDashboard() {
     return () => clearInterval(timer)
   }, [])
 
-  const handleMarkAttendance = async () => {
-    if (gpsStatus !== 'active') return
-    setMarkingLoading(true)
+  const [showScanner, setShowScanner] = useState(false)
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        
-        const attendanceData = {
-          userId: user?.id || 'unknown',
-          userName: user?.name || 'Unknown User',
-          role: user?.role || 'worker',
-          ward: user?.ward || 'Unknown Ward',
-          timestamp: new Date().toISOString(),
-          location: { lat, lng }
-        };
-        
-        try {
-          await addAttendance(attendanceData);
-          setAttendanceMarked(true);
-        } catch (error) {
-          console.error("Error marking attendance:", error);
-        } finally {
-          setMarkingLoading(false);
-        }
-      }, (error) => {
-        console.error("Geolocation error:", error);
+  const handleDisplayScanner = () => {
+    if (gpsStatus !== 'active') return
+    setShowScanner(true)
+  }
+
+  const handleScan = async (result) => {
+    if (!result || !result.length) return;
+    const qrValue = result[0].rawValue;
+    
+    try {
+      const data = JSON.parse(qrValue);
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (data.date !== today) {
+        alert("This QR code is not valid for today.");
+        setShowScanner(false);
+        return;
+      }
+
+      setShowScanner(false);
+      setMarkingLoading(true);
+
+      const exists = await checkAttendanceExists(user?.id, today);
+      if (exists) {
+        alert("Attendance already marked for today.");
         setMarkingLoading(false);
-      });
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-      setMarkingLoading(false);
+        return;
+      }
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          const attendanceData = {
+            userId: user?.id || 'unknown',
+            userName: user?.name || 'Unknown User',
+            role: user?.role || 'worker',
+            ward: user?.ward || 'Unknown Ward',
+            date: today,
+            timestamp: new Date().toISOString(),
+            location: { lat, lng },
+            qrToken: data.token,
+            verified: true
+          };
+          
+          try {
+            await addAttendance(attendanceData);
+            await updateUserStats(user?.id);
+            setAttendanceMarked(true);
+          } catch (error) {
+            console.error("Error saving attendance:", error);
+            alert("Failed to save attendance.");
+          } finally {
+            setMarkingLoading(false);
+          }
+        }, (error) => {
+          console.error("Geolocation error:", error);
+          alert("Failed to get location.");
+          setMarkingLoading(false);
+        });
+      } else {
+        alert("Geolocation is not supported by this browser.");
+        setMarkingLoading(false);
+      }
+    } catch (e) {
+      console.error("Invalid QR format", e);
+      alert("Invalid QR format. Please scan a valid SwachhDrishti QR code.");
+      setShowScanner(false);
     }
   }
 
@@ -179,7 +218,7 @@ export default function WorkerDashboard() {
           ) : (
             <div className="space-y-4 text-center">
               <button
-                onClick={handleMarkAttendance}
+                onClick={handleDisplayScanner}
                 disabled={gpsStatus !== 'active' || markingLoading}
                 className={clsx(
                   'w-32 h-32 mx-auto rounded-full border-4 flex flex-col items-center justify-center gap-2 transition-all duration-300 active:scale-95 shadow-lg',
@@ -206,6 +245,23 @@ export default function WorkerDashboard() {
           )}
         </div>
       </div>
+
+      {showScanner && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4 animate-fade-in">
+           <div className="w-full max-w-sm bg-white rounded-3xl overflow-hidden relative shadow-2xl">
+              <div className="p-4 bg-gray-900 flex justify-between items-center text-white">
+                  <h3 className="font-bold text-sm">Scan Supervisor QR</h3>
+                  <button onClick={() => setShowScanner(false)} className="p-2 hover:bg-gray-800 rounded-full transition-colors"><X size={20} /></button>
+              </div>
+              <div className="bg-black">
+                  <Scanner onScan={handleScan} />
+              </div>
+              <div className="p-4 text-center bg-white">
+                  <p className="text-xs text-gray-500">Align the QR code within the frame to scan.</p>
+              </div>
+           </div>
+        </div>
+      )}
 
       {/* Quick stats row */}
       <div className="grid grid-cols-3 gap-3">
