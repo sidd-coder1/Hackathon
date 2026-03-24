@@ -1,42 +1,31 @@
 import React, { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { LayoutDashboard, Users, BarChart3, MapPin, Bell, LogOut, ShieldCheck, CheckCircle2 } from 'lucide-react'
 import { RoleBadge, SecureBadge } from '../ui/UIComponents'
-import {
-  LayoutDashboard, Users, BarChart3, MapPin, Bell, LogOut,
-  Shield, Menu, X, ChevronRight, Settings, FileText, Scan, Camera, Star, QrCode
-} from 'lucide-react'
 import clsx from 'clsx'
 
 const supervisorNav = [
-  { to: '/supervisor',         label: 'Dashboard',   icon: LayoutDashboard, end: true },
-  { to: '/supervisor/workers', label: 'Worker Info', icon: Users },
-  { to: '/analytics',         label: 'Analytics',   icon: BarChart3 },
-]
-
-const userNav = [
-  { to: '/user',          label: 'Dashboard',   icon: LayoutDashboard, end: true },
-  { to: '/user/scan',     label: 'Daily QR Code', icon: QrCode },
-  { to: '/user/report',   label: 'Report Issue', icon: Camera },
-  { to: '/user/feedback', label: 'Worker Feedback', icon: Star },
-  { to: '/analytics',     label: 'Analytics',    icon: BarChart3 },
+  { to: '/supervisor',         label: 'Monitor Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/supervisor/workers', label: 'Worker Info',       icon: Users },
+  { to: '/analytics',          label: 'Analytics',         icon: BarChart3 },
 ]
 
 const workerNav = [
-  { to: '/worker',     label: 'Dashboard',   icon: LayoutDashboard, end: true },
-  { to: '/analytics',  label: 'Analytics',   icon: BarChart3 },
+  { to: '/worker',     label: 'Daily Tasks',       icon: LayoutDashboard, end: true },
+  { to: '/analytics',  label: 'Performance',       icon: BarChart3 },
 ]
 
-<<<<<<< HEAD
+const userNav = [
+  { to: '/user/scan',     label: 'Daily QR Code',   icon: ShieldCheck },
+  { to: '/user/report',   label: 'Report Issue',    icon: CheckCircle2 },
+  { to: '/user/feedback', label: 'Worker Feedback', icon: Star },
+  { to: '/analytics',     label: 'Analytics',       icon: BarChart3 },
+]
+
 export default function Sidebar({ collapsed }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-=======
-export default function Sidebar({ collapsed, setCollapsed }) {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
-  // Remove local state: const [collapsed, setCollapsed] = useState(false)
->>>>>>> d5bb634cdbf90078af48ac70fb6ce513e2e72346
   const navItems = user?.role === 'worker' ? workerNav 
                  : user?.role === 'supervisor' ? supervisorNav 
                  : userNav
@@ -48,91 +37,59 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
   return (
     <aside className={clsx(
-<<<<<<< HEAD
       'hidden md:flex flex-col h-screen sticky top-0 bg-white/90 backdrop-blur-xl border-r border-gray-200 transition-all duration-300 ease-in-out z-40 shadow-sm',
       collapsed ? 'w-16' : 'w-64'
     )}>
       {/* User Info */}
       {!collapsed && user && (
-        <div className="p-4 border-b border-gray-200 animate-fade-in">
-=======
-      'hidden md:flex flex-col h-screen sticky top-0 bg-white border-r border-gray-100 transition-all duration-300 z-40 shadow-[4px_0_24px_rgba(0,0,0,0.02)]',
-      collapsed ? 'w-16' : 'w-64'
-    )}>
-      {/* Spacer for Global Logo (Fixed in AppLayout) */}
-      <div className="h-16 flex-shrink-0" />
-
-      {/* User Info */}
-      {!collapsed && user && (
-        <div className="mx-4 my-2 p-4 bg-gray-50/50 rounded-2xl border border-gray-100/50">
->>>>>>> d5bb634cdbf90078af48ac70fb6ce513e2e72346
+        <div className="p-4 border-b border-gray-200 animate-fade-in bg-gray-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-200">
-              <span className="text-sm font-bold text-white">{user.name.charAt(0)}</span>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-saffron-50 to-green-50 border border-saffron-200 flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-bold text-gray-700">{user.name.charAt(0)}</span>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{user.employeeId}</p>
+              <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
+              <p className="text-xs text-gray-500 truncate">{user.employeeId}</p>
             </div>
           </div>
-          <div className="mt-4">
+          <div className="mt-3">
             <RoleBadge role={user.role} />
           </div>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
             className={({ isActive }) => clsx(
-              'group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 font-medium text-sm',
-              isActive 
-                ? 'bg-orange-50 text-orange-600 shadow-sm shadow-orange-100' 
-                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+              'sidebar-item', isActive && 'active'
             )}
             title={collapsed ? label : undefined}
           >
-            <div className="flex items-center justify-center w-6 h-6 flex-shrink-0">
-              <Icon size={20} />
-            </div>
-            {!collapsed && <span className="animate-fade-in">{label}</span>}
-            
-            {/* Active Indicator Bar */}
-            <NavLink
-              to={to}
-              end={end}
-              className={({ isActive }) => clsx(
-                "absolute left-0 w-1 h-6 bg-orange-500 rounded-r-full transition-all duration-300",
-                isActive ? "opacity-100" : "opacity-0"
-              )}
-            />
+            <Icon size={18} className="flex-shrink-0" />
+            {!collapsed && <span>{label}</span>}
           </NavLink>
         ))}
       </nav>
 
-      {/* Bottom Section */}
-      <div className="p-3 border-t border-gray-100 space-y-1">
+      {/* Bottom */}
+      <div className="p-3 border-t border-gray-200 space-y-1">
         {!collapsed && (
           <div className="px-4 py-2 mb-2">
-            <SecureBadge label="Session Secure" size="sm" />
+            <SecureBadge label="Secure Session" size="sm" />
           </div>
         )}
         <button
           onClick={handleLogout}
-          className={clsx(
-            "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium",
-            "text-gray-500 hover:bg-red-50 hover:text-red-600"
-          )}
+          className="sidebar-item w-full text-red-500 hover:text-red-600 hover:bg-red-50"
           title={collapsed ? 'Logout' : undefined}
         >
-          <div className="flex items-center justify-center w-6 h-6 flex-shrink-0">
-            <LogOut size={20} />
-          </div>
-          {!collapsed && <span className="animate-fade-in">Sign Out</span>}
+          <LogOut size={18} className="flex-shrink-0" />
+          {!collapsed && <span>Logout</span>}
         </button>
       </div>
     </aside>

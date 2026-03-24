@@ -2,24 +2,19 @@ import React, { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import { useAuth } from '../../context/AuthContext'
-import { QrCode, Camera, Star, BarChart3, X, LogOut, ShieldCheck, LayoutDashboard } from 'lucide-react'
+import { QrCode, Camera, Star, BarChart3, X, LogOut, ShieldCheck, LayoutDashboard, Users } from 'lucide-react'
 import { SecureBadge, RoleBadge } from '../ui/UIComponents'
 import clsx from 'clsx'
 
 const supervisorNav = [
-<<<<<<< HEAD
-  { to: '/supervisor', label: 'Monitor Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/analytics',  label: 'Analytics',         icon: BarChart3 },
+  { to: '/supervisor',         label: 'Monitor Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/supervisor/workers', label: 'Worker Info',       icon: Users },
+  { to: '/analytics',          label: 'Analytics',         icon: BarChart3 },
 ]
 
 const workerNav = [
   { to: '/worker',     label: 'Daily Tasks',       icon: LayoutDashboard, end: true },
   { to: '/analytics',  label: 'Performance',       icon: BarChart3 },
-=======
-  { to: '/supervisor',         label: 'Dashboard',   icon: LayoutDashboard, end: true },
-  { to: '/supervisor/workers', label: 'Worker Info', icon: Users },
-  { to: '/analytics',         label: 'Analytics',   icon: BarChart3 },
->>>>>>> d5bb634cdbf90078af48ac70fb6ce513e2e72346
 ]
 
 const userNav = [
@@ -30,21 +25,14 @@ const userNav = [
 ]
 
 export default function AppLayout() {
-<<<<<<< HEAD
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-=======
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const { user } = useAuth()
->>>>>>> d5bb634cdbf90078af48ac70fb6ce513e2e72346
   const navItems = user?.role === 'worker' ? workerNav 
                  : user?.role === 'supervisor' ? supervisorNav 
                  : userNav
 
-<<<<<<< HEAD
   const handleLogout = () => {
     logout()
     navigate('/')
@@ -98,66 +86,14 @@ export default function AppLayout() {
 
         {/* Specific Navigation Items */}
         <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
-=======
-  return (
-    <div className="min-h-screen bg-[#FDFDFD]">
-      {/* Global Logo Header - Fixed Top Left */}
-      <div className={clsx(
-        "fixed top-0 left-0 h-16 flex items-center px-4 z-[60] transition-all duration-300 pointer-events-none",
-        sidebarCollapsed ? "w-16 justify-center" : "w-64"
-      )}>
-        <div className="flex items-center gap-3 pointer-events-auto">
-          <img 
-            src="/emblem.svg" 
-            alt="Government of India" 
-            className="w-8 h-auto flex-shrink-0"
-          />
-          {!sidebarCollapsed && (
-            <div className="hidden md:block border-l-2 border-orange-500 pl-3 animate-fade-in whitespace-nowrap">
-              <h1 className="text-sm font-bold text-gray-900 leading-tight">SwachhDrishti</h1>
-              <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Department of Housing</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Desktop Sidebar */}
-      <div className={clsx(
-        "fixed top-0 left-0 h-full z-40 transition-all duration-300 hidden md:block",
-        sidebarCollapsed ? "w-16" : "w-64"
-      )}>
-        <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
-      </div>
-
-      {/* Mobile Drawer */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70] md:hidden animate-fade-in"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
-      <div className={clsx(
-        'fixed top-0 left-0 h-full w-72 bg-white z-[80] transform transition-transform duration-300 ease-out md:hidden shadow-2xl',
-        menuOpen ? 'translate-x-0' : '-translate-x-full'
-      )}>
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <img src="/emblem.svg" className="w-8 h-auto" alt="Logo" />
-            <span className="font-bold text-gray-900">SwachhDrishti</span>
-          </div>
-          <button onClick={() => setMenuOpen(false)} className="text-gray-400 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors">
-            <X size={20} />
-          </button>
-        </div>
-        <nav className="p-4 space-y-1.5">
->>>>>>> d5bb634cdbf90078af48ac70fb6ce513e2e72346
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
-<<<<<<< HEAD
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => {
+                if(window.innerWidth < 768) setSidebarOpen(false);
+              }}
               className={({ isActive }) => clsx(
                 'flex items-center gap-3 px-3 py-3 rounded-xl transition-all font-semibold text-sm',
                 isActive 
@@ -166,15 +102,6 @@ export default function AppLayout() {
               )}
             >
               <Icon size={18} className="flex-shrink-0" />
-=======
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) => clsx(
-                'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all',
-                isActive ? 'bg-orange-50 text-orange-600 shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              )}
-            >
-              <Icon size={20} />
->>>>>>> d5bb634cdbf90078af48ac70fb6ce513e2e72346
               <span>{label}</span>
             </NavLink>
           ))}
@@ -195,7 +122,6 @@ export default function AppLayout() {
         </div>
       </div>
 
-<<<<<<< HEAD
       {/* 7. The main content area takes full width when sidebar is hidden */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden w-full relative z-0">
         <Navbar 
@@ -204,23 +130,6 @@ export default function AppLayout() {
         />
         <main className="flex-1 overflow-y-auto px-4 py-5 md:px-6 md:py-6 animate-fade-in bg-transparent w-full">
           <Outlet />
-=======
-      {/* Main Content Area */}
-      <div className={clsx(
-        "transition-all duration-300 min-h-screen flex flex-col",
-        sidebarCollapsed ? "md:pl-16" : "md:pl-64"
-      )}>
-        <Navbar 
-          onMenuToggle={() => setMenuOpen(v => !v)} 
-          menuOpen={menuOpen}
-          onSidebarToggle={() => setSidebarCollapsed(v => !v)}
-          sidebarCollapsed={sidebarCollapsed}
-        />
-        <main className="flex-1 p-4 md:p-8">
-          <div className="max-w-[1600px] mx-auto animate-fade-in">
-            <Outlet />
-          </div>
->>>>>>> d5bb634cdbf90078af48ac70fb6ce513e2e72346
         </main>
       </div>
     </div>
