@@ -55,14 +55,8 @@ export default function AppLayout() {
         'fixed md:relative top-0 left-0 h-full w-[280px] bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none flex-shrink-0',
         sidebarOpen ? 'translate-x-0 md:ml-0' : '-translate-x-full md:translate-x-0 md:-ml-[280px]'
       )}>
-<<<<<<< HEAD
         {/* Sidebar Header — hamburger toggle lives here */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
-=======
-
-        {/* Sidebar Header — only X close button, no Quick Menu */}
-        <div className="flex items-center justify-end p-5 border-b border-gray-100">
->>>>>>> 7e1276704ac37b3a278b8e279293df0f8c9a491a
           <button
             onClick={() => setSidebarOpen(v => !v)}
             className="flex flex-col items-center justify-center gap-[5px] w-9 h-9 rounded-xl hover:bg-gray-100 transition-all group"
