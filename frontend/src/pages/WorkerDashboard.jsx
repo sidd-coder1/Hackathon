@@ -3,15 +3,11 @@ import { useAuth } from '../context/AuthContext'
 import { MapPin, Camera, CheckCircle2, AlertCircle, ChevronRight, Battery, Wifi, Fingerprint, ImagePlus, X } from 'lucide-react'
 import { StatCard, Badge, StatusDot, Spinner } from '../components/ui/UIComponents'
 import clsx from 'clsx'
-<<<<<<< Updated upstream
 import { addAttendance, checkAttendanceExists, updateUserStats } from '../services/firebaseService'
 import { Scanner } from '@yudiel/react-qr-scanner'
-=======
-import { addAttendance } from '../services/firebaseService'
 import { storage, db } from '../firebase'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
->>>>>>> Stashed changes
 
 export default function WorkerDashboard() {
   const { user } = useAuth()

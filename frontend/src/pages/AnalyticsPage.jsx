@@ -24,44 +24,16 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 // Chart 1 Data: Attendance Bar Chart by Date
-const attendanceBarData = [
-  { date: 'Mon', present: 120, absent: 12, leave: 5 },
-  { date: 'Tue', present: 130, absent: 8, leave: 4 },
-  { date: 'Wed', present: 125, absent: 10, leave: 6 },
-  { date: 'Thu', present: 135, absent: 5, leave: 3 },
-  { date: 'Fri', present: 128, absent: 9, leave: 6 },
-  { date: 'Sat', present: 110, absent: 15, leave: 2 },
-  { date: 'Sun', present: 105, absent: 18, leave: 2 }
-];
+const attendanceBarData = [];
 
 // Chart 2 Data: Task Completion Pie Chart
-const taskCompletionData = [
-  { name: 'Completed', value: 450, color: '#138808' }, // Green
-  { name: 'In Progress', value: 120, color: '#FF9933' }, // Saffron
-  { name: 'Pending', value: 30, color: '#ef4444' } // Red
-];
+const taskCompletionData = [];
 
 // Chart 3 Data: Zone wise Complaint Heatmap (Scatter)
-const zoneCategories = ['North Zone', 'South Zone', 'East Zone', 'West Zone', 'Central'];
-const issueCategories = ['Garbage', 'Drainage', 'Dustbins', 'Sweeping'];
-const complaintHeatmapData = zoneCategories.flatMap((zone, zoneIdx) => 
-  issueCategories.map((issue, issueIdx) => ({
-    zone,
-    issue,
-    count: Math.floor(Math.random() * 50) + 5,
-  }))
-);
+const complaintHeatmapData = [];
 
 // Chart 4 Data: Worker Performance Line Chart
-const workerPerformanceData = [
-  { day: 'Day 1', score: 75 },
-  { day: 'Day 2', score: 82 },
-  { day: 'Day 3', score: 80 },
-  { day: 'Day 4', score: 88 },
-  { day: 'Day 5', score: 92 },
-  { day: 'Day 6', score: 85 },
-  { day: 'Day 7', score: 95 }
-];
+const workerPerformanceData = [];
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState('week')
