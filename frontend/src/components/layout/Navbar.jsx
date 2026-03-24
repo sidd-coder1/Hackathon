@@ -18,12 +18,18 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
   return (
     <header className="sticky top-0 z-50 h-16 flex items-center px-4 md:px-6 bg-gradient-to-r from-gray-900 via-gray-900/95 to-black/90 backdrop-blur-md border-b border-saffron-500/50 shadow-[0_4px_20px_-4px_rgba(255,153,51,0.15)] gap-2">
       
-      {/* Universal menu toggle */}
+      {/* Menu toggle - visible on mobile, or on desktop when sidebar is closed */}
       <button
         onClick={onMenuToggle}
-        className="mr-3 p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+        className={clsx(
+          "mr-3 flex flex-col items-center justify-center gap-[5px] w-9 h-9 rounded-xl hover:bg-white/10 transition-all flex-shrink-0 group",
+          menuOpen ? "md:hidden" : "flex"
+        )}
+        aria-label="Toggle menu"
       >
-        <Menu size={22} />
+        <span className="block w-5 h-[2px] rounded-full bg-saffron-400 group-hover:bg-saffron-300 transition-colors" />
+        <span className="block w-4 h-[2px] rounded-full bg-gray-400 group-hover:bg-white transition-colors" />
+        <span className="block w-5 h-[2px] rounded-full bg-gray-400 group-hover:bg-white transition-colors" />
       </button>
 
       {/* Logo (Always Visible & Non-Toggleable) */}
