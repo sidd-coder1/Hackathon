@@ -28,10 +28,16 @@ const workerNav = [
   { to: '/analytics',       label: 'Analytics',      icon: BarChart3 },
 ]
 
+<<<<<<< HEAD
+export default function Sidebar({ collapsed }) {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+=======
 export default function Sidebar({ collapsed, setCollapsed }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   // Remove local state: const [collapsed, setCollapsed] = useState(false)
+>>>>>>> d5bb634cdbf90078af48ac70fb6ce513e2e72346
   const navItems = user?.role === 'worker' ? workerNav 
                  : user?.role === 'supervisor' ? supervisorNav 
                  : userNav
@@ -43,6 +49,14 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
   return (
     <aside className={clsx(
+<<<<<<< HEAD
+      'hidden md:flex flex-col h-screen sticky top-0 bg-white/90 backdrop-blur-xl border-r border-gray-200 transition-all duration-300 ease-in-out z-40 shadow-sm',
+      collapsed ? 'w-16' : 'w-64'
+    )}>
+      {/* User Info */}
+      {!collapsed && user && (
+        <div className="p-4 border-b border-gray-200 animate-fade-in">
+=======
       'hidden md:flex flex-col h-screen sticky top-0 bg-white border-r border-gray-100 transition-all duration-300 z-40 shadow-[4px_0_24px_rgba(0,0,0,0.02)]',
       collapsed ? 'w-16' : 'w-64'
     )}>
@@ -52,6 +66,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
       {/* User Info */}
       {!collapsed && user && (
         <div className="mx-4 my-2 p-4 bg-gray-50/50 rounded-2xl border border-gray-100/50">
+>>>>>>> d5bb634cdbf90078af48ac70fb6ce513e2e72346
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-200">
               <span className="text-sm font-bold text-white">{user.name.charAt(0)}</span>
