@@ -8,8 +8,9 @@ import { LayoutDashboard, Users, BarChart3, MapPin, Bell, X } from 'lucide-react
 import clsx from 'clsx'
 
 const supervisorNav = [
-  { to: '/supervisor', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/analytics',  label: 'Analytics', icon: BarChart3 },
+  { to: '/supervisor',         label: 'Dashboard',   icon: LayoutDashboard, end: true },
+  { to: '/supervisor/workers', label: 'Worker Info', icon: Users },
+  { to: '/analytics',         label: 'Analytics',   icon: BarChart3 },
 ]
 
 const userNav = [

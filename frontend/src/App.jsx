@@ -9,6 +9,7 @@ import WorkerDashboard from './pages/WorkerDashboard'
 import AnalyticsPage from './pages/AnalyticsPage'
 import UserDashboard from './pages/UserDashboard'
 import SupervisorDashboard from './pages/SupervisorDashboard'
+import WorkerInfoPage from './pages/WorkerInfoPage'
 
 // Simple placeholder pages for sub-routes
 
@@ -66,6 +67,11 @@ function AppRoutes() {
         <Route path="/supervisor" element={
           <ProtectedRoute roles={['supervisor']}>
             <SupervisorDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/supervisor/workers" element={
+          <ProtectedRoute roles={['supervisor']}>
+            <WorkerInfoPage />
           </ProtectedRoute>
         } />
 
