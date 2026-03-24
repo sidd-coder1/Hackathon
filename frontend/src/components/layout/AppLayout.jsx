@@ -25,7 +25,7 @@ export default function AppLayout() {
   const navItems = user?.role === 'worker' ? workerNav : adminNav
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
       {/* Desktop Sidebar */}
       <Sidebar />
 
@@ -67,7 +67,7 @@ export default function AppLayout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Navbar onMenuToggle={() => setMenuOpen(v => !v)} menuOpen={menuOpen} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in bg-transparent">
           <Outlet />
         </main>
       </div>

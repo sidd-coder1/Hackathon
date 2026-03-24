@@ -22,7 +22,7 @@ export default function LandingPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 overflow-hidden">
+    <div className="min-h-screen text-gray-900 overflow-hidden">
       {/* Tricolor top bar */}
       <div className="h-1 bg-gradient-to-r from-saffron-500 via-white to-brand-green" />
 

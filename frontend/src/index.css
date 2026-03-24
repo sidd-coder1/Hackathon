@@ -14,8 +14,9 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+    @apply text-gray-900 font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    background-color: rgba(249, 250, 251, 0.85); /* gray-50 at 85% — aurora bleeds through */
   }
 
   ::-webkit-scrollbar {
