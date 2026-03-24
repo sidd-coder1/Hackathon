@@ -1,0 +1,119 @@
+import React from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import AppLayout from './components/layout/AppLayout'
+import LandingPage from './pages/LandingPage'
+import LoginPage from './pages/LoginPage'
+import AdminDashboard from './pages/AdminDashboard'
+import WorkerDashboard from './pages/WorkerDashboard'
+import AnalyticsPage from './pages/AnalyticsPage'
+
+// Simple placeholder pages for sub-routes
+
+function PlaceholderPage({ title }) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
+      <div className="glass-card p-10 text-center max-w-sm">
+        <div className="text-4xl mb-4">🚧</div>
+        <h2 className="text-lg font-bold text-white mb-2">{title}</h2>
+        <p className="text-sm text-gray-500">This section is under active development.</p>
+      </div>
+    </div>
+  )
+}
+
+function ProtectedRoute({ children, roles }) {
+  const { user, isAuthenticated } = useAuth()
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+  if (roles && !roles.includes(user.role)) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
+      <div className="glass-card p-10 text-center max-w-sm border border-red-500/30">
+        <div className="text-4xl mb-4">🚫</div>
+        <h2 className="text-lg font-bold text-red-400 mb-2">Access Denied</h2>
+        <p className="text-sm text-gray-500">You don't have permission to view this page.</p>
+        <p className="text-xs text-gray-600 mt-2">Role required: {roles.join(' / ')}</p>
+      </div>
+    </div>
+  )
+  return children
+}
+
+function AppRoutes() {
+  const { user, isAuthenticated } = useAuth()
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/login"
+        element={
+          isAuthenticated
+            ? <Navigate to={user.role === 'worker' ? '/worker' : '/admin'} replace />
+            : <LoginPage />
+        }
+      />
+
+      {/* Protected layout routes */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
+        {/* Admin routes */}
+        <Route path="/admin" element={
+          <ProtectedRoute roles={['admin', 'supervisor']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/workers" element={
+          <ProtectedRoute roles={['admin', 'supervisor']}>
+            <PlaceholderPage title="Workers Management" />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/map" element={
+          <ProtectedRoute roles={['admin', 'supervisor']}>
+            <PlaceholderPage title="Full Live Map View" />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/alerts" element={
+          <ProtectedRoute roles={['admin', 'supervisor']}>
+            <PlaceholderPage title="Alerts & Notifications Center" />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/reports" element={
+          <ProtectedRoute roles={['admin', 'supervisor']}>
+            <PlaceholderPage title="Reports & Exports" />
+          </ProtectedRoute>
+        } />
+
+        {/* Worker routes */}
+        <Route path="/worker" element={
+          <ProtectedRoute roles={['worker']}>
+            <WorkerDashboard />
+          </ProtectedRoute>
+        } />
+
+        {/* Common routes */}
+        <Route path="/analytics" element={
+          <ProtectedRoute>
+            <AnalyticsPage />
+          </ProtectedRoute>
+        } />
+      </Route>
+
+      {/* Catch all */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}

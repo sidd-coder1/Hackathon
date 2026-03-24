@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-saffron-500 rounded-full;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white border border-gray-200 shadow-sm rounded-2xl hover:shadow-md transition-shadow duration-300;
+  }
+
+  .secure-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  .btn-primary {
+    @apply bg-saffron-500 hover:bg-saffron-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 inline-flex items-center gap-2 shadow-md shadow-saffron-500/25 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-gray-700 font-medium px-6 py-3 rounded-xl transition-all duration-200 inline-flex items-center gap-2 border border-gray-300 shadow-sm;
+  }
+
+  .btn-danger {
+    @apply bg-red-50 hover:bg-red-100 text-red-600 font-medium px-4 py-2 rounded-lg transition-all duration-200 inline-flex items-center gap-2 border border-red-200;
+  }
+
+  .input-secure {
+    @apply w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-saffron-500 focus:ring-2 focus:ring-saffron-500/20 transition-all duration-200;
+  }
+
+  .stat-card {
+    @apply glass-card p-6 hover:border-saffron-500/30 transition-all duration-300 cursor-default;
+  }
+
+  .table-row-hover {
+    @apply hover:bg-gray-50 transition-colors duration-150;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:text-saffron-700 hover:bg-saffron-50 transition-all duration-200 cursor-pointer;
+  }
+
+  .sidebar-item.active {
+    @apply text-saffron-700 bg-saffron-50 border border-saffron-200 font-semibold;
+  }
+
+  .status-dot {
+    @apply w-2.5 h-2.5 rounded-full;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-saffron-600 to-saffron-800;
+  }
+
+  .text-gradient-green {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-700;
+  }
+
+  .glow-saffron {
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.15);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 20px rgba(19, 136, 8, 0.15);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .animate-pulse-gps {
+    animation: pulseGps 2s ease-in-out infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseGps {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(34, 197, 94, 0);
+  }
+}
