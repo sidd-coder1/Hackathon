@@ -81,6 +81,21 @@ function AppRoutes() {
             <UserDashboard />
           </ProtectedRoute>
         } />
+        <Route path="/user/scan" element={
+          <ProtectedRoute roles={['user']}>
+            <UserDashboard view="scan" />
+          </ProtectedRoute>
+        } />
+        <Route path="/user/report" element={
+          <ProtectedRoute roles={['user']}>
+            <UserDashboard view="report" />
+          </ProtectedRoute>
+        } />
+        <Route path="/user/feedback" element={
+          <ProtectedRoute roles={['user']}>
+            <UserDashboard view="feedback" />
+          </ProtectedRoute>
+        } />
 
         {/* Worker routes */}
         <Route path="/worker" element={
