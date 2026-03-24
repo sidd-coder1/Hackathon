@@ -479,7 +479,7 @@ export default function UserDashboard({ view = 'dashboard' }) {
   }
 
   return (
-    <div className="min-h-[calc(100vh-120px)] max-w-[1200px] mx-auto animate-fade-in px-4 md:px-0 pb-10">
+    <div className="min-h-[calc(100vh-120px)] w-full animate-fade-in pb-10">
       <main className="flex-1 min-w-0 pt-2">
         {view === 'dashboard' && <DashboardHome user={user} activityLog={activityLog} />}
         {view === 'scan' && <DailyQR onAddLog={addLogEntry} />}

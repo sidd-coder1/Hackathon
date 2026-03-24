@@ -6,6 +6,7 @@ import AppLayout from './components/layout/AppLayout'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import WorkerDashboard from './pages/WorkerDashboard'
+import WorkerMissionsPage from './pages/WorkerMissionsPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import UserDashboard from './pages/UserDashboard'
 import SupervisorDashboard from './pages/SupervisorDashboard'
@@ -107,6 +108,11 @@ function AppRoutes() {
         <Route path="/worker" element={
           <ProtectedRoute roles={['worker']}>
             <WorkerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/worker/missions" element={
+          <ProtectedRoute roles={['worker']}>
+            <WorkerMissionsPage />
           </ProtectedRoute>
         } />
 
