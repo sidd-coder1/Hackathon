@@ -30,6 +30,8 @@ function DashboardHome({ user, activityLog }) {
         <div>
           <h2 className="text-2xl font-black text-gray-900 tracking-tight">Namaste,</h2>
           <p className="text-saffron-600 font-bold text-lg">{user?.name} 🙏</p>
+
+
         </div>
         <div className="glass-card px-4 py-3 flex items-center gap-3 border-saffron-200">
           <div className="p-2 bg-saffron-50 text-saffron-600 rounded-xl">

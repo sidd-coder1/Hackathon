@@ -1,6 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { Hammer, Ban } from 'lucide-react'
 import AppLayout from './components/layout/AppLayout'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
@@ -14,9 +15,9 @@ import SupervisorDashboard from './pages/SupervisorDashboard'
 function PlaceholderPage({ title }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
-      <div className="glass-card p-10 text-center max-w-sm">
-        <div className="text-4xl mb-4">🚧</div>
-        <h2 className="text-lg font-bold text-white mb-2">{title}</h2>
+      <div className="glass-card p-10 text-center max-w-sm flex flex-col items-center">
+        <Hammer size={48} className="text-saffron-500 mb-4 opacity-80" strokeWidth={1.5} />
+        <h2 className="text-lg font-bold text-gray-800 mb-2">{title}</h2>
         <p className="text-sm text-gray-500">This section is under active development.</p>
       </div>
     </div>
@@ -28,9 +29,9 @@ function ProtectedRoute({ children, roles }) {
   if (!isAuthenticated) return <Navigate to="/login" replace />
   if (roles && !roles.includes(user.role)) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
-      <div className="glass-card p-10 text-center max-w-sm border border-red-500/30">
-        <div className="text-4xl mb-4">🚫</div>
-        <h2 className="text-lg font-bold text-red-400 mb-2">Access Denied</h2>
+      <div className="glass-card p-10 text-center max-w-sm border border-red-500/30 flex flex-col items-center">
+        <Ban size={48} className="text-red-500 mb-4 opacity-80" strokeWidth={1.5} />
+        <h2 className="text-lg font-bold text-red-600 mb-2">Access Denied</h2>
         <p className="text-sm text-gray-500">You don't have permission to view this page.</p>
         <p className="text-xs text-gray-600 mt-2">Role required: {roles.join(' / ')}</p>
       </div>

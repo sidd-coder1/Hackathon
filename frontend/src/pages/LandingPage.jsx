@@ -15,14 +15,14 @@ const stats = [
   { value: '168+',  label: 'Active Workers'   },
   { value: '32',    label: 'Municipal Wards'  },
   { value: '98.1%', label: 'System Uptime'    },
-  { value: '4.8★',  label: 'Civic Trust Score'},
+  { value: '4.8/5', label: 'Civic Trust Score'},
 ]
 
 export default function LandingPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 overflow-hidden">
+    <div className="min-h-screen text-gray-900 overflow-hidden">
       {/* Tricolor top bar */}
       <div className="h-1 bg-gradient-to-r from-saffron-500 via-white to-brand-green" />
 

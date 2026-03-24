@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Leaf, Star, Trophy } from 'lucide-react';
 
 const POINTS_KEY = 'swachh_points_data';
 const TASKS_KEY = 'swachh_daily_tasks';
@@ -79,9 +80,9 @@ export const useRewards = () => {
   };
 
   const getLevel = (totalPoints) => {
-    if (totalPoints <= 50) return { label: 'Beginner', variant: 'default', icon: '🌱' };
-    if (totalPoints <= 150) return { label: 'Active Worker', variant: 'saffron', icon: '⭐' };
-    return { label: 'Star Performer', variant: 'success', icon: '🏆' };
+    if (totalPoints <= 50) return { label: 'Beginner', variant: 'default', icon: Leaf };
+    if (totalPoints <= 150) return { label: 'Active Worker', variant: 'saffron', icon: Star };
+    return { label: 'Star Performer', variant: 'success', icon: Trophy };
   };
 
   return {

@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { getUsers, getAttendance } from '../services/firebaseService'
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -100,16 +101,43 @@ export default function SupervisorDashboard() {
   const [filter, setFilter] = useState('all')
   const [dismissedAlerts, setDismissedAlerts] = useState([])
   const [refreshing, setRefreshing] = useState(false)
+  const [realWorkers, setRealWorkers] = useState([])
+  const [realAttendance, setRealAttendance] = useState([])
 
-  const filteredWorkers = filter === 'all'
-    ? mockWorkers
-    : mockWorkers.filter(w => w.status === filter)
+  const loadData = async () => {
+    try {
+      const [users, attendance] = await Promise.all([getUsers(), getAttendance()])
+      setRealWorkers(users)
+      setRealAttendance(attendance)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    await new Promise(r => setTimeout(r, 1000))
+    await loadData()
     setRefreshing(false)
   }
+
+  const generatedWorkers = realWorkers.length > 0 ? realWorkers.map(u => ({
+    id: u.employeeId || u.id,
+    name: u.name || 'Unknown',
+    ward: u.ward || 'Unknown Ward',
+    status: 'active',
+    gps: 'Active',
+    attendance: 100,
+    trustScore: 90,
+    lastSeen: 'Just now'
+  })) : mockWorkers
+
+  const filteredWorkers = filter === 'all'
+    ? generatedWorkers
+    : generatedWorkers.filter(w => w.status === filter)
 
   const visibleAlerts = alerts.filter(a => !dismissedAlerts.includes(a.id))
 
@@ -136,9 +164,9 @@ export default function SupervisorDashboard() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total Field Workers" value={stats.totalWorkers}              icon={Users}         color="saffron" trend={3.2} />
-        <StatCard label="Active Now"          value={stats.activeToday}               icon={CheckCircle2}  color="green"  trend={1.8} />
-        <StatCard label="Tasks Completed"     value={stats.tasksCompleted}            icon={TrendingUp}    color="blue"   trend={5.1} />
-        <StatCard label="Critical Alerts"     value={stats.alertsOpen}                icon={AlertTriangle} color="red"    />
+        <StatCard label="Active Now"          value={stats.activeToday}               icon={Users}         color="green"  trend={1.8} />
+        <StatCard label="Tasks Completed"     value={stats.tasksCompleted}            icon={CheckCircle2}  color="blue"   trend={5.1} />
+        <StatCard label="Critical Alerts"     value={stats.alertsOpen}                icon={Bell}          color="red"    />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
@@ -268,8 +296,8 @@ export default function SupervisorDashboard() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={clsx('text-xs font-medium', w.gps === 'Active' ? 'text-green-600' : 'text-red-500')}>
-                      {w.gps === 'Active' ? '📍 Active' : '📵 Offline'}
+                    <span className={clsx('text-xs font-medium flex items-center gap-1', w.gps === 'Active' ? 'text-green-600' : 'text-red-500')}>
+                      {w.gps === 'Active' ? <><MapPin size={12}/> Active</> : <><Ban size={12}/> Offline</>}
                     </span>
                   </td>
                   <td className="px-4 py-3">

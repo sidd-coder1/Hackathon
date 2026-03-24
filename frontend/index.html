@@ -9,9 +9,114 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+      /*
+       * Full-screen Indian Tricolor Background Effect
+       * ──────────────────────────────────────────────
+       * A single fixed div that always covers 100vw × 100vh.
+       * CSS custom properties --mx / --my (values 0..1) track the
+       * normalised cursor position. Two large elliptical gradients
+       * fill the ENTIRE screen — no circles, no blobs.
+       *
+       *   Layer 1: Saffron sweep  — focal point follows cursor
+       *   Layer 2: Green breath   — sits at the opposite corner
+       *   Layer 3: Subtle base tint so the page always feels warm
+       */
+      #saffron-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        --mx: 0.5;
+        --my: 0.5;
+        background:
+          radial-gradient(
+            ellipse 160% 140% at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+            rgba(255, 153, 51, 0.26) 0%,
+            rgba(255, 153, 51, 0.10) 40%,
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 140% 120% at calc((1 - var(--mx)) * 100%) calc((1 - var(--my)) * 100%),
+            rgba(19, 136, 8, 0.10) 0%,
+            rgba(19, 136, 8, 0.03) 40%,
+            transparent 65%
+          ),
+          linear-gradient(
+            135deg,
+            rgba(255, 153, 51, 0.06) 0%,
+            transparent              50%,
+            rgba(19, 136, 8, 0.03)   100%
+          );
+      }
+
+      /* React root always renders above the background */
+      #root {
+        position: relative;
+        z-index: 1;
+      }
+    </style>
   </head>
   <body>
+
+    <!-- Full-screen tricolor background layer — rendered BEFORE #root -->
+    <div id="saffron-bg" aria-hidden="true"></div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!--
+      Pure vanilla JS cursor tracker.
+      Uses lerp + idle drift so the gradient glides smoothly at all times.
+      Updates CSS custom properties only — zero layout thrash.
+    -->
+    <script>
+      (function () {
+        var el   = document.getElementById('saffron-bg');
+        var EASE = 0.04;          /* lower = lazier, smoother             */
+        var curX = 0.5, curY = 0.5;
+        var tgtX = 0.5, tgtY = 0.5;
+        var t0   = null;
+
+        function setTarget(cx, cy) {
+          tgtX = cx / window.innerWidth;
+          tgtY = cy / window.innerHeight;
+        }
+
+        window.addEventListener('mousemove', function (e) {
+          setTarget(e.clientX, e.clientY);
+        }, { passive: true });
+
+        window.addEventListener('touchmove', function (e) {
+          if (e.touches.length) setTarget(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+
+        function tick(ts) {
+          if (!t0) t0 = ts;
+          var sec = (ts - t0) * 0.001;
+
+          /* Smooth lerp toward cursor target */
+          curX += (tgtX - curX) * EASE;
+          curY += (tgtY - curY) * EASE;
+
+          /* Idle drift — keeps the gradient alive when mouse is still */
+          var mx = curX + Math.sin(sec * 0.25) * 0.05;
+          var my = curY + Math.cos(sec * 0.18) * 0.04;
+
+          /* Clamp to [0,1] */
+          mx = Math.min(1, Math.max(0, mx));
+          my = Math.min(1, Math.max(0, my));
+
+          el.style.setProperty('--mx', mx.toFixed(4));
+          el.style.setProperty('--my', my.toFixed(4));
+
+          requestAnimationFrame(tick);
+        }
+
+        requestAnimationFrame(tick);
+      })();
+    </script>
+
   </body>
 </html>
