@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { getUsers, getAttendance } from '../services/firebaseService'
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -100,16 +101,43 @@ export default function SupervisorDashboard() {
   const [filter, setFilter] = useState('all')
   const [dismissedAlerts, setDismissedAlerts] = useState([])
   const [refreshing, setRefreshing] = useState(false)
+  const [realWorkers, setRealWorkers] = useState([])
+  const [realAttendance, setRealAttendance] = useState([])
 
-  const filteredWorkers = filter === 'all'
-    ? mockWorkers
-    : mockWorkers.filter(w => w.status === filter)
+  const loadData = async () => {
+    try {
+      const [users, attendance] = await Promise.all([getUsers(), getAttendance()])
+      setRealWorkers(users)
+      setRealAttendance(attendance)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    await new Promise(r => setTimeout(r, 1000))
+    await loadData()
     setRefreshing(false)
   }
+
+  const generatedWorkers = realWorkers.length > 0 ? realWorkers.map(u => ({
+    id: u.employeeId || u.id,
+    name: u.name || 'Unknown',
+    ward: u.ward || 'Unknown Ward',
+    status: 'active',
+    gps: 'Active',
+    attendance: 100,
+    trustScore: 90,
+    lastSeen: 'Just now'
+  })) : mockWorkers
+
+  const filteredWorkers = filter === 'all'
+    ? generatedWorkers
+    : generatedWorkers.filter(w => w.status === filter)
 
   const visibleAlerts = alerts.filter(a => !dismissedAlerts.includes(a.id))
 

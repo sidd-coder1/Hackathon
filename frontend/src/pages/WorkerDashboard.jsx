@@ -7,6 +7,7 @@ import clsx from 'clsx'
 import { useRewards } from '../hooks/useRewards'
 import PointsCard from '../components/worker/PointsCard'
 import TaskList from '../components/worker/TaskList'
+import { addAttendance } from '../services/firebaseService'
 
 export default function WorkerDashboard() {
   const { user } = useAuth()
@@ -30,9 +31,37 @@ export default function WorkerDashboard() {
   const handleMarkAttendance = async () => {
     if (gpsStatus !== 'active') return
     setMarkingLoading(true)
-    await new Promise(r => setTimeout(r, 1500))
-    setAttendanceMarked(true)
-    setMarkingLoading(false)
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        const attendanceData = {
+          userId: user?.id || 'unknown',
+          userName: user?.name || 'Unknown User',
+          role: user?.role || 'worker',
+          ward: user?.ward || 'Unknown Ward',
+          timestamp: new Date().toISOString(),
+          location: { lat, lng }
+        };
+        
+        try {
+          await addAttendance(attendanceData);
+          setAttendanceMarked(true);
+        } catch (error) {
+          console.error("Error marking attendance:", error);
+        } finally {
+          setMarkingLoading(false);
+        }
+      }, (error) => {
+        console.error("Geolocation error:", error);
+        setMarkingLoading(false);
+      });
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+      setMarkingLoading(false);
+    }
   }
 
   const taskStatusMap = {

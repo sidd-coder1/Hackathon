@@ -40,7 +40,7 @@ export default function LoginPage() {
     }
     setLoading(true)
     await new Promise(r => setTimeout(r, 1200))
-    login(role, { email })
+    await login(role, { email })
     setLoading(false)
     navigate(role === 'worker' ? '/worker' : role === 'user' ? '/user' : '/supervisor')
   }
