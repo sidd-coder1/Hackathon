@@ -74,25 +74,25 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
             </button>
 
             {notificationsOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 md:w-80 glass-card p-0 shadow-2xl shadow-black/50 border border-white/10 z-50 overflow-hidden animate-fade-in">
-                <div className="px-4 py-3 border-b border-white/10 bg-white/5 flex justify-between items-center">
-                  <h3 className="text-sm font-bold text-white tracking-wide">Notifications</h3>
-                  <span className="text-[10px] bg-saffron-500 text-white px-2 py-0.5 rounded-full font-bold">2 New</span>
+              <div className="absolute right-0 top-full mt-2 w-72 md:w-80 bg-white rounded-2xl p-0 shadow-2xl shadow-gray-200/80 border border-gray-100 z-50 overflow-hidden animate-fade-in origin-top-right">
+                <div className="px-4 py-3 border-b border-gray-50 bg-gray-50/80 flex justify-between items-center">
+                  <h3 className="text-sm font-bold text-gray-900 tracking-wide">Notifications</h3>
+                  <span className="text-[10px] bg-saffron-100 text-saffron-700 px-2 py-0.5 rounded-md font-black tracking-widest uppercase">2 New</span>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
-                  <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer relative bg-white/5">
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-saffron-500" />
-                    <p className="text-[13px] font-bold text-white mb-1">New complaint registered</p>
-                    <p className="text-xs text-gray-400 leading-relaxed">Sector 7 dustbin area requires immediate cleanup operation.</p>
-                    <p className="text-[10px] text-saffron-400 mt-2 font-mono uppercase tracking-widest font-bold">10 mins ago</p>
+                  <div className="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer relative bg-saffron-50/40">
+                    <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-saffron-500 rounded-r-md" />
+                    <p className="text-[13px] font-bold text-gray-900 mb-1">New complaint registered</p>
+                    <p className="text-xs text-gray-500 leading-relaxed font-medium">Sector 7 dustbin area requires immediate cleanup operation.</p>
+                    <p className="text-[10px] text-saffron-600 mt-2 font-mono uppercase tracking-widest font-bold">10 mins ago</p>
                   </div>
-                  <div className="p-4 hover:bg-white/5 transition-colors cursor-pointer">
-                    <p className="text-[13px] font-bold text-white mb-1">Attendance anomaly</p>
-                    <p className="text-xs text-gray-400 leading-relaxed">3 workers have marked themselves absent today in South Zone.</p>
-                    <p className="text-[10px] text-gray-500 mt-2 font-mono uppercase tracking-widest font-bold">1 hour ago</p>
+                  <div className="p-4 hover:bg-gray-50 transition-colors cursor-pointer relative">
+                    <p className="text-[13px] font-bold text-gray-900 mb-1">Attendance anomaly</p>
+                    <p className="text-xs text-gray-500 leading-relaxed font-medium">3 workers have marked themselves absent today in South Zone.</p>
+                    <p className="text-[10px] text-gray-400 mt-2 font-mono uppercase tracking-widest font-bold">1 hour ago</p>
                   </div>
                 </div>
-                <div className="p-3 border-t border-white/10 bg-black/20 text-center cursor-pointer hover:bg-white/5 transition-colors text-xs text-saffron-500 font-bold uppercase tracking-widest">
+                <div className="p-3 border-t border-gray-100 bg-gray-50/80 text-center cursor-pointer hover:bg-gray-100 transition-colors text-xs text-gray-600 hover:text-gray-900 font-bold uppercase tracking-widest">
                   Mark all as read
                 </div>
               </div>
