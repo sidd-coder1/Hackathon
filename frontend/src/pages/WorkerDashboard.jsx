@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { MapPin, Camera, CheckCircle2, Clock, AlertCircle, ChevronRight, Battery, Wifi } from 'lucide-react'
+import { MapPin, Camera, CheckCircle2, AlertCircle, ChevronRight, Battery, Wifi, Fingerprint, ImagePlus } from 'lucide-react'
 import { StatCard, Badge, StatusDot, Spinner } from '../components/ui/UIComponents'
-import { workerTasks } from '../data/mockData'
 import clsx from 'clsx'
-import { useRewards } from '../hooks/useRewards'
-import PointsCard from '../components/worker/PointsCard'
-import TaskList from '../components/worker/TaskList'
 import { addAttendance } from '../services/firebaseService'
 
 export default function WorkerDashboard() {
@@ -15,9 +11,10 @@ export default function WorkerDashboard() {
   const [attendanceMarked, setAttendanceMarked] = useState(false)
   const [markingLoading, setMarkingLoading] = useState(false)
   const [photoUploaded, setPhotoUploaded] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState(null)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [coords, setCoords] = useState(null)
-  const { points, tasks: dailyTasks, completeTask, level } = useRewards()
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -62,6 +59,17 @@ export default function WorkerDashboard() {
       console.error("Geolocation is not supported by this browser.");
       setMarkingLoading(false);
     }
+  }
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    setPhotoPreview(url)
+  }
+
+  const handlePhotoSubmit = () => {
+    setPhotoUploaded(true)
   }
 
   const taskStatusMap = {
@@ -139,57 +147,64 @@ export default function WorkerDashboard() {
         )}
       </div>
 
-      {/* Rewards System Section */}
-      <div className="space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
-        <PointsCard points={points} level={level} />
-        
-        <div className="glass-card p-5">
-          <TaskList tasks={dailyTasks} onCompleteTask={completeTask} />
-        </div>
-      </div>
 
       {/* Mark Attendance */}
-      <div className="glass-card p-6 text-center">
-        {attendanceMarked ? (
-          <div className="animate-slide-up space-y-3">
-            <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto">
-              <CheckCircle2 size={32} className="text-green-500" />
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        {/* Section Header */}
+        <div className="p-5 border-b border-gray-50 bg-gray-50/40 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-saffron-100 flex items-center justify-center shadow-sm">
+              <Fingerprint className="text-saffron-600" size={22} />
             </div>
-            <p className="text-base font-bold text-green-600">Attendance Marked!</p>
-            <p className="text-xs text-gray-500">
-              {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · GPS Verified · Ward 14
-            </p>
-            <Badge variant="success" className="flex flex-row items-center justify-center mx-auto w-fit gap-1"><CheckCircle2 size={12} /> Verified &amp; Recorded</Badge>
+            <div>
+              <h2 className="font-bold text-gray-900 text-base">Attendance</h2>
+              <p className="text-xs text-gray-500">Tap to mark your attendance</p>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600">Tap to mark your attendance</p>
-            <button
-              onClick={handleMarkAttendance}
-              disabled={gpsStatus !== 'active' || markingLoading}
-              className={clsx(
-                'w-32 h-32 mx-auto rounded-full border-4 flex flex-col items-center justify-center gap-2 transition-all duration-300 active:scale-95 shadow-lg',
-                gpsStatus === 'active' && !markingLoading
-                  ? 'border-saffron-500 bg-saffron-50 hover:bg-saffron-100 cursor-pointer glow-saffron'
-                  : 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-50'
-              )}
-            >
-              {markingLoading ? (
-                <Spinner size="md" />
-              ) : (
-                <>
-                  <MapPin size={28} className="text-saffron-500" />
-                  <span className="text-xs font-bold text-saffron-600 tracking-wide">MARK<br />ATTENDANCE</span>
-                </>
-              )}
-            </button>
-            {gpsStatus !== 'active' && (
-              <p className="text-xs text-amber-600 flex items-center justify-center gap-1">
-                <AlertCircle size={12} /> Waiting for GPS signal...
+          {attendanceMarked && <Badge variant="success" className="flex items-center gap-1"><CheckCircle2 size={12} /> Verified</Badge>}
+        </div>
+
+        {/* Action Body */}
+        <div className="p-6 flex flex-col items-center">
+          {attendanceMarked ? (
+            <div className="animate-slide-up space-y-3 text-center">
+              <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto">
+                <CheckCircle2 size={32} className="text-green-500" />
+              </div>
+              <p className="text-base font-bold text-green-600">Attendance Marked!</p>
+              <p className="text-xs text-gray-500">
+                {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · GPS Verified · {user?.ward}
               </p>
-            )}
-          </div>
-        )}
+            </div>
+          ) : (
+            <div className="space-y-4 text-center">
+              <button
+                onClick={handleMarkAttendance}
+                disabled={gpsStatus !== 'active' || markingLoading}
+                className={clsx(
+                  'w-32 h-32 mx-auto rounded-full border-4 flex flex-col items-center justify-center gap-2 transition-all duration-300 active:scale-95 shadow-lg',
+                  gpsStatus === 'active' && !markingLoading
+                    ? 'border-saffron-500 bg-saffron-50 hover:bg-saffron-100 cursor-pointer glow-saffron'
+                    : 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-50'
+                )}
+              >
+                {markingLoading ? (
+                  <Spinner size="md" />
+                ) : (
+                  <>
+                    <MapPin size={28} className="text-saffron-500" />
+                    <span className="text-xs font-bold text-saffron-600 tracking-wide">MARK<br />ATTENDANCE</span>
+                  </>
+                )}
+              </button>
+              {gpsStatus !== 'active' && (
+                <p className="text-xs text-amber-600 flex items-center justify-center gap-1">
+                  <AlertCircle size={12} /> Waiting for GPS signal...
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Quick stats row */}
@@ -207,74 +222,85 @@ export default function WorkerDashboard() {
       </div>
 
       {/* Photo Upload */}
-      <div className="glass-card p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <Camera size={18} className="text-saffron-500" />
-            <p className="text-sm font-semibold text-gray-900">Work Photo Submission</p>
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        {/* Section Header */}
+        <div className="p-5 border-b border-gray-50 bg-gray-50/40 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-blue-100 flex items-center justify-center shadow-sm">
+              <ImagePlus className="text-blue-600" size={22} />
+            </div>
+            <div>
+              <h2 className="font-bold text-gray-900 text-base">Work Photo Submission</h2>
+              <p className="text-xs text-gray-500">Required before 5:30 PM</p>
+            </div>
           </div>
           {photoUploaded && <Badge variant="success">Submitted</Badge>}
         </div>
 
-        {photoUploaded ? (
-          <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
-            <CheckCircle2 size={18} className="text-green-600" />
-            <div>
-              <p className="text-sm text-green-700 font-medium">Photo submitted successfully</p>
-              <p className="text-xs text-gray-500">10:42 AM · Verified</p>
+        {/* Action Body */}
+        <div className="p-6">
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handlePhotoChange}
+          />
+
+          {photoUploaded ? (
+            <div className="space-y-3">
+              {photoPreview && (
+                <img
+                  src={photoPreview}
+                  alt="Submitted work"
+                  className="w-full h-48 object-cover rounded-2xl border border-green-200"
+                />
+              )}
+              <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-2xl">
+                <CheckCircle2 size={20} className="text-green-600 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-green-700 font-semibold">Photo submitted successfully</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Today · Verified</p>
+                </div>
+              </div>
             </div>
-          </div>
-        ) : (
-          <button
-            onClick={() => setPhotoUploaded(true)}
-            className="w-full border-2 border-dashed border-gray-300 hover:border-saffron-400 rounded-xl p-6 transition-all duration-200 group bg-gray-50"
-          >
-            <Camera size={24} className="text-gray-400 group-hover:text-saffron-500 mx-auto mb-2 transition-colors" />
-            <p className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">Tap to upload work photo</p>
-            <p className="text-xs text-gray-500 mt-1">Required before 5:30 PM</p>
-          </button>
-        )}
+          ) : photoPreview ? (
+            <div className="space-y-4">
+              <img
+                src={photoPreview}
+                alt="Preview"
+                className="w-full h-48 object-cover rounded-2xl border border-gray-200"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setPhotoPreview(null); fileInputRef.current.value = '' }}
+                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                >
+                  Retake
+                </button>
+                <button
+                  onClick={handlePhotoSubmit}
+                  className="flex-1 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  Submit Photo
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full border-2 border-dashed border-gray-200 hover:border-blue-400 rounded-2xl p-8 transition-all duration-200 group bg-gray-50 hover:bg-blue-50/30"
+            >
+              <Camera size={28} className="text-gray-400 group-hover:text-blue-500 mx-auto mb-3 transition-colors" />
+              <p className="text-sm font-medium text-gray-600 group-hover:text-gray-900 transition-colors">Tap to upload work photo</p>
+              <p className="text-xs text-gray-400 mt-1">Choose from device · JPG, PNG supported</p>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Task List */}
-      <div className="glass-card p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <Clock size={16} className="text-saffron-500" /> Today's Tasks
-          </h2>
-          <Badge variant="saffron">{workerTasks.filter(t => t.status === 'in-progress').length} Active</Badge>
-        </div>
-        <div className="space-y-3">
-          {workerTasks.map(task => (
-            <div
-              key={task.id}
-              className={clsx(
-                'flex items-start gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100 transition-all duration-200 hover:bg-gray-100 hover:shadow-sm border-l-4 pl-3',
-                priorityColor[task.priority]
-              )}
-            >
-              <div className="mt-0.5">
-                {task.status === 'completed'
-                  ? <CheckCircle2 size={16} className="text-green-500" />
-                  : task.status === 'in-progress'
-                    ? <div className="w-4 h-4 rounded-full border-2 border-saffron-500 border-t-transparent animate-spin" />
-                    : <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
-                }
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={clsx(
-                  'text-sm font-medium',
-                  task.status === 'completed' ? 'text-gray-500 line-through' : 'text-gray-900'
-                )}>{task.title}</p>
-                <p className="text-xs text-gray-600 mt-0.5">{task.time}</p>
-              </div>
-              <Badge variant={taskStatusMap[task.status].variant} className="text-xs flex-shrink-0">
-                {taskStatusMap[task.status].label}
-              </Badge>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }

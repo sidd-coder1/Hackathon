@@ -6,10 +6,12 @@ import AppLayout from './components/layout/AppLayout'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import WorkerDashboard from './pages/WorkerDashboard'
+import WorkerMissionsPage from './pages/WorkerMissionsPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import UserDashboard from './pages/UserDashboard'
 import SupervisorDashboard from './pages/SupervisorDashboard'
 import WorkerInfoPage from './pages/WorkerInfoPage'
+import UserInfoPage from './pages/UserInfoPage'
 
 // Simple placeholder pages for sub-routes
 
@@ -74,6 +76,11 @@ function AppRoutes() {
             <WorkerInfoPage />
           </ProtectedRoute>
         } />
+        <Route path="/supervisor/users" element={
+          <ProtectedRoute roles={['supervisor']}>
+            <UserInfoPage />
+          </ProtectedRoute>
+        } />
 
         {/* User routes */}
         <Route path="/user" element={
@@ -101,6 +108,11 @@ function AppRoutes() {
         <Route path="/worker" element={
           <ProtectedRoute roles={['worker']}>
             <WorkerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/worker/missions" element={
+          <ProtectedRoute roles={['worker']}>
+            <WorkerMissionsPage />
           </ProtectedRoute>
         } />
 

@@ -2,8 +2,16 @@ import React, { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import { useAuth } from '../../context/AuthContext'
+<<<<<<< HEAD
 import { QrCode, Camera, Star, BarChart3, X, LogOut, ShieldCheck, LayoutDashboard, Users } from 'lucide-react'
+=======
+<<<<<<< HEAD
+import { LayoutDashboard, Users, BarChart3, MapPin, Bell, X, Scan, Camera, Star, QrCode, Target } from 'lucide-react'
+=======
+import { QrCode, Camera, Star, BarChart3, X, LogOut, ShieldCheck, LayoutDashboard } from 'lucide-react'
+>>>>>>> 273ca79bae6481c2f401110e536fca4d1873ec66
 import { SecureBadge, RoleBadge } from '../ui/UIComponents'
+>>>>>>> 0c5d578aae982e65183fd4cafa5dd7a9f086d72c
 import clsx from 'clsx'
 
 const supervisorNav = [
@@ -21,7 +29,16 @@ const userNav = [
   { to: '/user/scan',     label: 'Daily QR Code',   icon: QrCode },
   { to: '/user/report',   label: 'Report Issue',    icon: Camera },
   { to: '/user/feedback', label: 'Worker Feedback', icon: Star },
+<<<<<<< HEAD
+  { to: '/analytics',     label: 'Analytics',    icon: BarChart3 },
+]
+const workerNav = [
+  { to: '/worker',          label: 'Dashboard',      icon: LayoutDashboard, end: true },
+  { to: '/worker/missions', label: 'Daily Missions', icon: Target },
+  { to: '/analytics',       label: 'Analytics',      icon: BarChart3 },
+=======
   { to: '/analytics',     label: 'Analytics',       icon: BarChart3 },
+>>>>>>> 0c5d578aae982e65183fd4cafa5dd7a9f086d72c
 ]
 
 export default function AppLayout() {
