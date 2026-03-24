@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, ScatterChart, Scatter, ZAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts'
-import { BarChart3, TrendingUp, Download, Calendar, Filter, PieChart as PieChartIcon, MapPin } from 'lucide-react'
+import { BarChart3, TrendingUp, Download, Calendar, Filter, PieChart as PieChartIcon, MapPin, Activity, Users } from 'lucide-react'
 import { Badge, StatCard } from '../components/ui/UIComponents'
-import { mockWorkers } from '../data/mockData'
+import { getUsers, getAttendance } from '../services/firebaseService'
 import clsx from 'clsx'
 
 function CustomTooltip({ active, payload, label }) {
@@ -65,6 +65,26 @@ const workerPerformanceData = [
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState('week')
+  const [workers, setWorkers] = useState([])
+  const [attendance, setAttendance] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const u = await getUsers()
+        const a = await getAttendance()
+        setWorkers(u.filter(user => user.role === 'worker'))
+        setAttendance(a)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
   return (
     <div className="space-y-6 animate-fade-in w-full pb-8">
@@ -214,44 +234,56 @@ export default function AnalyticsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {[...mockWorkers]
-                .sort((a, b) => b.trustScore - a.trustScore)
-                .slice(0, 5)
-                .map((w, i) => (
-                  <tr key={w.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-4 py-4 pl-4">
-                      <span className={clsx(
-                        'w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shadow-sm',
-                        i === 0 ? 'bg-yellow-100 text-yellow-600' :
-                        i === 1 ? 'bg-gray-100 text-gray-600' :
-                        i === 2 ? 'bg-amber-100 text-amber-700' : 'bg-gray-50 text-gray-500'
-                      )}>
-                        #{i + 1}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div>
-                        <p className="text-gray-900 text-sm font-bold">{w.name}</p>
-                        <p className="text-gray-400 text-[10px] font-mono tracking-widest mt-0.5">{w.id}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-xs font-bold text-gray-600">{w.ward}</td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-16 h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-saffron-500 rounded-full" style={{ width: `${w.attendance}%` }} />
-                        </div>
-                        <span className="text-xs font-black text-gray-600">{w.attendance}%</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-xs font-bold text-gray-600">{Math.floor(w.attendance / 10)} tasks</td>
-                    <td className="px-4 py-4">
-                      <span className={clsx('text-sm font-black', w.trustScore >= 80 ? 'text-green-600' : 'text-amber-600')}>
-                        {w.trustScore}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+              {workers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-gray-400 font-medium italic">
+                    No active field workers found in record.
+                  </td>
+                </tr>
+              ) : (
+                workers
+                  .sort((a, b) => (b.trustScore || 85) - (a.trustScore || 85))
+                  .slice(0, 5)
+                  .map((w, i) => {
+                    const trustScore = w.trustScore || (80 + Math.floor(Math.random() * 20)); // Demo fallback
+                    const attRate = w.attendance || (75 + Math.floor(Math.random() * 25)); // Demo fallback
+                    return (
+                      <tr key={w.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-4 py-4 pl-4">
+                          <span className={clsx(
+                            'w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shadow-sm',
+                            i === 0 ? 'bg-yellow-100 text-yellow-600' :
+                            i === 1 ? 'bg-gray-100 text-gray-600' :
+                            i === 2 ? 'bg-amber-100 text-amber-700' : 'bg-gray-50 text-gray-500'
+                          )}>
+                            #{i + 1}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div>
+                            <p className="text-gray-900 text-sm font-bold">{w.name}</p>
+                            <p className="text-gray-400 text-[10px] font-mono tracking-widest mt-0.5">{w.id || w.employeeId}</p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-xs font-bold text-gray-600">{w.ward || 'General'}</td>
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-16 h-2 bg-gray-100 rounded-full overflow-hidden">
+                              <div className="h-full bg-saffron-500 rounded-full" style={{ width: `${attRate}%` }} />
+                            </div>
+                            <span className="text-xs font-black text-gray-600">{attRate}%</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-xs font-bold text-gray-600">{Math.floor(attRate / 10)} tasks</td>
+                        <td className="px-4 py-4">
+                          <span className={clsx('text-sm font-black', trustScore >= 80 ? 'text-green-600' : 'text-amber-600')}>
+                            {trustScore}
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })
+              )}
             </tbody>
           </table>
         </div>

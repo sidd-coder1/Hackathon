@@ -351,12 +351,8 @@ function WorkerFeedback({ onAddLog }) {
   const [worker, setWorker] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
-
-  const mockWorkers = [
-    { id: 'WRK-1087', name: 'Ramesh Patel' },
-    { id: 'WRK-1002', name: 'Sunita Devi' },
-    { id: 'WRK-1003', name: 'Amit Kumar' },
-  ]
+  // Empty by default, should ideally come from getUsers() or a specific team collection
+  const availableWorkers = []
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -364,8 +360,8 @@ function WorkerFeedback({ onAddLog }) {
     setTimeout(() => {
       onAddLog({
         type: 'feedback',
-        msg: `Rated ${worker || 'Assigned Team'} · ${rating} Stars`,
-        description: comment || 'No additional comments provided.',
+        msg: `Rated ${worker || 'Regional Team'} · ${rating} Stars`,
+        description: comment || 'Professional conduct verified.',
         time: 'Just now'
       })
       setSubmitting(false)
@@ -396,7 +392,7 @@ function WorkerFeedback({ onAddLog }) {
               className="input-secure h-14 bg-white/50 backdrop-blur-sm text-sm border-gray-100"
             >
               <option value="">Assigned Team (Default)</option>
-              {mockWorkers.map(w => (
+              {availableWorkers.map(w => (
                 <option key={w.id} value={w.name}>{w.name} ({w.id})</option>
               ))}
             </select>

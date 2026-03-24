@@ -1,9 +1,14 @@
 import { db } from "../firebase";
-import { collection, addDoc, getDocs, query, where, updateDoc, doc } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, updateDoc, deleteDoc, doc } from "firebase/firestore";
 
 // ✅ Add User
 export const addUser = async (data) => {
     return await addDoc(collection(db, "users"), data);
+};
+
+// ✅ Remove User from Firestore
+export const removeFirebaseUser = async (id) => {
+    return await deleteDoc(doc(db, "users", id));
 };
 
 // ✅ Add Attendance
@@ -11,7 +16,7 @@ export const addAttendance = async (data) => {
     return await addDoc(collection(db, "attendance"), data);
 };
 
-// ✅ Get Users
+// ✅ Get All Users
 export const getUsers = async () => {
     const snapshot = await getDocs(collection(db, "users"));
     return snapshot.docs.map(doc => ({
@@ -20,7 +25,7 @@ export const getUsers = async () => {
     }));
 };
 
-// ✅ Get Attendance
+// ✅ Get All Attendance
 export const getAttendance = async () => {
     const snapshot = await getDocs(collection(db, "attendance"));
     return snapshot.docs.map(doc => ({
