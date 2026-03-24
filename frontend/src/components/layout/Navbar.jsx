@@ -34,22 +34,10 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
 
       {/* Logo (Always Visible & Non-Toggleable) */}
       <div className="flex items-center gap-3 select-none">
-        <div 
-          className="w-7 h-7 bg-[#FF9933] flex-shrink-0"
-          style={{
-            WebkitMaskImage: 'url(/emblem.svg)',
-            WebkitMaskSize: 'contain',
-            WebkitMaskRepeat: 'no-repeat',
-            WebkitMaskPosition: 'center',
-            maskImage: 'url(/emblem.svg)',
-            maskSize: 'contain',
-            maskRepeat: 'no-repeat',
-            maskPosition: 'center'
-          }}
-        />
-        <div className="flex flex-col">
-          <span className="text-sm font-bold text-[#FF9933] leading-tight tracking-tight">SwachhDrishti</span>
-          <span className="text-[10px] text-[#138808] font-black tracking-widest leading-tight">MUNICIPAL TRACKING</span>
+        <img src="/emblem.svg" alt="logo" className="h-8 w-auto invert drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] brightness-150" />
+        <div className="flex flex-col leading-tight">
+          <span className="text-base sm:text-lg font-extrabold text-[#FF9933] tracking-tight">SwachhDrishti</span>
+          <span className="text-[10px] sm:text-xs text-[#138808] font-bold tracking-wide">Empowering India's Municipal Workforce</span>
         </div>
       </div>
 
