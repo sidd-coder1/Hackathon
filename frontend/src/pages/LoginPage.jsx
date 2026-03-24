@@ -52,7 +52,7 @@ export default function LoginPage() {
   ]
 
   return (
-    <div className="min-h-screen transparent flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-4 relative overflow-hidden">
 
       {/* Tricolor accent bar */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-saffron-500 via-white to-brand-green" />

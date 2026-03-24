@@ -125,7 +125,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-6 md:px-12 border-t border-gray-200 bg-white">
+      <section className="py-20 px-6 md:px-12 border-t border-gray-200 bg-transparent">
         <div className="max-w-3xl mx-auto glass-card p-10 text-center relative overflow-hidden bg-gradient-to-br from-saffron-50/50 to-green-50/50">
           <div className="relative z-10">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
@@ -140,7 +140,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 py-8 px-6 md:px-12 bg-white">
+      <footer className="border-t border-gray-200 py-8 px-6 md:px-12 bg-transparent">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg bg-saffron-50 flex items-center justify-center">

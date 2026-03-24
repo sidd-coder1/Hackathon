@@ -16,7 +16,7 @@
   body {
     @apply text-gray-900 font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
-    background-color: rgba(249, 250, 251, 0.85); /* gray-50 at 85% — aurora bleeds through */
+    background-color: transparent;
   }
 
   ::-webkit-scrollbar {
@@ -35,7 +35,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white border border-gray-200 shadow-sm rounded-2xl hover:shadow-md transition-shadow duration-300;
+    @apply bg-white/60 backdrop-blur-md border border-white shadow-sm rounded-2xl hover:shadow-md transition-all duration-300;
   }
 
   .secure-badge {

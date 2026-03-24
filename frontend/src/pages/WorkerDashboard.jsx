@@ -318,9 +318,9 @@ export default function WorkerDashboard() {
 
 
       {/* Mark Attendance */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="glass-card overflow-hidden">
         {/* Section Header */}
-        <div className="p-5 border-b border-gray-50 bg-gray-50/40 flex items-center justify-between">
+        <div className="p-5 border-b border-white/20 bg-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-saffron-100 flex items-center justify-center shadow-sm">
               <Fingerprint className="text-saffron-600" size={22} />
@@ -408,9 +408,9 @@ export default function WorkerDashboard() {
       </div>
 
       {/* Photo Upload */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-8">
+      <div className="glass-card overflow-hidden mb-8">
         {/* Section Header */}
-        <div className="p-5 border-b border-gray-50 bg-gray-50/40 flex items-center justify-between">
+        <div className="p-5 border-b border-white/20 bg-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-saffron-100 flex items-center justify-center shadow-sm">
               <Camera className="text-saffron-600" size={22} />
@@ -515,7 +515,7 @@ export default function WorkerDashboard() {
           ) : (
             <button
               onClick={startCamera}
-              className="w-full border-2 border-dashed border-gray-200 hover:border-saffron-400 rounded-2xl p-10 transition-all duration-200 group bg-gray-50 hover:bg-saffron-50/30"
+              className="w-full border-2 border-dashed border-gray-200 hover:border-saffron-400 rounded-2xl p-10 transition-all duration-200 group bg-white/20 hover:bg-saffron-50/30"
             >
               <Camera size={38} className="text-gray-400 group-hover:text-saffron-500 mx-auto mb-4 transition-colors" />
               <p className="text-sm font-black text-gray-700 group-hover:text-gray-900 tracking-wide transition-colors">TAP TO OPEN LIVE CAMERA</p>

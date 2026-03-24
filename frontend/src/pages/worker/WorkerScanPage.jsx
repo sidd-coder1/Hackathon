@@ -137,7 +137,7 @@ export default function WorkerScanPage() {
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center p-4 bg-gray-50 min-h-[calc(100vh-100px)] animate-fade-in relative">
+    <div className="w-full flex flex-col items-center justify-center p-4 bg-transparent min-h-[calc(100vh-100px)] animate-fade-in relative">
       
       <div className="text-center mb-6">
         <h1 className="text-2xl font-black uppercase tracking-widest" style={{ color: SAFFRON }}>
@@ -163,7 +163,7 @@ export default function WorkerScanPage() {
       </div>
 
       {!scanResult ? (
-        <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl p-4 border border-gray-100 flex flex-col items-center">
+        <div className="w-full max-w-sm glass-card p-4 flex flex-col items-center border-none">
           
           <div id="worker-qr-reader" className="w-full bg-black rounded-2xl overflow-hidden aspect-square border border-gray-100 shadow-inner" />
           
@@ -183,7 +183,7 @@ export default function WorkerScanPage() {
           </div>
         </div>
       ) : (
-        <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl p-6 border-t-[6px] animate-scale-up" style={{ borderColor: SAFFRON }}>
+        <div className="w-full max-w-sm glass-card p-6 border-t-[6px] animate-scale-up" style={{ borderColor: SAFFRON }}>
           <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
             <div className="flex items-center gap-3 text-gray-900">
                <CheckCircle2 size={24} style={{ color: GREEN }} />

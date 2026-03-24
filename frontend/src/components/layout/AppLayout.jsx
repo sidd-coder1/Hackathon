@@ -43,7 +43,7 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-transparent">
 
       {/* Mobile overlay */}
       {sidebarOpen && (
