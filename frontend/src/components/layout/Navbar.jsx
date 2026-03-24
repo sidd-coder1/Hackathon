@@ -5,7 +5,7 @@ import { Bell, Shield, Menu, X, LogOut } from 'lucide-react'
 import { RoleBadge, SecureBadge } from '../ui/UIComponents'
 import clsx from 'clsx'
 
-export default function Navbar({ onMenuToggle, menuOpen }) {
+export default function Navbar({ onMenuToggle, menuOpen, onSidebarToggle, sidebarCollapsed }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
@@ -16,70 +16,75 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
   }
 
   return (
-    <header className="sticky top-0 z-50 h-16 flex items-center px-4 md:px-6 bg-gray-900/90 backdrop-blur-xl border-b border-white/8">
-      {/* Mobile menu toggle */}
+    <header className={clsx(
+      "sticky top-0 z-50 h-16 flex items-center px-4 md:px-8 transition-all duration-300",
+      "bg-white/80 backdrop-blur-xl border-b border-gray-100/50"
+    )}>
+      {/* Desktop Toggle Button */}
+      <button
+        onClick={onSidebarToggle}
+        className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl text-gray-500 hover:text-orange-600 hover:bg-orange-50 transition-all active:scale-95"
+        title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+      >
+        <Menu size={20} className={clsx("transition-transform duration-300", sidebarCollapsed && "rotate-180")} />
+      </button>
+
+      {/* Mobile Toggle Button */}
       <button
         onClick={onMenuToggle}
-        className="md:hidden mr-3 p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/8 transition-colors"
+        className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-gray-500 hover:text-orange-600 hover:bg-orange-50 transition-all"
       >
         {menuOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
-      {/* Logo (mobile only) */}
-      <div className="flex items-center gap-3 md:hidden">
-        <img 
-          src="/emblem.svg" 
-          alt="Government of India" 
-          className="w-7 h-auto filter brightness-0 invert"
-        />
-        <div className="flex flex-col">
-          <span className="text-sm font-bold text-white leading-tight">SwachhDrishti</span>
-          <span className="text-[10px] text-gray-300 leading-tight">Government Dashboard</span>
-        </div>
-      </div>
-
       <div className="flex-1" />
 
-      {/* Right section */}
-      <div className="flex items-center gap-3">
-        <div className="hidden sm:block">
+      {/* Right Section */}
+      <div className="flex items-center gap-4">
+        {/* SSL Badge - Desktop Only */}
+        <div className="hidden lg:block">
           <SecureBadge label="SSL Secured" size="sm" />
         </div>
 
-        {/* Notification bell */}
-        <button className="relative p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/8 transition-colors">
-          <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+        {/* Notifications */}
+        <button className="relative flex items-center justify-center w-10 h-10 rounded-xl text-gray-500 hover:text-orange-600 hover:bg-orange-50 transition-all group">
+          <Bell size={20} />
+          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white ring-2 ring-red-100 animate-pulse" />
         </button>
 
-        {/* Profile */}
+        {/* Vertical Divider */}
+        <div className="h-6 w-px bg-gray-200 mx-1" />
+
+        {/* Profile Dropdown */}
         <div className="relative">
           <button
             onClick={() => setProfileOpen(v => !v)}
-            className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-white/8 transition-colors"
+            className="flex items-center gap-3 p-1 rounded-xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-saffron-500/40 to-brand-green/40 border border-white/15 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">{user?.name?.charAt(0) || 'U'}</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm shadow-orange-200">
+              <span className="text-xs font-bold text-white uppercase">{user?.name?.charAt(0) || 'U'}</span>
             </div>
-            <div className="hidden sm:block text-left">
-              <p className="text-xs font-semibold text-white leading-tight">{user?.name}</p>
-              <p className="text-xs text-gray-500 leading-tight">{user?.employeeId}</p>
+            <div className="hidden sm:block text-left mr-1">
+              <p className="text-xs font-bold text-gray-900 leading-tight">{user?.name}</p>
+              <p className="text-[10px] text-gray-500 font-medium leading-tight uppercase tracking-tight">{user?.role}</p>
             </div>
           </button>
 
           {profileOpen && (
-            <div className="absolute right-0 top-full mt-2 w-56 glass-card p-2 shadow-2xl shadow-black/50 border border-white/10 z-50">
-              <div className="px-3 py-2 mb-1">
-                <p className="text-sm font-semibold text-white">{user?.name}</p>
-                <p className="text-xs text-gray-400">{user?.email}</p>
-                <div className="mt-2"><RoleBadge role={user?.role} /></div>
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="px-4 py-3 border-b border-gray-50 mb-1">
+                <p className="text-sm font-bold text-gray-900">{user?.name}</p>
+                <p className="text-xs text-gray-500">{user?.email}</p>
+                <div className="mt-2.5">
+                  <RoleBadge role={user?.role} />
+                </div>
               </div>
-              <div className="border-t border-white/8 mt-1 pt-1">
+              <div className="p-1">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
                 >
-                  <LogOut size={15} />
+                  <LogOut size={16} />
                   Sign Out
                 </button>
               </div>
