@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
+import ScanPage from './user/ScanPage'
 import { 
   MapPin, 
   Camera, 
@@ -487,7 +488,11 @@ export default function UserDashboard({ view = 'dashboard' }) {
     <div className="min-h-[calc(100vh-120px)] w-full animate-fade-in pb-10">
       <main className="flex-1 min-w-0 pt-2">
         {view === 'dashboard' && <DashboardHome user={user} activityLog={activityLog} />}
+<<<<<<< Updated upstream
         {view === 'scan' && <DailyQR onAddLog={addLogEntry} user={user} />}
+=======
+        {view === 'scan' && <ScanPage onAddLog={addLogEntry} />}
+>>>>>>> Stashed changes
         {view === 'report' && <ReportIssue onAddLog={addLogEntry} />}
         {view === 'feedback' && <WorkerFeedback onAddLog={addLogEntry} />}
       </main>

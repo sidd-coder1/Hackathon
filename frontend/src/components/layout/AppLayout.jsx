@@ -15,6 +15,7 @@ const supervisorNav = [
 const workerNav = [
   { to: '/worker', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/worker/missions', label: 'Daily Missions', icon: Target },
+  { to: '/worker/scan', label: 'Scan QR Code', icon: QrCode },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
@@ -26,7 +27,7 @@ const userNav = [
 ]
 
 export default function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -55,19 +56,20 @@ export default function AppLayout() {
         'fixed md:relative top-0 left-0 h-full w-[280px] bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none flex-shrink-0',
         sidebarOpen ? 'translate-x-0 md:ml-0' : '-translate-x-full md:translate-x-0 md:-ml-[280px]'
       )}>
+<<<<<<< Updated upstream
         {/* Sidebar Header — hamburger toggle lives here */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+=======
+
+        {/* Sidebar Header — only X close button */}
+        <div className="flex items-center justify-end p-5 border-b border-gray-100">
+>>>>>>> Stashed changes
           <button
-            onClick={() => setSidebarOpen(v => !v)}
-            className="flex flex-col items-center justify-center gap-[5px] w-9 h-9 rounded-xl hover:bg-gray-100 transition-all group"
-            aria-label="Toggle sidebar"
+            onClick={() => setSidebarOpen(false)}
+            className="text-gray-400 hover:text-gray-900 p-1.5 rounded-xl hover:bg-gray-100 transition-all"
           >
-            <span className="block w-5 h-[2px] rounded-full bg-saffron-500 group-hover:bg-saffron-600 transition-colors" />
-            <span className="block w-4 h-[2px] rounded-full bg-gray-400 group-hover:bg-gray-600 transition-colors" />
-            <span className="block w-5 h-[2px] rounded-full bg-gray-400 group-hover:bg-gray-600 transition-colors" />
+            <X size={20} />
           </button>
-          <span className="font-bold text-gray-500 tracking-widest uppercase text-xs">Quick Menu</span>
-          <div className="w-9" />{/* spacer to center label */}
         </div>
 
         {/* User Profile */}

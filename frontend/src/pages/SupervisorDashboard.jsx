@@ -15,8 +15,10 @@ import {
 } from 'recharts'
 import {
   Users, CheckCircle2, TrendingUp, AlertTriangle, MapPin,
-  Shield, Bell, RefreshCw, ChevronRight
+  Shield, Bell, RefreshCw, ChevronRight, FileDown
 } from 'lucide-react'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import {
   StatCard, Badge, StatusDot, AlertBanner, Spinner, Skeleton, SecureBadge, RoleBadge
 } from '../components/ui/UIComponents'
@@ -158,6 +160,89 @@ export default function SupervisorDashboard() {
 
   const visibleAlerts = alerts.filter(a => !dismissedAlerts.includes(a.id))
 
+  const handleDownloadReport = () => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(18);
+    doc.setTextColor(255, 107, 0); // Saffron color
+    doc.text('SwachhDrishti Report', 14, 20);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Supervisor Dashboard - Ward Monitoring Center`, 14, 28);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 34);
+
+    // Summary Section
+    doc.setFontSize(14);
+    doc.setTextColor(40);
+    doc.text('Dashboard Summary', 14, 45);
+    
+    autoTable(doc, {
+      startY: 50,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Total Field Workers', stats.totalWorkers.toString()],
+        ['Active Today', stats.activeToday.toString()],
+        ['Tasks Completed', stats.tasksCompleted.toString()],
+        ['Civic Trust Score', stats.civicTrustScore.toString() + ' / 100'],
+        ['Pending Alerts', visibleAlerts.length.toString()]
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [255, 107, 0] },
+      margin: { left: 14 }
+    });
+
+    // Worker List & Trust Scores
+    let nextY = doc.lastAutoTable.finalY + 15;
+    doc.setFontSize(14);
+    doc.text('Worker List & Trust Scores', 14, nextY);
+    
+    const workerData = mockWorkers.map(w => [
+      w.id,
+      w.name,
+      w.ward,
+      w.attendance + '%',
+      w.task,
+      w.trustScore
+    ]);
+
+    autoTable(doc, {
+      startY: nextY + 5,
+      head: [['ID', 'Name', 'Ward', 'Attendance', 'Current Task', 'Trust Score']],
+      body: workerData,
+      theme: 'striped',
+      headStyles: { fillColor: [59, 130, 246] }, // Blue
+    });
+
+    // Recent Activity / Log
+    nextY = doc.lastAutoTable.finalY + 15;
+    if (nextY > 250) {
+      doc.addPage();
+      nextY = 20;
+    }
+    
+    doc.setFontSize(14);
+    doc.text('Recent Activity & Log', 14, nextY);
+    
+    const activityData = recentActivity.map(a => [
+      a.time,
+      a.worker,
+      a.action,
+      a.ward
+    ]);
+
+    autoTable(doc, {
+      startY: nextY + 5,
+      head: [['Time', 'Worker', 'Action', 'Location']],
+      body: activityData,
+      theme: 'striped',
+      headStyles: { fillColor: [19, 136, 8] }, // Green
+    });
+
+    doc.save('SwachhDrishti_Supervisor_Report.pdf');
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -167,11 +252,18 @@ export default function SupervisorDashboard() {
             Ward Monitoring Center · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
           <SecureBadge label="Live Monitoring" size="sm" />
           <button
+            onClick={handleDownloadReport}
+            className="btn-primary text-sm px-3 py-2 flex items-center gap-2"
+          >
+            <FileDown size={15} />
+            Download Report
+          </button>
+          <button
             onClick={handleRefresh}
-            className="btn-secondary text-sm px-3 py-2"
+            className="btn-secondary text-sm px-3 py-2 flex items-center gap-2"
           >
             <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
             Refresh
