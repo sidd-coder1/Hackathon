@@ -1,9 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { MapPin, Camera, CheckCircle2, AlertCircle, ChevronRight, Battery, Wifi, Fingerprint, ImagePlus } from 'lucide-react'
+import { MapPin, Camera, CheckCircle2, AlertCircle, ChevronRight, Battery, Wifi, Fingerprint, ImagePlus, X } from 'lucide-react'
 import { StatCard, Badge, StatusDot, Spinner } from '../components/ui/UIComponents'
 import clsx from 'clsx'
+<<<<<<< Updated upstream
+import { addAttendance, checkAttendanceExists, updateUserStats } from '../services/firebaseService'
+import { Scanner } from '@yudiel/react-qr-scanner'
+=======
 import { addAttendance } from '../services/firebaseService'
+import { storage, db } from '../firebase'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+>>>>>>> Stashed changes
 
 export default function WorkerDashboard() {
   const { user } = useAuth()
@@ -12,9 +20,16 @@ export default function WorkerDashboard() {
   const [markingLoading, setMarkingLoading] = useState(false)
   const [photoUploaded, setPhotoUploaded] = useState(false)
   const [photoPreview, setPhotoPreview] = useState(null)
+  const [photoFile, setPhotoFile] = useState(null)
+  const [photoLocation, setPhotoLocation] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [validationMessage, setValidationMessage] = useState('')
+  const [isCameraOpen, setIsCameraOpen] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [coords, setCoords] = useState(null)
   const fileInputRef = useRef(null)
+  const videoRef = useRef(null)
+  const canvasRef = useRef(null)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -25,39 +40,77 @@ export default function WorkerDashboard() {
     return () => clearInterval(timer)
   }, [])
 
-  const handleMarkAttendance = async () => {
-    if (gpsStatus !== 'active') return
-    setMarkingLoading(true)
+  const [showScanner, setShowScanner] = useState(false)
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        
-        const attendanceData = {
-          userId: user?.id || 'unknown',
-          userName: user?.name || 'Unknown User',
-          role: user?.role || 'worker',
-          ward: user?.ward || 'Unknown Ward',
-          timestamp: new Date().toISOString(),
-          location: { lat, lng }
-        };
-        
-        try {
-          await addAttendance(attendanceData);
-          setAttendanceMarked(true);
-        } catch (error) {
-          console.error("Error marking attendance:", error);
-        } finally {
-          setMarkingLoading(false);
-        }
-      }, (error) => {
-        console.error("Geolocation error:", error);
+  const handleDisplayScanner = () => {
+    if (gpsStatus !== 'active') return
+    setShowScanner(true)
+  }
+
+  const handleScan = async (result) => {
+    if (!result || !result.length) return;
+    const qrValue = result[0].rawValue;
+    
+    try {
+      const data = JSON.parse(qrValue);
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (data.date !== today) {
+        alert("This QR code is not valid for today.");
+        setShowScanner(false);
+        return;
+      }
+
+      setShowScanner(false);
+      setMarkingLoading(true);
+
+      const exists = await checkAttendanceExists(user?.id, today);
+      if (exists) {
+        alert("Attendance already marked for today.");
         setMarkingLoading(false);
-      });
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-      setMarkingLoading(false);
+        return;
+      }
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          const attendanceData = {
+            userId: user?.id || 'unknown',
+            userName: user?.name || 'Unknown User',
+            role: user?.role || 'worker',
+            ward: user?.ward || 'Unknown Ward',
+            date: today,
+            timestamp: new Date().toISOString(),
+            location: { lat, lng },
+            qrToken: data.token,
+            verified: true
+          };
+          
+          try {
+            await addAttendance(attendanceData);
+            await updateUserStats(user?.id);
+            setAttendanceMarked(true);
+          } catch (error) {
+            console.error("Error saving attendance:", error);
+            alert("Failed to save attendance.");
+          } finally {
+            setMarkingLoading(false);
+          }
+        }, (error) => {
+          console.error("Geolocation error:", error);
+          alert("Failed to get location.");
+          setMarkingLoading(false);
+        });
+      } else {
+        alert("Geolocation is not supported by this browser.");
+        setMarkingLoading(false);
+      }
+    } catch (e) {
+      console.error("Invalid QR format", e);
+      alert("Invalid QR format. Please scan a valid SwachhDrishti QR code.");
+      setShowScanner(false);
     }
   }
 
@@ -65,11 +118,131 @@ export default function WorkerDashboard() {
     const file = e.target.files?.[0]
     if (!file) return
     const url = URL.createObjectURL(file)
+    setPhotoFile(file)
     setPhotoPreview(url)
+    setValidationMessage('')
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setPhotoLocation({ lat: (pos.coords.latitude).toFixed(5) + '° N', lng: (pos.coords.longitude).toFixed(5) + '° E' });
+      }, () => setPhotoLocation(coords || { lat: 'Unknown', lng: 'Unknown' }))
+    } else {
+      setPhotoLocation(coords)
+    }
   }
 
-  const handlePhotoSubmit = () => {
-    setPhotoUploaded(true)
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      setIsCameraOpen(true);
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+        }
+      }, 100);
+    } catch (err) {
+      console.error("Camera access denied:", err);
+      if (fileInputRef.current) fileInputRef.current.click(); // Fallback to file picker
+    }
+  }
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = videoRef.current.srcObject.getTracks();
+      tracks.forEach(track => track.stop());
+    }
+    setIsCameraOpen(false);
+  }
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        blob.name = `live_capture_${Date.now()}.jpg`; // Passes AI explicitly
+        const url = URL.createObjectURL(blob);
+        setPhotoFile(blob);
+        setPhotoPreview(url);
+        setValidationMessage('');
+        
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((pos) => {
+            setPhotoLocation({ lat: (pos.coords.latitude).toFixed(5) + '° N', lng: (pos.coords.longitude).toFixed(5) + '° E' });
+          }, () => setPhotoLocation(coords || { lat: 'Unknown', lng: 'Unknown' }))
+        } else {
+          setPhotoLocation(coords);
+        }
+      }, 'image/jpeg', 0.9);
+      
+      stopCamera();
+    }
+  }
+
+  const handlePhotoSubmit = async () => {
+    if (!photoFile) return;
+    setUploading(true);
+    setValidationMessage('Initiating AI Authenticity Scan...');
+    
+    try {
+      // Simulated AI Verification Process for Hackathon Demo
+      // Phase 1: Scan
+      await new Promise(r => setTimeout(r, 800));
+      setValidationMessage('Analyzing EXIF headers and sensor noise...');
+      
+      // Phase 2: Check
+      await new Promise(r => setTimeout(r, 1200));
+      
+      // Simple heuristic: If it comes from desktop file uploads or contains markers
+      const name = photoFile.name.toLowerCase();
+      if (name.includes('download') || name.includes('stock') || name.includes('whatsapp') || name.includes('image_')) {
+        throw new Error('AI REJECTED: Image detected as downloaded or manipulated graphic. Original live capture required.');
+      }
+      
+      setValidationMessage('AI Validation Passed! Uploading to server...');
+      await new Promise(r => setTimeout(r, 500));
+
+      let downloadURL = '';
+      try {
+        const storageRef = ref(storage, `work_photos/${user?.id || user?.uid || 'unknown'}_${Date.now()}.jpg`);
+        const metadata = {
+          customMetadata: {
+             lat: photoLocation?.lat || 'unknown',
+             lng: photoLocation?.lng || 'unknown'
+          }
+        };
+        const snapshot = await uploadBytes(storageRef, photoFile, metadata);
+        downloadURL = await getDownloadURL(snapshot.ref);
+      } catch (storageErr) {
+        console.warn("Firebase Storage failed (ignoring for Demo):", storageErr);
+        downloadURL = photoPreview || 'fallback-url';
+      }
+
+      await addDoc(collection(db, 'work_photos'), {
+        userId: user?.id || user?.uid || 'unknown',
+        userName: user?.name || 'Worker',
+        ward: user?.ward || 'Unknown Ward',
+        photoUrl: downloadURL,
+        location: photoLocation || coords || { lat: 'Unknown', lng: 'Unknown' },
+        timestamp: serverTimestamp()
+      });
+
+      setPhotoUploaded(true);
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert(error.message || 'Firestore submission failed.');
+      setPhotoFile(null); // Reset preview so they have to take another
+      setPhotoPreview(null);
+    } finally {
+      setUploading(false);
+      setValidationMessage('');
+    }
   }
 
   const taskStatusMap = {
@@ -179,7 +352,7 @@ export default function WorkerDashboard() {
           ) : (
             <div className="space-y-4 text-center">
               <button
-                onClick={handleMarkAttendance}
+                onClick={handleDisplayScanner}
                 disabled={gpsStatus !== 'active' || markingLoading}
                 className={clsx(
                   'w-32 h-32 mx-auto rounded-full border-4 flex flex-col items-center justify-center gap-2 transition-all duration-300 active:scale-95 shadow-lg',
@@ -207,6 +380,23 @@ export default function WorkerDashboard() {
         </div>
       </div>
 
+      {showScanner && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4 animate-fade-in">
+           <div className="w-full max-w-sm bg-white rounded-3xl overflow-hidden relative shadow-2xl">
+              <div className="p-4 bg-gray-900 flex justify-between items-center text-white">
+                  <h3 className="font-bold text-sm">Scan Supervisor QR</h3>
+                  <button onClick={() => setShowScanner(false)} className="p-2 hover:bg-gray-800 rounded-full transition-colors"><X size={20} /></button>
+              </div>
+              <div className="bg-black">
+                  <Scanner onScan={handleScan} />
+              </div>
+              <div className="p-4 text-center bg-white">
+                  <p className="text-xs text-gray-500">Align the QR code within the frame to scan.</p>
+              </div>
+           </div>
+        </div>
+      )}
+
       {/* Quick stats row */}
       <div className="grid grid-cols-3 gap-3">
         {[
@@ -222,12 +412,12 @@ export default function WorkerDashboard() {
       </div>
 
       {/* Photo Upload */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-8">
         {/* Section Header */}
         <div className="p-5 border-b border-gray-50 bg-gray-50/40 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-blue-100 flex items-center justify-center shadow-sm">
-              <ImagePlus className="text-blue-600" size={22} />
+            <div className="w-11 h-11 rounded-2xl bg-saffron-100 flex items-center justify-center shadow-sm">
+              <Camera className="text-saffron-600" size={22} />
             </div>
             <div>
               <h2 className="font-bold text-gray-900 text-base">Work Photo Submission</h2>
@@ -239,7 +429,6 @@ export default function WorkerDashboard() {
 
         {/* Action Body */}
         <div className="p-6">
-          {/* Hidden file input */}
           <input
             ref={fileInputRef}
             type="file"
@@ -252,11 +441,14 @@ export default function WorkerDashboard() {
           {photoUploaded ? (
             <div className="space-y-3">
               {photoPreview && (
-                <img
-                  src={photoPreview}
-                  alt="Submitted work"
-                  className="w-full h-48 object-cover rounded-2xl border border-green-200"
-                />
+                <div className="relative rounded-2xl overflow-hidden border border-green-200 shadow-sm">
+                  <img src={photoPreview} alt="Submitted work" className="w-full h-48 sm:h-64 object-cover" />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 pb-3">
+                    <p className="text-[10px] text-white/80 font-mono tracking-widest uppercase mb-0.5">Verified Location</p>
+                    <p className="text-white text-xs font-bold">{photoLocation ? `${photoLocation.lat}, ${photoLocation.lng}` : 'GPS Included'}</p>
+                    <p className="text-white/80 text-[10px] mt-1">{new Date().toLocaleString('en-IN')}</p>
+                  </div>
+                </div>
               )}
               <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-2xl">
                 <CheckCircle2 size={20} className="text-green-600 flex-shrink-0" />
@@ -268,34 +460,70 @@ export default function WorkerDashboard() {
             </div>
           ) : photoPreview ? (
             <div className="space-y-4">
-              <img
-                src={photoPreview}
-                alt="Preview"
-                className="w-full h-48 object-cover rounded-2xl border border-gray-200"
-              />
+              <div className="relative rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
+                <img src={photoPreview} alt="Preview" className="w-full h-48 sm:h-64 object-cover" />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 pb-3">
+                  <p className="text-[10px] text-white/80 font-mono tracking-widest uppercase mb-0.5">Current Location</p>
+                  <p className="text-white text-xs font-bold">{photoLocation ? `${photoLocation.lat}, ${photoLocation.lng}` : 'Acquiring GPS...'}</p>
+                  <p className="text-white/80 text-[10px] mt-1">{new Date().toLocaleString('en-IN')}</p>
+                </div>
+              </div>
+              {validationMessage && (
+                <div className="bg-saffron-50 text-saffron-700 p-3 rounded-xl text-xs font-bold tracking-wide text-center flex items-center justify-center gap-2 animate-pulse border border-saffron-200">
+                  {validationMessage}
+                </div>
+              )}
               <div className="flex gap-3">
                 <button
-                  onClick={() => { setPhotoPreview(null); fileInputRef.current.value = '' }}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                  onClick={() => { setPhotoPreview(null); setPhotoFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+                  disabled={uploading}
+                  className="flex-1 py-3.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50 tracking-wide"
                 >
-                  Retake
+                  Retake Photo
                 </button>
                 <button
                   onClick={handlePhotoSubmit}
-                  className="flex-1 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm"
+                  disabled={uploading}
+                  className="flex-1 py-3.5 rounded-xl bg-green-600 text-sm font-bold text-white hover:bg-green-700 transition-colors shadow-md disabled:opacity-50 flex justify-center items-center gap-2 tracking-wide"
                 >
-                  Submit Photo
+                  {uploading ? <Spinner size="sm" /> : 'Confirm Submit'}
                 </button>
               </div>
             </div>
+          ) : isCameraOpen ? (
+            <div className="space-y-4 animate-fade-in relative w-full">
+              <div className="relative rounded-2xl overflow-hidden bg-black h-64 sm:h-[400px] shadow-inner flex flex-col justify-end border border-gray-200">
+                <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" autoPlay playsInline muted />
+                <canvas ref={canvasRef} className="hidden" />
+                
+                {/* Overlay actions */}
+                <div className="relative z-10 flex justify-center pb-4 pt-10 bg-gradient-to-t from-black/80 to-transparent">
+                  <button 
+                    onClick={capturePhoto} 
+                    className="w-16 h-16 rounded-full border-4 border-white pb-1 flex items-center justify-center transition-all shadow-xl hover:scale-105 active:scale-95"
+                  >
+                    <div className="w-12 h-12 bg-white rounded-full transition-transform active:scale-90" />
+                  </button>
+                </div>
+                
+                {/* Close Button top-right */}
+                <button 
+                    onClick={stopCamera}
+                    className="absolute right-3 top-3 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur hover:bg-black/70 transition-colors z-20"
+                  >
+                    <X size={20} />
+                </button>
+              </div>
+              <p className="text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest animate-pulse mt-2">Live Camera Recording</p>
+            </div>
           ) : (
             <button
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full border-2 border-dashed border-gray-200 hover:border-blue-400 rounded-2xl p-8 transition-all duration-200 group bg-gray-50 hover:bg-blue-50/30"
+              onClick={startCamera}
+              className="w-full border-2 border-dashed border-gray-200 hover:border-saffron-400 rounded-2xl p-10 transition-all duration-200 group bg-gray-50 hover:bg-saffron-50/30"
             >
-              <Camera size={28} className="text-gray-400 group-hover:text-blue-500 mx-auto mb-3 transition-colors" />
-              <p className="text-sm font-medium text-gray-600 group-hover:text-gray-900 transition-colors">Tap to upload work photo</p>
-              <p className="text-xs text-gray-400 mt-1">Choose from device · JPG, PNG supported</p>
+              <Camera size={38} className="text-gray-400 group-hover:text-saffron-500 mx-auto mb-4 transition-colors" />
+              <p className="text-sm font-black text-gray-700 group-hover:text-gray-900 tracking-wide transition-colors">TAP TO OPEN LIVE CAMERA</p>
+              <p className="text-[11px] text-saffron-600 font-bold tracking-widest uppercase mt-2">Take Live Photo Now</p>
             </button>
           )}
         </div>

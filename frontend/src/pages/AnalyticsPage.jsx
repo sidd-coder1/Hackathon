@@ -1,246 +1,252 @@
 import React, { useState } from 'react'
 import {
-  AreaChart, Area, BarChart, Bar, LineChart, Line,
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, ScatterChart, Scatter, ZAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts'
-import { BarChart3, TrendingUp, Download, Calendar, Filter } from 'lucide-react'
+import { BarChart3, TrendingUp, Download, Calendar, Filter, PieChart as PieChartIcon, MapPin } from 'lucide-react'
 import { Badge, StatCard } from '../components/ui/UIComponents'
-import { attendanceData, weeklyPerformance, mockWorkers } from '../data/mockData'
+import { mockWorkers } from '../data/mockData'
 import clsx from 'clsx'
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="glass-card px-3 py-2.5 text-xs shadow-xl border border-gray-100">
-      <p className="text-gray-600 mb-1 font-medium">{label}</p>
+    <div className="bg-white/90 backdrop-blur px-3 py-2.5 text-xs shadow-xl border border-gray-100 rounded-xl">
+      {label && <p className="text-gray-500 mb-1 font-bold uppercase tracking-widest">{label}</p>}
       {payload.map((p, i) => (
-        <p key={i} style={{ color: p.color }} className="font-semibold">{p.name}: {p.value}</p>
+        <p key={i} style={{ color: p.color || p.fill || '#111' }} className="font-bold flex items-center gap-1">
+           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color || p.fill || '#111' }} />
+           {p.name || p.dataKey}: {p.value}
+        </p>
       ))}
     </div>
   )
 }
 
-const heatmapData = Array.from({ length: 7 }, (_, row) =>
-  Array.from({ length: 12 }, (_, col) => ({
-    row, col,
-    value: Math.floor(Math.random() * 100),
-    label: `Ward ${row * 12 + col + 1}`,
+// Chart 1 Data: Attendance Bar Chart by Date
+const attendanceBarData = [
+  { date: 'Mon', present: 120, absent: 12, leave: 5 },
+  { date: 'Tue', present: 130, absent: 8, leave: 4 },
+  { date: 'Wed', present: 125, absent: 10, leave: 6 },
+  { date: 'Thu', present: 135, absent: 5, leave: 3 },
+  { date: 'Fri', present: 128, absent: 9, leave: 6 },
+  { date: 'Sat', present: 110, absent: 15, leave: 2 },
+  { date: 'Sun', present: 105, absent: 18, leave: 2 }
+];
+
+// Chart 2 Data: Task Completion Pie Chart
+const taskCompletionData = [
+  { name: 'Completed', value: 450, color: '#138808' }, // Green
+  { name: 'In Progress', value: 120, color: '#FF9933' }, // Saffron
+  { name: 'Pending', value: 30, color: '#ef4444' } // Red
+];
+
+// Chart 3 Data: Zone wise Complaint Heatmap (Scatter)
+const zoneCategories = ['North Zone', 'South Zone', 'East Zone', 'West Zone', 'Central'];
+const issueCategories = ['Garbage', 'Drainage', 'Dustbins', 'Sweeping'];
+const complaintHeatmapData = zoneCategories.flatMap((zone, zoneIdx) => 
+  issueCategories.map((issue, issueIdx) => ({
+    zone,
+    issue,
+    count: Math.floor(Math.random() * 50) + 5,
   }))
-).flat()
+);
 
-function Heatmap() {
-  const [hovered, setHovered] = useState(null)
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  const hours = ['6AM','7AM','8AM','9AM','10AM','11AM','12PM','1PM','2PM','3PM','4PM','5PM']
-
-  return (
-    <div className="overflow-x-auto">
-      <div className="min-w-[480px]">
-        <div className="flex items-center mb-2 ml-10 gap-1">
-          {hours.map(h => (
-            <div key={h} className="flex-1 text-center text-xs text-gray-600">{h}</div>
-          ))}
-        </div>
-        <div className="space-y-1.5">
-          {days.map((day, row) => (
-            <div key={day} className="flex items-center gap-1">
-              <span className="w-9 text-right text-xs text-gray-600 pr-1.5 flex-shrink-0">{day}</span>
-              {hours.map((_, col) => {
-                const cell = heatmapData.find(d => d.row === row && d.col === col)
-                const opacity = cell ? cell.value / 100 : 0
-                const isHovered = hovered?.row === row && hovered?.col === col
-                return (
-                  <div
-                    key={col}
-                    onMouseEnter={() => setHovered({ row, col, value: cell?.value })}
-                    onMouseLeave={() => setHovered(null)}
-                    className={clsx(
-                      'flex-1 h-7 rounded-md transition-all duration-150 cursor-pointer relative',
-                      isHovered && 'ring-1 ring-saffron-400 scale-110'
-                    )}
-                    style={{ background: `rgba(255, 107, 0, ${opacity * 0.8 + 0.05})` }}
-                    title={`${day} ${hours[col]}: ${cell?.value}%`}
-                  />
-                )
-              })}
-            </div>
-          ))}
-        </div>
-        <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
-          <span>Low</span>
-          <div className="flex gap-0.5">
-            {[0.1, 0.3, 0.5, 0.7, 0.9].map(o => (
-              <div key={o} className="w-6 h-3 rounded-sm" style={{ background: `rgba(255,107,0,${o})` }} />
-            ))}
-          </div>
-          <span>High Attendance</span>
-        </div>
-      </div>
-    </div>
-  )
-}
+// Chart 4 Data: Worker Performance Line Chart
+const workerPerformanceData = [
+  { day: 'Day 1', score: 75 },
+  { day: 'Day 2', score: 82 },
+  { day: 'Day 3', score: 80 },
+  { day: 'Day 4', score: 88 },
+  { day: 'Day 5', score: 92 },
+  { day: 'Day 6', score: 85 },
+  { day: 'Day 7', score: 95 }
+];
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState('week')
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in w-full pb-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Analytics &amp; Reports</h1>
-          <p className="text-sm text-gray-500">Performance overview and workforce insights</p>
+          <h1 className="text-xl md:text-2xl font-black uppercase tracking-widest text-gray-900 border-l-4 border-saffron-500 pl-3">Dashboard Analytics</h1>
+          <p className="text-sm text-gray-500 font-medium mt-1">Real-time charts powered by Recharts</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 bg-white border border-gray-200 shadow-sm rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-white border border-gray-100 shadow-sm rounded-xl p-1">
             {['week', 'month', 'quarter'].map(p => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
                 className={clsx(
-                  'px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all',
-                  period === p ? 'bg-saffron-500 text-white' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                  'px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all',
+                  period === p ? 'bg-saffron-500 text-white shadow-md' : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
                 )}
               >
                 {p}
               </button>
             ))}
           </div>
-          <button className="btn-secondary text-sm px-3 py-2">
-            <Download size={15} /> Report
+          <button className="h-9 px-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-xs font-bold uppercase tracking-wider text-gray-700 flex items-center gap-2 transition-colors">
+            <Download size={14} /> Report
           </button>
         </div>
       </div>
 
-
-      {/* Attendance Area Chart */}
-      <div className="glass-card p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <Calendar size={16} className="text-saffron-500" /> Attendance Trend
-          </h2>
-          <Badge variant="success">↑ 2.3% vs last period</Badge>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 w-full">
+        
+        {/* Chart 1: Attendance Bar Chart */}
+        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xl shadow-gray-200/40">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+              <Calendar size={16} className="text-blue-500" /> Attendance by Date
+            </h2>
+          </div>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={attendanceBarData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+              <XAxis dataKey="date" tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 'bold' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 'bold' }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f9fafb' }} />
+              <Legend wrapperStyle={{ fontSize: 11, fontWeight: 'bold', paddingTop: 10 }} iconType="circle" />
+              <Bar dataKey="present" name="Present" fill="#138808" radius={[4,4,0,0]} stackId="a" />
+              <Bar dataKey="leave" name="Leave" fill="#FF9933" radius={[0,0,0,0]} stackId="a" />
+              <Bar dataKey="absent" name="Absent" fill="#ef4444" radius={[4,4,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-        <ResponsiveContainer width="100%" height={260}>
-          <AreaChart data={attendanceData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gPresent" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#FF6B00" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#FF6B00" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="gLeave" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#3b82f6" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-            <XAxis dataKey="day" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: 11, color: '#6b7280' }} />
-            <Area type="monotone" dataKey="present" name="Present" stroke="#FF6B00" fill="url(#gPresent)" strokeWidth={2.5} />
-            <Area type="monotone" dataKey="absent"  name="Absent"  stroke="#ef4444" fill="none" strokeWidth={1.5} strokeDasharray="5 3" />
-            <Area type="monotone" dataKey="leave"   name="Leave"   stroke="#3b82f6" fill="url(#gLeave)"   strokeWidth={1.5} />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
 
-      {/* Performance + Bar Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="glass-card p-6">
-          <h2 className="text-sm font-semibold text-gray-900 mb-5 flex items-center gap-2">
-            <TrendingUp size={16} className="text-green-600" /> Weekly Performance Score
+        {/* Chart 2: Task Completion Pie Chart */}
+        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xl shadow-gray-200/40">
+          <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+            <PieChartIcon size={16} className="text-saffron-500" /> Task Completion Status
           </h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={weeklyPerformance} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-              <XAxis dataKey="week" tick={{ fill: '#6b7280', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis domain={[60, 100]} tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+          <ResponsiveContainer width="100%" height={260}>
+            <PieChart margin={{ top: 0, bottom: 0 }}>
+              <Pie
+                data={taskCompletionData}
+                cx="50%" cy="50%"
+                innerRadius={65} outerRadius={95}
+                paddingAngle={5}
+                dataKey="value"
+                stroke="none"
+              >
+                {taskCompletionData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
               <Tooltip content={<CustomTooltip />} />
+              <Legend 
+                wrapperStyle={{ fontSize: 11, fontWeight: 'bold' }} 
+                iconType="circle" 
+                layout="horizontal" 
+                verticalAlign="bottom" 
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Chart 3: Zone wise Complaint Heatmap (ScatterChart) */}
+        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xl shadow-gray-200/40">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+              <MapPin size={16} className="text-red-500" /> Zone wise Complaint Heatmap
+            </h2>
+          </div>
+          <p className="text-[10px] text-gray-400 font-bold mb-4 ml-6 uppercase tracking-wider">Bubble size indicates density</p>
+          <ResponsiveContainer width="100%" height={260}>
+            <ScatterChart margin={{ top: 10, right: 30, left: -20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis dataKey="issue" type="category" allowDuplicatedCategory={false} tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 'bold' }} axisLine={false} tickLine={false} />
+              <YAxis dataKey="zone" type="category" allowDuplicatedCategory={false} tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 'bold' }} axisLine={false} tickLine={false} width={80} />
+              <ZAxis dataKey="count" range={[80, 800]} />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} content={(props) => {
+                 if (!props.active || !props.payload?.length) return null
+                 const data = props.payload[0].payload;
+                 return (
+                   <div className="bg-white/90 backdrop-blur px-3 py-2 text-xs shadow-xl border border-red-100 rounded-xl">
+                     <p className="font-black text-gray-800 uppercase tracking-wide">{data.zone}</p>
+                     <p className="text-gray-500 font-bold mb-1">{data.issue}</p>
+                     <p className="text-red-600 font-black text-sm">{data.count} Complaints</p>
+                   </div>
+                 )
+              }} />
+              <Scatter data={complaintHeatmapData} fill="#ef4444" shape="circle" fillOpacity={0.7} />
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Chart 4: Worker Performance Line Chart */}
+        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xl shadow-gray-200/40">
+          <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+            <TrendingUp size={16} className="text-green-600" /> Worker Performance Trend
+          </h2>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={workerPerformanceData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+              <XAxis dataKey="day" tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 'bold' }} axisLine={false} tickLine={false} padding={{ left: 10, right: 10 }} />
+              <YAxis domain={[60, 100]} tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 'bold' }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#138808', strokeWidth: 1, strokeDasharray: '5 5' }} />
               <Line
-                type="monotone" dataKey="score" name="Score"
-                stroke="#138808" strokeWidth={2.5}
-                dot={{ fill: '#138808', r: 3, strokeWidth: 0 }}
-                activeDot={{ r: 5 }}
+                type="monotone" dataKey="score" name="Perf. Score"
+                stroke="#138808" strokeWidth={3}
+                dot={{ fill: '#ffffff', stroke: '#138808', r: 4, strokeWidth: 2 }}
+                activeDot={{ r: 6, fill: '#FF9933', stroke: '#ffffff', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
-
-        <div className="glass-card p-6">
-          <h2 className="text-sm font-semibold text-gray-900 mb-5 flex items-center gap-2">
-            <BarChart3 size={16} className="text-saffron-500" /> Daily Attendance Breakdown
-          </h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={attendanceData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }} barGap={2}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-              <XAxis dataKey="day" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend wrapperStyle={{ fontSize: 11, color: '#6b7280' }} />
-              <Bar dataKey="present" name="Present" fill="#FF6B00" radius={[4,4,0,0]} />
-              <Bar dataKey="absent"  name="Absent"  fill="#ef4444" radius={[4,4,0,0]} />
-              <Bar dataKey="leave"   name="Leave"   fill="#3b82f6" radius={[4,4,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Attendance Heatmap */}
-      <div className="glass-card p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-gray-900">Attendance Heatmap · Hour-wise</h2>
-          <Badge variant="info">Simulated Data</Badge>
-        </div>
-        <Heatmap />
+        
       </div>
 
       {/* Top workers table */}
-      <div className="glass-card p-5">
-        <h2 className="text-sm font-semibold text-gray-900 mb-4">Top Performers This Week</h2>
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/40 p-1 sm:p-5 mt-4">
+        <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4 ml-4 sm:ml-0 pt-4 sm:pt-0">Top Performers This Week</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr className="border-b border-gray-100">
                 {['Rank', 'Worker', 'Ward', 'Attendance', 'Tasks Done', 'Trust Score'].map(h => (
-                  <th key={h} className="text-left text-xs text-gray-500 font-semibold uppercase tracking-wide px-3 py-2.5 first:pl-0">{h}</th>
+                  <th key={h} className="text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest px-4 py-3 first:pl-4">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-50">
               {[...mockWorkers]
                 .sort((a, b) => b.trustScore - a.trustScore)
                 .slice(0, 5)
                 .map((w, i) => (
-                  <tr key={w.id} className="table-row-hover">
-                    <td className="px-3 py-3 pl-0">
+                  <tr key={w.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-4 py-4 pl-4">
                       <span className={clsx(
-                        'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold',
-                        i === 0 ? 'bg-yellow-500/20 text-yellow-400' :
-                        i === 1 ? 'bg-gray-400/20 text-gray-300' :
-                        i === 2 ? 'bg-amber-700/20 text-amber-600' : 'text-gray-500'
+                        'w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shadow-sm',
+                        i === 0 ? 'bg-yellow-100 text-yellow-600' :
+                        i === 1 ? 'bg-gray-100 text-gray-600' :
+                        i === 2 ? 'bg-amber-100 text-amber-700' : 'bg-gray-50 text-gray-500'
                       )}>
-                        {i + 1}
+                        #{i + 1}
                       </span>
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-4 py-4">
                       <div>
-                        <p className="text-gray-900 text-xs font-medium">{w.name}</p>
-                        <p className="text-gray-500 text-xs">{w.id}</p>
+                        <p className="text-gray-900 text-sm font-bold">{w.name}</p>
+                        <p className="text-gray-400 text-[10px] font-mono tracking-widest mt-0.5">{w.id}</p>
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-xs text-gray-600">{w.ward}</td>
-                    <td className="px-3 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <td className="px-4 py-4 text-xs font-bold text-gray-600">{w.ward}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div className="h-full bg-saffron-500 rounded-full" style={{ width: `${w.attendance}%` }} />
                         </div>
-                        <span className="text-xs text-gray-600">{w.attendance}%</span>
+                        <span className="text-xs font-black text-gray-600">{w.attendance}%</span>
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-xs text-gray-600">{Math.floor(w.attendance / 10)} tasks</td>
-                    <td className="px-3 py-3">
-                      <span className={clsx('text-sm font-bold', w.trustScore >= 80 ? 'text-green-600' : 'text-amber-600')}>
+                    <td className="px-4 py-4 text-xs font-bold text-gray-600">{Math.floor(w.attendance / 10)} tasks</td>
+                    <td className="px-4 py-4">
+                      <span className={clsx('text-sm font-black', w.trustScore >= 80 ? 'text-green-600' : 'text-amber-600')}>
                         {w.trustScore}
                       </span>
                     </td>

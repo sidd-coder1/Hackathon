@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
+import ScanPage from './user/ScanPage'
 import { 
   MapPin, 
   Camera, 
@@ -255,13 +256,18 @@ function ReportIssue({ onAddLog }) {
   )
 }
 
-function DailyQR({ onAddLog }) {
+function DailyQR({ onAddLog, user }) {
   const [verifying, setVerifying] = useState(false)
   const [verified, setVerified] = useState(false)
   
   const today = new Date().toISOString().split('T')[0]
   const dailyCode = `SWDR-${today}`
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${dailyCode}&size=200x200&bgcolor=ffffff&color=2563eb&margin=10`
+  const qrData = JSON.stringify({
+    userId: user?.id || 'unknown',
+    date: today,
+    token: dailyCode
+  })
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrData)}&size=200x200&bgcolor=ffffff&color=2563eb&margin=10`
 
   const handleVerify = () => {
     setVerifying(true)
@@ -482,7 +488,11 @@ export default function UserDashboard({ view = 'dashboard' }) {
     <div className="min-h-[calc(100vh-120px)] w-full animate-fade-in pb-10">
       <main className="flex-1 min-w-0 pt-2">
         {view === 'dashboard' && <DashboardHome user={user} activityLog={activityLog} />}
-        {view === 'scan' && <DailyQR onAddLog={addLogEntry} />}
+<<<<<<< Updated upstream
+        {view === 'scan' && <DailyQR onAddLog={addLogEntry} user={user} />}
+=======
+        {view === 'scan' && <ScanPage onAddLog={addLogEntry} />}
+>>>>>>> Stashed changes
         {view === 'report' && <ReportIssue onAddLog={addLogEntry} />}
         {view === 'feedback' && <WorkerFeedback onAddLog={addLogEntry} />}
       </main>
