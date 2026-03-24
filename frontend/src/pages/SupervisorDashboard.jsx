@@ -32,7 +32,6 @@ function CustomTooltip({ active, payload, label }) {
 function MapPlaceholder() {
   return (
     <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
-      {/* Simulated map grid */}
       <div className="absolute inset-0"
         style={{
           backgroundImage: 'linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)',
@@ -41,7 +40,6 @@ function MapPlaceholder() {
       />
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-gray-200" />
 
-      {/* Worker pins */}
       {[
         { top: '20%', left: '30%', color: 'bg-green-500', name: 'WRK-1001' },
         { top: '45%', left: '55%', color: 'bg-green-500', name: 'WRK-1004' },
@@ -62,7 +60,6 @@ function MapPlaceholder() {
         </div>
       ))}
 
-      {/* Overlay labels */}
       <div className="absolute top-3 left-3 glass-card px-3 py-1.5 text-xs flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
         <span className="text-green-600 font-medium">Live Tracking</span>
@@ -93,13 +90,13 @@ function CivicTrustScore({ score = 84.7 }) {
       </div>
       <Badge variant={score >= 80 ? 'success' : score >= 60 ? 'warning' : 'danger'}>{label}</Badge>
       <p className="text-xs text-gray-600 mt-3 max-w-[160px] leading-relaxed">
-        Based on attendance, task completion &amp; GPS compliance
+        Performance across your assigned Ward
       </p>
     </div>
   )
 }
 
-export default function AdminDashboard() {
+export default function SupervisorDashboard() {
   const [filter, setFilter] = useState('all')
   const [dismissedAlerts, setDismissedAlerts] = useState([])
   const [refreshing, setRefreshing] = useState(false)
@@ -118,16 +115,15 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Supervisor Dashboard</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Municipal Workforce · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            Ward Monitoring Center · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <SecureBadge label="Live Data" size="sm" />
+          <SecureBadge label="Live Monitoring" size="sm" />
           <button
             onClick={handleRefresh}
             className="btn-secondary text-sm px-3 py-2"
@@ -135,38 +131,32 @@ export default function AdminDashboard() {
             <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
             Refresh
           </button>
-          <button className="btn-secondary text-sm px-3 py-2">
-            <Download size={15} /> Export
-          </button>
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Workers"    value={stats.totalWorkers}              icon={Users}         color="saffron" trend={3.2} />
-        <StatCard label="Active Today"     value={stats.activeToday}               icon={CheckCircle2}  color="green"  trend={1.8} />
-        <StatCard label="Tasks Completed"  value={stats.tasksCompleted}            icon={TrendingUp}    color="blue"   trend={5.1} />
-        <StatCard label="Open Alerts"      value={stats.alertsOpen}                icon={AlertTriangle} color="red"    />
+        <StatCard label="Total Field Workers" value={stats.totalWorkers}              icon={Users}         color="saffron" trend={3.2} />
+        <StatCard label="Active Now"          value={stats.activeToday}               icon={CheckCircle2}  color="green"  trend={1.8} />
+        <StatCard label="Tasks Completed"     value={stats.tasksCompleted}            icon={TrendingUp}    color="blue"   trend={5.1} />
+        <StatCard label="Critical Alerts"     value={stats.alertsOpen}                icon={AlertTriangle} color="red"    />
       </div>
 
-      {/* Map + Civic Trust */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
         <div className="lg:col-span-3 glass-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-              <MapPin size={16} className="text-saffron-500" /> Live Worker Map
+              <MapPin size={16} className="text-saffron-500" /> Ward Real-time Map
             </h2>
-            <Badge variant="success">6 Active</Badge>
+            <Badge variant="success">6 Active Pins</Badge>
           </div>
           <MapPlaceholder />
         </div>
         <CivicTrustScore score={stats.civicTrustScore} />
       </div>
 
-      {/* Attendance Chart + Pie */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 glass-card p-6">
-          <h2 className="text-sm font-semibold text-gray-800 mb-5">Weekly Attendance Overview</h2>
+          <h2 className="text-sm font-semibold text-gray-800 mb-5">Weekly Ward Attendance</h2>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={attendanceData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
               <defs>
@@ -191,7 +181,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="glass-card p-6">
-          <h2 className="text-sm font-semibold text-gray-800 mb-5">Task Distribution</h2>
+          <h2 className="text-sm font-semibold text-gray-800 mb-5">Task Allocation</h2>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie
@@ -224,11 +214,10 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Workers Table */}
       <div className="glass-card overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 border-b border-gray-200">
           <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-            <Users size={16} className="text-saffron-500" /> Worker Status
+            <Users size={16} className="text-saffron-500" /> Ground Force Status
           </h2>
           <div className="flex items-center gap-2 flex-wrap">
             {['all', 'active', 'absent', 'on-leave'].map(f => (
@@ -305,9 +294,6 @@ export default function AdminDashboard() {
                       <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-500 transition-colors" title="View">
                         <Eye size={14} />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-red-50 text-gray-500 hover:text-red-500 transition-colors" title="Flag">
-                        <Ban size={14} />
-                      </button>
                     </div>
                   </td>
                 </tr>
@@ -315,26 +301,21 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
-        <div className="px-5 py-3 border-t border-gray-200 text-xs text-gray-500">
-          Showing {filteredWorkers.length} of {mockWorkers.length} workers
-        </div>
       </div>
 
-      {/* Alerts Panel + Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Alert Panel */}
         <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-              <Bell size={16} className="text-red-500" /> System Alerts
+              <Bell size={16} className="text-red-500" /> Active Ward Alerts
             </h2>
-            <Badge variant="danger">{visibleAlerts.length} Active</Badge>
+            <Badge variant="danger">{visibleAlerts.length} Alerts</Badge>
           </div>
           <div className="space-y-3">
             {visibleAlerts.length === 0 ? (
               <div className="text-center py-6 text-gray-500 text-sm">
                 <CheckCircle2 size={24} className="mx-auto mb-2 text-green-500" />
-                All clear! No active alerts.
+                No pending alerts.
               </div>
             ) : (
               visibleAlerts.map(alert => (
@@ -350,7 +331,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
         <div className="glass-card p-5">
           <h2 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <TrendingUp size={16} className="text-saffron-500" /> Recent Activity
@@ -367,12 +347,6 @@ export default function AdminDashboard() {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-xs text-gray-500">{item.time}</p>
-                  <Badge
-                    variant={item.status === 'verified' ? 'success' : item.status === 'flagged' ? 'danger' : 'warning'}
-                    className="mt-0.5 text-xs"
-                  >
-                    {item.status}
-                  </Badge>
                 </div>
               </div>
             ))}

@@ -7,12 +7,14 @@ import { useAuth } from '../../context/AuthContext'
 import { LayoutDashboard, Users, BarChart3, MapPin, Bell, X } from 'lucide-react'
 import clsx from 'clsx'
 
-const adminNav = [
-  { to: '/admin',         label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/admin/workers', label: 'Workers',   icon: Users },
-  { to: '/analytics',     label: 'Analytics', icon: BarChart3 },
-  { to: '/admin/map',     label: 'Live Map',  icon: MapPin },
-  { to: '/admin/alerts',  label: 'Alerts',    icon: Bell },
+const supervisorNav = [
+  { to: '/supervisor', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/analytics',  label: 'Analytics', icon: BarChart3 },
+]
+
+const userNav = [
+  { to: '/user',       label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/analytics',  label: 'Analytics', icon: BarChart3 },
 ]
 const workerNav = [
   { to: '/worker',     label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -22,7 +24,9 @@ const workerNav = [
 export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { user } = useAuth()
-  const navItems = user?.role === 'worker' ? workerNav : adminNav
+  const navItems = user?.role === 'worker' ? workerNav 
+                 : user?.role === 'supervisor' ? supervisorNav 
+                 : userNav
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">

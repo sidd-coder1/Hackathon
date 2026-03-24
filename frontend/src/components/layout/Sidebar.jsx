@@ -8,13 +8,14 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 
-const adminNav = [
-  { to: '/admin',      label: 'Dashboard',   icon: LayoutDashboard, end: true },
-  { to: '/admin/workers', label: 'Workers',  icon: Users },
+const supervisorNav = [
+  { to: '/supervisor', label: 'Dashboard',   icon: LayoutDashboard, end: true },
   { to: '/analytics',  label: 'Analytics',   icon: BarChart3 },
-  { to: '/admin/map',  label: 'Live Map',    icon: MapPin },
-  { to: '/admin/alerts', label: 'Alerts',    icon: Bell },
-  { to: '/admin/reports', label: 'Reports',  icon: FileText },
+]
+
+const userNav = [
+  { to: '/user',       label: 'Dashboard',   icon: LayoutDashboard, end: true },
+  { to: '/analytics',  label: 'Analytics',   icon: BarChart3 },
 ]
 
 const workerNav = [
@@ -26,7 +27,9 @@ export default function Sidebar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
-  const navItems = user?.role === 'worker' ? workerNav : adminNav
+  const navItems = user?.role === 'worker' ? workerNav 
+                 : user?.role === 'supervisor' ? supervisorNav 
+                 : userNav
 
   const handleLogout = () => {
     logout()
