@@ -53,7 +53,7 @@ export default function WorkerDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Good Morning,</h1>
-          <p className="text-saffron-600 font-semibold">{user?.name} 👋</p>
+          <p className="text-saffron-600 font-semibold">{user?.name}</p>
         </div>
         <div className="text-right">
           <p className="text-lg font-mono font-bold text-gray-800 tabular-nums">
@@ -130,7 +130,7 @@ export default function WorkerDashboard() {
             <p className="text-xs text-gray-500">
               {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · GPS Verified · Ward 14
             </p>
-            <Badge variant="success">✓ Verified &amp; Recorded</Badge>
+            <Badge variant="success" className="flex flex-row items-center justify-center mx-auto w-fit gap-1"><CheckCircle2 size={12} /> Verified &amp; Recorded</Badge>
           </div>
         ) : (
           <div className="space-y-4">

@@ -42,8 +42,8 @@ export default function UserDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Namaste,</h1>
-          <p className="text-saffron-600 font-bold">{user?.name} 🙏</p>
+          <h1 className="text-xl font-bold text-gray-900">Good Morning,</h1>
+          <p className="text-saffron-600 font-bold">{user?.name}</p>
           <p className="text-xs text-gray-500 mt-1">Area Secretary / Watchman</p>
         </div>
         <div className="text-right bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">

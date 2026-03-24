@@ -1,5 +1,6 @@
 import React from 'react'
 import clsx from 'clsx'
+import { AlertOctagon, AlertTriangle, CheckCircle2, Info, Lock } from 'lucide-react'
 
 // Badge component
 export function Badge({ variant = 'default', children, className }) {
@@ -81,15 +82,17 @@ export function Skeleton({ className }) {
 // Alert/Toast component for UI
 export function AlertBanner({ type = 'info', title, message, onClose }) {
   const config = {
-    critical: { bg: 'bg-red-50 border-red-200',   icon: '🚨', text: 'text-red-800'    },
-    warning:  { bg: 'bg-amber-50 border-amber-200', icon: '⚠️', text: 'text-amber-800'  },
-    success:  { bg: 'bg-green-50 border-green-200', icon: '✅', text: 'text-green-800'  },
-    info:     { bg: 'bg-blue-50 border-blue-200',   icon: 'ℹ️', text: 'text-blue-800'   },
+    critical: { bg: 'bg-red-50 border-red-200',   icon: AlertOctagon, text: 'text-red-800'    },
+    warning:  { bg: 'bg-amber-50 border-amber-200', icon: AlertTriangle, text: 'text-amber-800'  },
+    success:  { bg: 'bg-green-50 border-green-200', icon: CheckCircle2, text: 'text-green-800'  },
+    info:     { bg: 'bg-blue-50 border-blue-200',   icon: Info, text: 'text-blue-800'   },
   }
   const c = config[type] || config.info
   return (
     <div className={clsx('flex items-start gap-3 p-4 rounded-xl border animate-slide-up', c.bg)}>
-      <span className="text-lg flex-shrink-0 mt-0.5">{c.icon}</span>
+      <div className="flex-shrink-0 mt-0.5">
+        <c.icon size={18} className={c.text} />
+      </div>
       <div className="flex-1 min-w-0">
         <p className={clsx('text-sm font-semibold', c.text)}>{title}</p>
         {message && <p className="text-xs text-gray-600 mt-0.5">{message}</p>}
@@ -103,14 +106,20 @@ export function AlertBanner({ type = 'info', title, message, onClose }) {
 
 // SecureBadge – visual trust indicator
 export function SecureBadge({ label = 'Secured', size = 'sm' }) {
+  const isSm = size === 'sm';
   return (
-    <span className={clsx(
-      'inline-flex items-center gap-1.5 font-semibold text-green-700 bg-green-50 border border-green-200 rounded-full',
-      size === 'sm' ? 'px-2.5 py-0.5 text-xs' : 'px-4 py-1.5 text-sm'
+    <div className={clsx(
+      'group inline-flex items-center gap-2 font-semibold text-green-700 bg-white border border-green-200 rounded-full shadow-sm hover:shadow-md hover:border-green-300 transition-all duration-300 cursor-default',
+      isSm ? 'px-3 py-1 text-xs' : 'px-4 py-2 text-sm'
     )}>
-      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-      🔒 {label}
-    </span>
+      <div className="relative flex items-center justify-center p-1.5 rounded bg-gradient-to-br from-green-50 to-green-100 group-hover:scale-110 group-hover:shadow-[0_0_12px_rgba(34,197,94,0.3)] border border-green-300/50 transition-all duration-300">
+        <Lock size={isSm ? 12 : 14} className="text-green-600 relative z-10" />
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_4px_rgba(34,197,94,0.5)]" />
+        {label}
+      </div>
+    </div>
   )
 }
 

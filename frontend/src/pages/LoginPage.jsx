@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Shield, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Fingerprint } from 'lucide-react'
+import { Shield, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Fingerprint, Building2, HardHat } from 'lucide-react'
 import { SecureBadge, Spinner } from '../components/ui/UIComponents'
 
 const DEMO_CREDS = {
@@ -46,9 +46,9 @@ export default function LoginPage() {
   }
 
   const roles = [
-    { id: 'user',       label: 'User',           desc: 'Watchman / Secretary',    icon: '🧑‍💼' },
-    { id: 'supervisor', label: 'Supervisor',      desc: 'Ward monitoring access',  icon: '👷' },
-    { id: 'worker',     label: 'Field Worker',    desc: 'Attendance & task access', icon: '🧹' },
+    { id: 'user',       label: 'User',           desc: 'Watchman / Secretary',    icon: Shield, color: 'text-saffron-500' },
+    { id: 'supervisor', label: 'Supervisor',      desc: 'Ward monitoring access',  icon: Building2, color: 'text-blue-500' },
+    { id: 'worker',     label: 'Field Worker',    desc: 'Attendance & task access', icon: HardHat, color: 'text-green-600' },
   ]
 
   return (
@@ -83,13 +83,17 @@ export default function LoginPage() {
                   <button
                     key={r.id}
                     onClick={() => setRole(r.id)}
-                    className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 text-left ${
+                    className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 text-left group ${
                       role === r.id
                         ? 'border-saffron-500/60 bg-saffron-50 shadow-md shadow-saffron-100'
                         : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="text-2xl">{r.icon}</span>
+                    <div className={`p-2.5 rounded-lg border transition-transform duration-300 group-hover:scale-110 shadow-sm ${
+                      role === r.id ? 'bg-white border-saffron-200 ' + r.color : 'bg-white border-gray-200 text-gray-400 group-hover:' + r.color
+                    }`}>
+                      <r.icon size={22} className={role === r.id ? 'drop-shadow-sm' : ''} />
+                    </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-900">{r.label}</p>
                       <p className="text-xs text-gray-500">{r.desc}</p>
@@ -197,8 +201,8 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-6 space-y-1">
-          <p className="text-xs text-gray-500">
-            🔒 256-bit SSL Encrypted · ISO 27001 Compliant · Govt. of India
+          <p className="text-xs text-gray-500 flex items-center justify-center gap-1.5">
+            <Lock size={12} className="text-gray-400" /> 256-bit SSL Encrypted · ISO 27001 Compliant · Govt. of India
           </p>
           <p className="text-xs text-gray-500">SwachhDrishti v2.1.0 · NICT Certified</p>
         </div>
