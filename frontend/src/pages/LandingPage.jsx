@@ -15,7 +15,7 @@ const stats = [
   { value: '168+',  label: 'Active Workers'   },
   { value: '32',    label: 'Municipal Wards'  },
   { value: '98.1%', label: 'System Uptime'    },
-  { value: '4.8★',  label: 'Civic Trust Score'},
+  { value: '4.8/5', label: 'Civic Trust Score'},
 ]
 
 export default function LandingPage() {

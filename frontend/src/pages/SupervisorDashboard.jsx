@@ -164,9 +164,9 @@ export default function SupervisorDashboard() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total Field Workers" value={stats.totalWorkers}              icon={Users}         color="saffron" trend={3.2} />
-        <StatCard label="Active Now"          value={stats.activeToday}               icon={CheckCircle2}  color="green"  trend={1.8} />
-        <StatCard label="Tasks Completed"     value={stats.tasksCompleted}            icon={TrendingUp}    color="blue"   trend={5.1} />
-        <StatCard label="Critical Alerts"     value={stats.alertsOpen}                icon={AlertTriangle} color="red"    />
+        <StatCard label="Active Now"          value={stats.activeToday}               icon={Users}         color="green"  trend={1.8} />
+        <StatCard label="Tasks Completed"     value={stats.tasksCompleted}            icon={CheckCircle2}  color="blue"   trend={5.1} />
+        <StatCard label="Critical Alerts"     value={stats.alertsOpen}                icon={Bell}          color="red"    />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
@@ -296,8 +296,8 @@ export default function SupervisorDashboard() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={clsx('text-xs font-medium', w.gps === 'Active' ? 'text-green-600' : 'text-red-500')}>
-                      {w.gps === 'Active' ? '📍 Active' : '📵 Offline'}
+                    <span className={clsx('text-xs font-medium flex items-center gap-1', w.gps === 'Active' ? 'text-green-600' : 'text-red-500')}>
+                      {w.gps === 'Active' ? <><MapPin size={12}/> Active</> : <><Ban size={12}/> Offline</>}
                     </span>
                   </td>
                   <td className="px-4 py-3">
