@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
+import Footer from './Footer'
 import { useAuth } from '../../context/AuthContext'
 import { LayoutDashboard, Users, BarChart3, X, Camera, Star, QrCode, Target, LogOut } from 'lucide-react'
 import { SecureBadge, RoleBadge } from '../ui/UIComponents'
@@ -128,6 +129,7 @@ export default function AppLayout() {
         />
         <main className="flex-1 overflow-y-auto px-4 py-5 md:px-6 md:py-6 animate-fade-in bg-transparent w-full">
           <Outlet />
+          <Footer />
         </main>
       </div>
     </div>
