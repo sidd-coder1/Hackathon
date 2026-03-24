@@ -11,13 +11,13 @@ export function AuthProvider({ children }) {
     // Simulate authentication
     const userData = {
       id: Math.random().toString(36).slice(2),
-      name: role === 'admin' ? 'Dr. Rajesh Kumar' 
+      name: role === 'user' ? 'Mr. Suresh Varma' 
           : role === 'supervisor' ? 'Priya Sharma'
           : 'Ramesh Patel',
       role,
       email: credentials.email,
-      ward: role === 'worker' ? 'Ward 14 – Karol Bagh' : 'Municipal HQ',
-      employeeId: role === 'admin' ? 'ADM-001' : role === 'supervisor' ? 'SUP-042' : 'WRK-1087',
+      ward: role === 'worker' ? 'Ward 14 – Karol Bagh' : role === 'user' ? 'Sector 7 – Green Park' : 'Municipal HQ',
+      employeeId: role === 'user' ? 'USR-4002' : role === 'supervisor' ? 'SUP-042' : 'WRK-1087',
       avatar: null,
     }
     setUser(userData)

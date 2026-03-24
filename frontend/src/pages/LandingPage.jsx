@@ -5,7 +5,7 @@ import { Shield, MapPin, Users, BarChart3, ArrowRight, CheckCircle2, Zap, Lock }
 const features = [
   { icon: MapPin,    title: 'GPS-Based Tracking',    desc: 'Real-time location tracking of every field worker with spoofing detection' },
   { icon: Shield,    title: 'Secure Attendance',      desc: 'Biometric + GPS verified attendance ensuring zero proxy marking' },
-  { icon: Users,     title: 'Role-Based Access',      desc: 'Separate dashboards for Workers, Supervisors, and Administrators' },
+  { icon: Users,     title: 'Role-Based Access',      desc: 'Separate dashboards for Workers, Supervisors, and Area Watchmen' },
   { icon: BarChart3, title: 'Analytics & Reports',    desc: 'Comprehensive performance metrics, heatmaps, and automated reports' },
   { icon: Zap,       title: 'Real-Time Alerts',       desc: 'Instant notifications for anomalies, absences, and GPS irregularities' },
   { icon: Lock,      title: 'Enterprise Security',    desc: 'ISO 27001 compliant with end-to-end encryption and audit trails' },

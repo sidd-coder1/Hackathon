@@ -5,7 +5,7 @@ import { Shield, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Finge
 import { SecureBadge, Spinner } from '../components/ui/UIComponents'
 
 const DEMO_CREDS = {
-  admin:      { email: 'admin@swacchdrishti.gov.in',      password: 'Admin@123'    },
+  user:       { email: 'user@swacchdrishti.gov.in',      password: 'User@123'     },
   supervisor: { email: 'supervisor@swacchdrishti.gov.in', password: 'Super@456'   },
   worker:     { email: 'worker@swacchdrishti.gov.in',     password: 'Worker@789'  },
 }
@@ -14,7 +14,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
 
-  const [role, setRole] = useState('admin')
+  const [role, setRole] = useState('user')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
@@ -42,11 +42,11 @@ export default function LoginPage() {
     await new Promise(r => setTimeout(r, 1200))
     login(role, { email })
     setLoading(false)
-    navigate(role === 'worker' ? '/worker' : '/admin')
+    navigate(role === 'worker' ? '/worker' : role === 'user' ? '/user' : '/supervisor')
   }
 
   const roles = [
-    { id: 'admin',      label: 'Administrator',  desc: 'Full system access',      icon: '🛡️' },
+    { id: 'user',       label: 'User',           desc: 'Watchman / Secretary',    icon: '🧑‍💼' },
     { id: 'supervisor', label: 'Supervisor',      desc: 'Ward monitoring access',  icon: '👷' },
     { id: 'worker',     label: 'Field Worker',    desc: 'Attendance & task access', icon: '🧹' },
   ]

@@ -117,7 +117,7 @@ export function SecureBadge({ label = 'Secured', size = 'sm' }) {
 // RoleBadge
 export function RoleBadge({ role }) {
   const map = {
-    admin:      { label: 'Administrator', variant: 'saffron' },
+    user:       { label: 'Area Watchman', variant: 'saffron' },
     supervisor: { label: 'Supervisor',    variant: 'info'    },
     worker:     { label: 'Field Worker',  variant: 'success' },
   }

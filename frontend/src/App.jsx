@@ -4,9 +4,10 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import AppLayout from './components/layout/AppLayout'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
-import AdminDashboard from './pages/AdminDashboard'
 import WorkerDashboard from './pages/WorkerDashboard'
 import AnalyticsPage from './pages/AnalyticsPage'
+import UserDashboard from './pages/UserDashboard'
+import SupervisorDashboard from './pages/SupervisorDashboard'
 
 // Simple placeholder pages for sub-routes
 
@@ -47,7 +48,7 @@ function AppRoutes() {
         path="/login"
         element={
           isAuthenticated
-            ? <Navigate to={user.role === 'worker' ? '/worker' : '/admin'} replace />
+            ? <Navigate to={user.role === 'worker' ? '/worker' : user.role === 'user' ? '/user' : '/supervisor'} replace />
             : <LoginPage />
         }
       />
@@ -60,30 +61,17 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        {/* Admin routes */}
-        <Route path="/admin" element={
-          <ProtectedRoute roles={['admin', 'supervisor']}>
-            <AdminDashboard />
+        {/* Supervisor routes */}
+        <Route path="/supervisor" element={
+          <ProtectedRoute roles={['supervisor']}>
+            <SupervisorDashboard />
           </ProtectedRoute>
         } />
-        <Route path="/admin/workers" element={
-          <ProtectedRoute roles={['admin', 'supervisor']}>
-            <PlaceholderPage title="Workers Management" />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/map" element={
-          <ProtectedRoute roles={['admin', 'supervisor']}>
-            <PlaceholderPage title="Full Live Map View" />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/alerts" element={
-          <ProtectedRoute roles={['admin', 'supervisor']}>
-            <PlaceholderPage title="Alerts & Notifications Center" />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/reports" element={
-          <ProtectedRoute roles={['admin', 'supervisor']}>
-            <PlaceholderPage title="Reports & Exports" />
+
+        {/* User routes */}
+        <Route path="/user" element={
+          <ProtectedRoute roles={['user']}>
+            <UserDashboard />
           </ProtectedRoute>
         } />
 
