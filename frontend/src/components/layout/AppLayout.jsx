@@ -10,6 +10,7 @@ const supervisorNav = [
   { to: '/supervisor', label: 'Monitor Dashboard', icon: LayoutDashboard, end: true },
   { to: '/supervisor/workers', label: 'Worker Info', icon: Users },
   { to: '/user-info', label: 'User Info', icon: Users },
+  { to: '/assign-worker-task', label: 'Assign Task to Worker', icon: Target },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
@@ -57,14 +58,8 @@ export default function AppLayout() {
         'fixed md:relative top-0 left-0 h-full w-[280px] bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none flex-shrink-0',
         sidebarOpen ? 'translate-x-0 md:ml-0' : '-translate-x-full md:translate-x-0 md:-ml-[280px]'
       )}>
-<<<<<<< Updated upstream
-        {/* Sidebar Header — hamburger toggle lives here */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
-=======
-
         {/* Sidebar Header — only X close button */}
         <div className="flex items-center justify-end p-5 border-b border-gray-100">
->>>>>>> Stashed changes
           <button
             onClick={() => setSidebarOpen(false)}
             className="text-gray-400 hover:text-gray-900 p-1.5 rounded-xl hover:bg-gray-100 transition-all"

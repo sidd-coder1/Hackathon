@@ -13,6 +13,7 @@ import SupervisorDashboard from './pages/SupervisorDashboard'
 import WorkerInfoPage from './pages/WorkerInfoPage'
 import UserInfoPage from './pages/UserInfoPage'
 import WorkerScanPage from './pages/worker/WorkerScanPage'
+import AssignWorkerTaskPage from './pages/AssignWorkerTaskPage'
 
 // Simple placeholder pages for sub-routes
 
@@ -80,6 +81,11 @@ function AppRoutes() {
         <Route path="/user-info" element={
           <ProtectedRoute roles={['supervisor']}>
             <UserInfoPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/assign-worker-task" element={
+          <ProtectedRoute roles={['supervisor']}>
+            <AssignWorkerTaskPage />
           </ProtectedRoute>
         } />
 
