@@ -136,15 +136,15 @@ export default function AppLayout() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden w-full relative z-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-hidden w-full relative z-0">
         <Navbar
           onMenuToggle={() => setSidebarOpen(v => !v)}
           menuOpen={sidebarOpen}
         />
-        <main className="flex-1 overflow-y-auto px-4 py-5 md:px-6 md:py-6 animate-fade-in bg-transparent w-full">
+        <main className="flex-1 px-4 py-5 md:px-6 md:py-6 animate-fade-in bg-transparent w-full">
           <Outlet />
-          <Footer />
         </main>
+        <Footer />
       </div>
     </div>
   )
