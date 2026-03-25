@@ -8,7 +8,7 @@ import { Scanner } from '@yudiel/react-qr-scanner'
 import { storage, db } from '../firebase'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { collection, addDoc, serverTimestamp, query, where, onSnapshot } from 'firebase/firestore'
-import { completeTask, subscribeToTasks } from '../services/firebaseService'
+import { completeTask, subscribeToTasks, rewardTaskPoints } from '../services/firebaseService'
 
 export default function WorkerDashboard() {
   const { user } = useAuth()
@@ -62,16 +62,13 @@ export default function WorkerDashboard() {
     // Subscribe to tasks
     if (user?.uid || user?.id) {
         const unsub = subscribeToTasks((fetchedTasks) => {
-            const today = new Date().toISOString().split('T')[0];
             const myTasks = fetchedTasks.filter(t => {
                 const matchesUser = t.assignedTo === (user.uid || user.id);
                 const isNotVerified = t.status !== 'verified';
                 
-                // Date check: Show if today is within [dateFrom, dateTo] 
-                // or if dates are missing (fallback)
-                const isToday = !t.dateFrom || !t.dateTo || (today >= t.dateFrom && today <= t.dateTo);
-                
-                return matchesUser && isNotVerified && isToday;
+                // Show all pending/completed tasks assigned to me
+                // Workers should see their upcoming schedule too
+                return matchesUser && isNotVerified;
             });
             setTasks(myTasks);
             setTasksLoading(false);
@@ -322,13 +319,22 @@ export default function WorkerDashboard() {
     }
   }
 
-  const handleCompleteTask = async (taskId) => {
+  const handleCompleteTask = async (task) => {
     try {
-        await completeTask(taskId);
-        alert("Task marked as completed!");
+        setMarkingLoading(true);
+        await completeTask(task.id);
+        
+        // Award points immediately
+        if (task.points) {
+            await rewardTaskPoints(user?.uid || user?.id, task.points);
+        }
+        
+        alert(`Success! Task completed. +${task.points} points awarded!`);
     } catch (err) {
         console.error("Failed to complete task", err);
         alert("Error completing task.");
+    } finally {
+        setMarkingLoading(false);
     }
   }
 
@@ -530,7 +536,7 @@ export default function WorkerDashboard() {
                 </div>
                 {task.status === 'pending' ? (
                   <button 
-                    onClick={() => handleCompleteTask(task.id)}
+                    onClick={() => handleCompleteTask(task)}
                     className="px-4 py-2 bg-saffron-500 text-white rounded-xl text-xs font-bold hover:bg-saffron-600 transition-colors shadow-sm"
                   >
                     Complete Task

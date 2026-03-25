@@ -20,13 +20,13 @@ import {
 } from 'lucide-react'
 import { Badge, Spinner } from '../components/ui/UIComponents'
 import clsx from 'clsx'
-import { subscribeToTasks, verifyTask } from '../services/firebaseService'
+import { subscribeToTasks, verifyTask, subscribeToAttendance } from '../services/firebaseService'
 import { where } from 'firebase/firestore'
 
 // --- Sub-components ---
 
-function DashboardHome({ user, activityLog }) {
-  const areaStatus = 'Good'
+function DashboardHome({ user, activityLog, lastSwept, cleanlinessScore }) {
+  const areaStatus = cleanlinessScore > 70 ? 'Good' : 'Medium'
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -75,11 +75,11 @@ function DashboardHome({ user, activityLog }) {
         <div className="mt-6 pt-6 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
           <div className="flex items-center gap-2">
             <Clock size={14} className="text-saffron-500" />
-            Last swept: <span className="text-gray-900">2 hours ago</span>
+            Last swept: <span className="text-gray-900">{lastSwept}</span>
           </div>
           <div className="flex items-center gap-2">
             <ThumbsUp size={14} className="text-green-600" />
-            Reliability Score: <span className="text-gray-900 font-bold">98%</span>
+            Reliability Score: <span className="text-gray-900 font-bold">{cleanlinessScore}%</span>
           </div>
         </div>
       </div>
@@ -97,32 +97,32 @@ function DashboardHome({ user, activityLog }) {
               <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300">
                 <Clock size={24} />
               </div>
-              <p className="text-sm text-gray-400 font-medium">No recent activity found.</p>
+              <p className="text-sm text-gray-400 font-medium">No recent activity found in {user?.ward || 'your ward'}.</p>
             </div>
           ) : (
-            activityLog.map((item, i) => (
-              <div key={i} className="flex gap-4 items-start relative pb-4 last:pb-0">
-                {i !== activityLog.length - 1 && (
-                  <div className="absolute left-[15px] top-8 bottom-0 w-[2px] bg-gray-100" />
-                )}
+            activityLog.map((item, idx) => (
+              <div key={idx} className="flex items-start gap-4 p-3 rounded-2xl hover:bg-gray-50 transition-colors group">
                 <div className={clsx(
-                  "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2 border-white shadow-sm",
-                  item.type === 'report' ? "bg-red-100 text-red-600" : 
-                  item.type === 'scan' ? "bg-blue-100 text-blue-600" : "bg-green-100 text-green-600"
+                  "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm",
+                  item.type === 'attendance' ? "bg-green-100 text-green-600" :
+                  item.type === 'task' ? "bg-blue-100 text-blue-600" :
+                  item.type === 'report' ? "bg-red-100 text-red-600" : "bg-saffron-100 text-saffron-600"
                 )}>
-                  {item.type === 'report' ? <Camera size={14} /> : 
-                   item.type === 'scan' ? <QrCode size={14} /> : <ThumbsUp size={14} />}
+                  {item.type === 'attendance' ? <MapPin size={18} /> :
+                   item.type === 'task' ? <CheckCircle2 size={18} /> :
+                   item.type === 'report' ? <AlertTriangle size={18} /> : <ThumbsUp size={18} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <p className="text-xs font-bold text-gray-900">
-                      {item.type === 'scan' ? 'Daily QR Verified' : 
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-bold text-gray-900 truncate">
+                      {item.type === 'attendance' ? `Worker ${item.userName} arrived` :
+                       item.type === 'task' ? `Task "${item.title}" completed` :
                        item.type === 'report' ? 'Cleanliness Issue Reported' : 'Feedback Submitted'}
                     </p>
                     <span className="text-[10px] font-bold text-gray-400 uppercase">{item.time}</span>
                   </div>
                   <p className="text-xs text-gray-500 leading-relaxed truncate-2 truncate">
-                    {item.msg || item.description}
+                    {item.msg || item.description || `Location: ${user?.ward}`}
                   </p>
                 </div>
               </div>
@@ -515,36 +515,71 @@ function VerificationTasks({ user }) {
 export default function UserDashboard({ view = 'dashboard' }) {
   const { user } = useAuth()
   const [activityLog, setActivityLog] = useState([])
+  const [cleanlinessScore, setCleanlinessScore] = useState(98)
+  const [lastSwept, setLastSwept] = useState('2 hours ago')
 
-  // Load activity from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('swacchdrishti_user_activity')
-    if (saved) {
-      try {
-        setActivityLog(JSON.parse(saved))
-      } catch (e) {
-        console.error('Failed to parse activity log')
+    if (!user?.ward) return
+
+    // 1. Subscribe to Attendance
+    const unsubAtt = subscribeToAttendance((att) => {
+      const wardAtt = att.filter(a => a.ward === user.ward).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      
+      if (wardAtt.length > 0) {
+        const last = new Date(wardAtt[0].timestamp)
+        const diffMin = Math.floor((new Date() - last) / 60000)
+        setLastSwept(diffMin < 60 ? `${diffMin} min ago` : `${Math.floor(diffMin / 60)} hr ago`)
       }
-    } else {
-      const initial = [
-        { type: 'report', msg: 'Security verified perimeter gate.', time: '2 hrs ago', description: 'Routine check' },
-        { type: 'feedback', msg: 'Rated Sunita Devi · 5 Stars', time: '5 hrs ago', description: 'Excellent cleanup' }
-      ]
-      setActivityLog(initial)
-      localStorage.setItem('swacchdrishti_user_activity', JSON.stringify(initial))
+
+      const attEvents = wardAtt.slice(0, 5).map(a => ({
+        type: 'attendance',
+        userName: a.userName,
+        time: new Date(a.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date(a.timestamp).getTime()
+      }))
+
+      setActivityLog(prev => {
+        const otherEvents = prev.filter(p => p.type !== 'attendance')
+        return [...otherEvents, ...attEvents].sort((a,b) => b.timestamp - a.timestamp).slice(0, 10)
+      })
+    })
+
+    // 2. Subscribe to Tasks
+    const unsubTasks = subscribeToTasks((tasks) => {
+      const completedInWard = tasks.filter(t => t.ward === user.ward && t.status === 'completed')
+      
+      const taskEvents = completedInWard.slice(0, 5).map(t => ({
+        type: 'task',
+        title: t.title,
+        time: t.completedAt ? new Date(t.completedAt.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now',
+        timestamp: t.completedAt ? t.completedAt.toDate().getTime() : Date.now()
+      }))
+
+      setActivityLog(prev => {
+          const otherEvents = prev.filter(p => p.type !== 'task')
+          return [...otherEvents, ...taskEvents].sort((a,b) => b.timestamp - a.timestamp).slice(0, 10)
+      })
+    })
+
+    return () => {
+      unsubAtt()
+      unsubTasks()
     }
-  }, [])
+  }, [user?.ward])
 
   const addLogEntry = (entry) => {
-    const newList = [entry, ...activityLog].slice(0, 10)
-    setActivityLog(newList)
-    localStorage.setItem('swacchdrishti_user_activity', JSON.stringify(newList))
+    const newEntry = {
+      ...entry,
+      time: 'Just now',
+      timestamp: Date.now()
+    }
+    setActivityLog(prev => [newEntry, ...prev].slice(0, 10))
   }
 
   return (
     <div className="min-h-[calc(100vh-120px)] w-full animate-fade-in pb-10">
       <main className="flex-1 min-w-0 pt-2">
-        {view === 'dashboard' && <DashboardHome user={user} activityLog={activityLog} />}
+        {view === 'dashboard' && <DashboardHome user={user} activityLog={activityLog} lastSwept={lastSwept} cleanlinessScore={cleanlinessScore} />}
         {view === 'scan' && <DailyQR onAddLog={addLogEntry} user={user} />}
         {view === 'report' && <ReportIssue onAddLog={addLogEntry} />}
         {view === 'feedback' && <WorkerFeedback onAddLog={addLogEntry} />}

@@ -22,8 +22,9 @@ export default function AssignWorkerTaskPage() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [points, setPoints] = useState(10)
-  const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
+  const todayStr = new Date().toISOString().split('T')[0]
+  const [dateFrom, setDateFrom] = useState(todayStr)
+  const [dateTo, setDateTo] = useState(todayStr)
 
   // Fetch Workers 
   useEffect(() => {

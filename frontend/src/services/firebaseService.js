@@ -188,3 +188,25 @@ export const subscribeToUsers = (callback) => {
         callback(users);
     });
 };
+
+// --- Reward Logic ---
+
+// ✅ Reward Task Points
+export const rewardTaskPoints = async (userId, points) => {
+    const q = query(collection(db, "users"), where("uid", "==", userId));
+    const snapshot = await getDocs(q);
+    
+    if (!snapshot.empty) {
+        const userDoc = snapshot.docs[0];
+        const userData = userDoc.data();
+        
+        const newScore = (userData.score || 0) + parseInt(points);
+        
+        await updateDoc(doc(db, "users", userDoc.id), {
+            score: newScore,
+            level: calculateLevel(newScore)
+        });
+        return newScore;
+    }
+    return null;
+};

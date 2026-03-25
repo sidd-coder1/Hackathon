@@ -5,7 +5,7 @@ import {
 } from 'recharts'
 import { BarChart3, TrendingUp, Download, Calendar, Filter, PieChart as PieChartIcon, MapPin, Activity, Users } from 'lucide-react'
 import { Badge, StatCard } from '../components/ui/UIComponents'
-import { getUsers, getAttendance } from '../services/firebaseService'
+import { subscribeToUsers, subscribeToAttendance, subscribeToTasks } from '../services/firebaseService'
 import clsx from 'clsx'
 
 function CustomTooltip({ active, payload, label }) {
@@ -23,40 +23,72 @@ function CustomTooltip({ active, payload, label }) {
   )
 }
 
-// Chart 1 Data: Attendance Bar Chart by Date
-const attendanceBarData = [];
-
-// Chart 2 Data: Task Completion Pie Chart
-const taskCompletionData = [];
-
-// Chart 3 Data: Zone wise Complaint Heatmap (Scatter)
-const complaintHeatmapData = [];
-
-// Chart 4 Data: Worker Performance Line Chart
-const workerPerformanceData = [];
-
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState('week')
   const [workers, setWorkers] = useState([])
   const [attendance, setAttendance] = useState([])
+  const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const u = await getUsers()
-        const a = await getAttendance()
-        setWorkers(u.filter(user => user.role === 'worker'))
-        setAttendance(a)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
+    // Subscribe to Users
+    const unsubUsers = subscribeToUsers((u) => {
+      setWorkers(u.filter(user => user.role === 'worker'))
+    })
+
+    // Subscribe to Attendance
+    const unsubAttendance = subscribeToAttendance((a) => {
+      setAttendance(a)
+    })
+
+    // Subscribe to Tasks
+    const unsubTasks = subscribeToTasks((t) => {
+      setTasks(t)
+      setLoading(false)
+    })
+
+    return () => {
+      unsubUsers()
+      unsubAttendance()
+      unsubTasks()
     }
-    fetchData()
   }, [])
+
+  // Process Chart 1: Attendance by Date
+  const attendanceBarData = Object.values(attendance.reduce((acc, curr) => {
+    const date = curr.date || 'Unknown'
+    if (!acc[date]) acc[date] = { date, present: 0, leave: 0, absent: 0 }
+    acc[date].present += 1
+    return acc
+  }, {})).sort((a,b) => new Date(a.date) - new Date(b.date)).slice(-7)
+
+  // Process Chart 2: Task Completion
+  const taskCounts = tasks.reduce((acc, t) => {
+    acc[t.status] = (acc[t.status] || 0) + 1
+    return acc
+  }, {})
+  const taskCompletionData = [
+    { name: 'Pending', value: taskCounts['pending'] || 0, color: '#9ca3af' },
+    { name: 'Completed', value: taskCounts['completed'] || 0, color: '#3b82f6' },
+    { name: 'Verified', value: taskCounts['verified'] || 0, color: '#138808' },
+  ]
+
+  // Process Chart 3: Zone wise (Ward) tasks
+  const wardTaskCounts = tasks.reduce((acc, t) => {
+    const ward = t.ward || 'General'
+    if (!acc[ward]) acc[ward] = { zone: ward, count: 0, issue: 'Tasks' }
+    acc[ward].count += 1
+    return acc
+  }, {})
+  const complaintHeatmapData = Object.values(wardTaskCounts)
+
+  // Process Chart 4: Performance Trend (Cumulative score grouped by date)
+  // Simplified for demo: show points awarded over time
+  const workerPerformanceData = [
+    { day: 'Mon', score: 82 }, { day: 'Tue', score: 85 }, { day: 'Wed', score: 84 },
+    { day: 'Thu', score: 88 }, { day: 'Fri', score: 92 }, { day: 'Sat', score: 90 },
+    { day: 'Sun', score: 95 }
+  ]
 
   return (
     <div className="space-y-6 animate-fade-in w-full pb-8">
@@ -214,11 +246,12 @@ export default function AnalyticsPage() {
                 </tr>
               ) : (
                 workers
-                  .sort((a, b) => (b.trustScore || 85) - (a.trustScore || 85))
+                  .sort((a, b) => (b.score || 0) - (a.score || 0))
                   .slice(0, 5)
                   .map((w, i) => {
-                    const trustScore = w.trustScore || (80 + Math.floor(Math.random() * 20)); // Demo fallback
-                    const attRate = w.attendance || (75 + Math.floor(Math.random() * 25)); // Demo fallback
+                    const trustScore = 80 + Math.min(20, Math.floor((w.score || 0) / 10)); 
+                    const attRate = Math.min(100, (w.totalAttendance || 0) * 10);
+                    const completedTasks = tasks.filter(t => t.assignedTo === (w.uid || w.id) && t.status === 'verified').length;
                     return (
                       <tr key={w.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-4 py-4 pl-4">
@@ -246,9 +279,9 @@ export default function AnalyticsPage() {
                             <span className="text-xs font-black text-gray-600">{attRate}%</span>
                           </div>
                         </td>
-                        <td className="px-4 py-4 text-xs font-bold text-gray-600">{Math.floor(attRate / 10)} tasks</td>
+                        <td className="px-4 py-4 text-xs font-bold text-gray-600">{completedTasks} tasks</td>
                         <td className="px-4 py-4">
-                          <span className={clsx('text-sm font-black', trustScore >= 80 ? 'text-green-600' : 'text-amber-600')}>
+                          <span className={clsx('text-sm font-black', trustScore >= 90 ? 'text-green-600' : 'text-amber-600')}>
                             {trustScore}
                           </span>
                         </td>

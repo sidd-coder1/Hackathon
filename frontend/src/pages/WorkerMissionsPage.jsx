@@ -30,16 +30,6 @@ export default function WorkerMissionsPage() {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          <button 
-            onClick={() => {
-              localStorage.removeItem('swachh_daily_tasks');
-              localStorage.removeItem('swachh_points_data');
-              window.location.reload();
-            }} 
-            className="text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest mr-2"
-          >
-            [ Reset System ]
-          </button>
           <div className="flex items-center gap-2 px-4 py-2 bg-saffron-50 border border-saffron-200/60 shadow-sm rounded-lg">
             <Flame className="text-saffron-500 fill-saffron-500 animate-pulse-slow" size={18} />
             <span className="text-sm font-extrabold text-saffron-700">{points.streak || 1} Day Streak</span>
