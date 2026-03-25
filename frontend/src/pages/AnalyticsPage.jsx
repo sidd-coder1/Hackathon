@@ -8,6 +8,31 @@ import { Badge, StatCard } from '../components/ui/UIComponents'
 import { subscribeToUsers, subscribeToAttendance, subscribeToTasks } from '../services/firebaseService'
 import clsx from 'clsx'
 
+// Helper: filter records by time period using date or timestamp field
+function filterDataByTime(data, filter) {
+  const now = new Date()
+  return data.filter(item => {
+    const raw = item.date || item.timestamp
+    if (!raw) return false
+    const itemDate = new Date(raw)
+    if (filter === 'week') {
+      const last7 = new Date()
+      last7.setDate(now.getDate() - 7)
+      return itemDate >= last7
+    }
+    if (filter === 'month') {
+      return itemDate.getMonth() === now.getMonth() &&
+             itemDate.getFullYear() === now.getFullYear()
+    }
+    if (filter === 'quarter') {
+      const currentQ = Math.floor(now.getMonth() / 3)
+      const itemQ    = Math.floor(itemDate.getMonth() / 3)
+      return itemQ === currentQ && itemDate.getFullYear() === now.getFullYear()
+    }
+    return true
+  })
+}
+
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
@@ -54,16 +79,25 @@ export default function AnalyticsPage() {
     }
   }, [])
 
-  // Process Chart 1: Attendance by Date
-  const attendanceBarData = Object.values(attendance.reduce((acc, curr) => {
+  // Apply time filter to raw data before computing charts
+  const filteredAttendance = filterDataByTime(attendance, period)
+  const filteredTasks      = filterDataByTime(tasks, period)
+
+  console.log('Filter:', period)
+  console.log('Filtered attendance:', filteredAttendance)
+  console.log('Filtered tasks:', filteredTasks)
+
+  // Process Chart 1: Attendance by Date (filtered)
+  const sliceCount = period === 'week' ? 7 : period === 'month' ? 30 : 90
+  const attendanceBarData = Object.values(filteredAttendance.reduce((acc, curr) => {
     const date = curr.date || 'Unknown'
     if (!acc[date]) acc[date] = { date, present: 0, leave: 0, absent: 0 }
     acc[date].present += 1
     return acc
-  }, {})).sort((a,b) => new Date(a.date) - new Date(b.date)).slice(-7)
+  }, {})).sort((a,b) => new Date(a.date) - new Date(b.date)).slice(-sliceCount)
 
-  // Process Chart 2: Task Completion
-  const taskCounts = tasks.reduce((acc, t) => {
+  // Process Chart 2: Task Completion (filtered)
+  const taskCounts = filteredTasks.reduce((acc, t) => {
     acc[t.status] = (acc[t.status] || 0) + 1
     return acc
   }, {})
@@ -73,8 +107,8 @@ export default function AnalyticsPage() {
     { name: 'Verified', value: taskCounts['verified'] || 0, color: '#138808' },
   ]
 
-  // Process Chart 3: Zone wise (Ward) tasks
-  const wardTaskCounts = tasks.reduce((acc, t) => {
+  // Process Chart 3: Zone wise (Ward) tasks (filtered)
+  const wardTaskCounts = filteredTasks.reduce((acc, t) => {
     const ward = t.ward || 'General'
     if (!acc[ward]) acc[ward] = { zone: ward, count: 0, issue: 'Tasks' }
     acc[ward].count += 1
@@ -82,13 +116,24 @@ export default function AnalyticsPage() {
   }, {})
   const complaintHeatmapData = Object.values(wardTaskCounts)
 
-  // Process Chart 4: Performance Trend (Cumulative score grouped by date)
-  // Simplified for demo: show points awarded over time
-  const workerPerformanceData = [
-    { day: 'Mon', score: 82 }, { day: 'Tue', score: 85 }, { day: 'Wed', score: 84 },
-    { day: 'Thu', score: 88 }, { day: 'Fri', score: 92 }, { day: 'Sat', score: 90 },
-    { day: 'Sun', score: 95 }
-  ]
+  // Process Chart 4: Performance Trend – representative data per period
+  const workerPerformanceData = period === 'week'
+    ? [
+        { day: 'Mon', score: 82 }, { day: 'Tue', score: 85 }, { day: 'Wed', score: 84 },
+        { day: 'Thu', score: 88 }, { day: 'Fri', score: 92 }, { day: 'Sat', score: 90 },
+        { day: 'Sun', score: 95 }
+      ]
+    : period === 'month'
+    ? [
+        { day: 'Wk 1', score: 78 }, { day: 'Wk 2', score: 83 },
+        { day: 'Wk 3', score: 87 }, { day: 'Wk 4', score: 91 }
+      ]
+    : [
+        { day: 'Jan', score: 74 }, { day: 'Feb', score: 79 }, { day: 'Mar', score: 83 },
+        { day: 'Apr', score: 80 }, { day: 'May', score: 85 }, { day: 'Jun', score: 88 },
+        { day: 'Jul', score: 86 }, { day: 'Aug', score: 90 }, { day: 'Sep', score: 89 },
+        { day: 'Oct', score: 93 }, { day: 'Nov', score: 91 }, { day: 'Dec', score: 95 }
+      ]
 
   return (
     <div className="space-y-6 animate-fade-in w-full pb-8">
