@@ -22,6 +22,7 @@ const workerNav = [
 ]
 
 const userNav = [
+  { to: '/user', label: 'Dashboard Home', icon: LayoutDashboard, end: true },
   { to: '/user/scan', label: 'Daily QR Code', icon: QrCode },
   { to: '/user/report', label: 'Report Issue', icon: Camera },
   { to: '/user/feedback', label: 'Worker Feedback', icon: Star },
