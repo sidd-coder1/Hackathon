@@ -82,11 +82,7 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
               )}
             >
               <Bell size={18} />
-<<<<<<< HEAD
-              {alerts?.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full animate-pulse" />}
-=======
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-saffron-500 rounded-full animate-pulse" />
->>>>>>> 6e63e2818c95d3f627f4f79c0bf0b1581c73efac
+              {alerts?.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-saffron-500 rounded-full animate-pulse" />}
             </button>
 
             {notificationsOpen && (

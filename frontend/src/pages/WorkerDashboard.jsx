@@ -48,11 +48,20 @@ export default function WorkerDashboard() {
     const qrValue = result[0].rawValue;
     
     try {
-      const data = JSON.parse(qrValue);
+      let data;
+      try {
+        data = JSON.parse(qrValue);
+      } catch (e) {
+        console.error("Invalid QR content - not JSON", qrValue);
+        alert("Invalid QR code. Please scan a valid SwachhDrishti attendance QR.");
+        setShowScanner(false);
+        return;
+      }
+
       const today = new Date().toISOString().split('T')[0];
       
-      if (data.date !== today) {
-        alert("This QR code is not valid for today.");
+      if (!data.token || data.date !== today) {
+        alert("This QR code is not valid for today or is missing a secure token.");
         setShowScanner(false);
         return;
       }
@@ -104,8 +113,8 @@ export default function WorkerDashboard() {
         setMarkingLoading(false);
       }
     } catch (e) {
-      console.error("Invalid QR format", e);
-      alert("Invalid QR format. Please scan a valid SwachhDrishti QR code.");
+      console.error("Scanning process failed", e);
+      alert("An error occurred during verification. Please try again.");
       setShowScanner(false);
     }
   }

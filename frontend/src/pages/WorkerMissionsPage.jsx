@@ -5,11 +5,16 @@ import TaskList from '../components/worker/TaskList'
 import { Target, Trophy, Star, ChevronRight, Flame } from 'lucide-react'
 
 export default function WorkerMissionsPage() {
-  const { points, tasks: dailyTasks, startTask, completeTask, level } = useRewards()
+  const { points, tasks: dailyTasks, startTask, completeTask, level, totalCompleted } = useRewards()
   
   const completedCount = dailyTasks.filter(t => t.completed).length
   const totalCount = dailyTasks.length
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+  
+  // Milestone calculation: e.g., every 5 missions is a milestone
+  const nextMilestoneCount = Math.ceil((totalCompleted + 1) / 5) * 5
+  const milestoneProgress = ((totalCompleted % 5) / 5) * 100
+  const missionsLeft = 5 - (totalCompleted % 5)
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-10 animate-fade-in">
@@ -24,7 +29,6 @@ export default function WorkerMissionsPage() {
             <p className="text-sm text-gray-500 font-medium mt-1">Complete tasks to earn points & level up</p>
           </div>
         </div>
-<<<<<<< HEAD
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <button 
             onClick={() => {
@@ -36,19 +40,14 @@ export default function WorkerMissionsPage() {
           >
             [ Reset System ]
           </button>
-          <div className="flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-200/60 shadow-sm rounded-lg">
-            <Flame className="text-orange-500 fill-orange-500 animate-pulse-slow" size={18} />
-            <span className="text-sm font-extrabold text-orange-700">{points.streak || 1} Day Streak</span>
+          <div className="flex items-center gap-2 px-4 py-2 bg-saffron-50 border border-saffron-200/60 shadow-sm rounded-lg">
+            <Flame className="text-saffron-500 fill-saffron-500 animate-pulse-slow" size={18} />
+            <span className="text-sm font-extrabold text-saffron-700">{points.streak || 1} Day Streak</span>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-lg">
-            <Trophy className="text-orange-500" size={18} />
+            <Trophy className="text-saffron-500" size={18} />
             <span className="text-sm font-bold text-gray-900">Level {level.label}</span>
           </div>
-=======
-        <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg">
-          <Trophy className="text-saffron-500" size={18} />
-          <span className="text-sm font-bold text-gray-900">Level {level.label}</span>
->>>>>>> 6e63e2818c95d3f627f4f79c0bf0b1581c73efac
         </div>
       </div>
 
@@ -62,18 +61,12 @@ export default function WorkerMissionsPage() {
             <div className="w-2 h-2 bg-saffron-500 rounded-full animate-pulse" />
             <h2 className="text-lg font-bold text-gray-900">Active Missions</h2>
           </div>
-<<<<<<< HEAD
           <div className="flex items-center gap-3">
             <span className="text-sm font-bold text-gray-600">{completedCount}/{totalCount} Completed</span>
             <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-orange-500 transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
+              <div className="h-full bg-saffron-500 transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
             </div>
           </div>
-=======
-          <span className="text-sm font-semibold text-saffron-600 bg-saffron-50 px-3 py-1 rounded-full border border-saffron-100">
-            {dailyTasks.filter(t => !t.completed).length} Remaining
-          </span>
->>>>>>> 6e63e2818c95d3f627f4f79c0bf0b1581c73efac
         </div>
         
         <div className="p-0">
@@ -87,17 +80,20 @@ export default function WorkerMissionsPage() {
           <Star className="text-saffron-500 fill-orange-500" size={32} />
         </div>
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900 mb-1">Next Milestone: Silver Sweeper</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-1">Next Milestone: {totalCompleted < 10 ? 'Silver Sweeper' : 'Elite Janitor'}</h3>
           <p className="text-gray-500 text-sm leading-relaxed mb-5 max-w-md">
-            Complete 5 more missions to unlock this exclusive badge and earn a <span className="text-gray-900 font-bold">500 point bonus!</span>
+            Complete <span className="text-gray-900 font-bold">{missionsLeft}</span> more missions to unlock this exclusive badge and earn a <span className="text-gray-900 font-bold">500 point bonus!</span>
           </p>
           <div className="space-y-2">
             <div className="flex justify-between text-sm font-bold">
-              <span className="text-gray-500 font-medium">Progress</span>
-              <span className="text-gray-900">60%</span>
+              <span className="text-gray-500 font-medium">Milestone Progress</span>
+              <span className="text-gray-900">{Math.round(milestoneProgress)}%</span>
             </div>
             <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-saffron-500 h-full w-[60%] rounded-full transition-all duration-1000" />
+              <div 
+                className="bg-saffron-500 h-full rounded-full transition-all duration-1000" 
+                style={{ width: `${milestoneProgress}%` }}
+              />
             </div>
           </div>
         </div>

@@ -35,7 +35,6 @@ const TaskItem = ({ task, onStart, onComplete }) => {
           )}>
             {task.title}
           </h3>
-<<<<<<< HEAD
           <div className="flex flex-wrap items-center gap-2">
             <span className={clsx(
               "text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border",
@@ -52,15 +51,10 @@ const TaskItem = ({ task, onStart, onComplete }) => {
                 +{task.points} PTS EARNED!
               </span>
             )}
-=======
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[11px] font-bold text-saffron-600 bg-saffron-50 px-2 py-0.5 rounded-md">+{task.points} PTS</span>
->>>>>>> 6e63e2818c95d3f627f4f79c0bf0b1581c73efac
           </div>
         </div>
       </div>
 
-<<<<<<< HEAD
       <div className="flex items-center sm:w-auto w-full">
         {task.status === 'idle' && !task.completed && !justCompleted && (
           <button
@@ -69,16 +63,6 @@ const TaskItem = ({ task, onStart, onComplete }) => {
           >
             <Play size={14} className="fill-current" /> Start Task
           </button>
-=======
-      <button
-        onClick={() => onComplete(task.id)}
-        disabled={task.completed}
-        className={clsx(
-          "px-4 py-2 rounded-lg text-sm font-bold transition-all focus:ring-2 focus:ring-offset-2",
-          task.completed 
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-            : "bg-saffron-50 text-saffron-600 hover:bg-saffron-100 focus:ring-orange-500"
->>>>>>> 6e63e2818c95d3f627f4f79c0bf0b1581c73efac
         )}
         
         {task.status === 'started' && !task.completed && !justCompleted && (

@@ -1,10 +1,7 @@
 import React from 'react'
-<<<<<<< HEAD
 import { Shield } from 'lucide-react'
-=======
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
->>>>>>> 6e63e2818c95d3f627f4f79c0bf0b1581c73efac
 
 export default function Footer() {
   const navigate = useNavigate()
@@ -23,22 +20,15 @@ export default function Footer() {
   }
 
   return (
-<<<<<<< HEAD
-    <footer className="w-full mt-auto py-6 px-4 flex justify-center items-center">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl bg-orange-50/50 border border-orange-100/50 flex items-center justify-center flex-shrink-0">
-          <Shield size={16} className="text-orange-500" />
-        </div>
-        <span className="text-sm font-medium text-gray-500">
-          SwachhDrishti © 2026 · Govt. of India · All rights reserved
-        </span>
-=======
     <footer className="w-full bg-gray-50 border-t border-gray-200 mt-auto">
       <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
         
         {/* Branding */}
         <div>
-          <h2 className="font-bold text-gray-900">SwachhDrishti</h2>
+          <h2 className="font-bold text-gray-900 flex items-center gap-2">
+            <Shield size={18} className="text-saffron-500" />
+            SwachhDrishti
+          </h2>
           <p className="text-xs text-gray-500 mt-1">
             Empowering India's Municipal Workforce
           </p>
@@ -89,7 +79,6 @@ export default function Footer() {
       <div className="text-center text-xs text-gray-400 py-4 border-t border-gray-200">
         <p className="mb-1">Content owned and maintained by SwachhDrishti Team | Designed under Digital India Programme</p>
         <p>© 2026 SwachhDrishti | Government of India Initiative</p>
->>>>>>> 6e63e2818c95d3f627f4f79c0bf0b1581c73efac
       </div>
     </footer>
   )

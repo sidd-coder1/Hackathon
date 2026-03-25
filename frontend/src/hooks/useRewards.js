@@ -130,6 +130,7 @@ export const useRewards = () => {
     tasks: tasks.list,
     startTask,
     completeTask,
-    level: getLevel(points.total)
+    level: getLevel(points.total),
+    totalCompleted: points.totalCompleted || Math.floor(points.total / 15) // Fallback heuristic
   };
 };

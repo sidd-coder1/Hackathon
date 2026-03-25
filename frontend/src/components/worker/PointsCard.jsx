@@ -29,8 +29,8 @@ const PointsCard = ({ points, level }) => {
         <div className="bg-gray-50 rounded-xl px-4 py-2.5 border border-gray-100 flex items-center gap-3">
           <Star size={16} className="text-green-500" />
           <div>
-            <p className="text-[10px] font-bold text-gray-500 uppercase">Bonus</p>
-            <p className="text-sm font-bold text-gray-900">+5</p>
+            <p className="text-[10px] font-bold text-gray-500 uppercase">Daily Bonus</p>
+            <p className="text-sm font-bold text-gray-900">+5 min</p>
           </div>
         </div>
         <LevelBadge level={level} />
