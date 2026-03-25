@@ -1,9 +1,26 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Footer() {
+  const navigate = useNavigate()
+  const { user } = useAuth()
+
+  const handleDashboardClick = () => {
+    if (!user) {
+      navigate('/login')
+    } else if (user.role === 'worker') {
+      navigate('/worker')
+    } else if (user.role === 'user') {
+      navigate('/user/scan')
+    } else {
+      navigate('/supervisor')
+    }
+  }
+
   return (
     <footer className="w-full bg-gray-50 border-t border-gray-200 mt-auto">
-      <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+      <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
         
         {/* Branding */}
         <div>
@@ -20,19 +37,14 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold text-gray-800 mb-2">About</h3>
           <p className="text-gray-500 text-xs leading-relaxed">
-            Citizen-centric platform for transparent and efficient municipal workforce monitoring.
+            SwachhDrishti is a digital governance platform enabling transparency, accountability, and real-time monitoring of municipal workforce operations using GPS and AI-driven insights.
           </p>
-          <div className="mt-3">
-            <p className="text-[10px] text-gray-400 leading-tight">Content owned and maintained by SwachhDrishti Team</p>
-            <p className="text-[10px] text-gray-400 leading-tight mt-1">Designed under Digital India Programme</p>
-            <p className="text-[10px] text-gray-400 leading-tight mt-1">Government of India</p>
-          </div>
         </div>
 
         {/* Initiatives */}
         <div>
           <h3 className="font-semibold text-gray-800 mb-2">Government Initiatives</h3>
-          <div className="flex flex-wrap gap-3 items-center mt-6 pt-4 border-t border-gray-200">
+          <div className="flex flex-wrap gap-3 mt-2">
             <img src="/logos/digital-india.png" alt="Digital India" className="h-6 opacity-70 hover:opacity-100 transition" />
             <img src="/logos/swachh-bharat.png" alt="Swachh Bharat" className="h-6 opacity-70 hover:opacity-100 transition" />
             <img src="/logos/mygov.png" alt="MyGov" className="h-6 opacity-70 hover:opacity-100 transition" />
@@ -45,23 +57,24 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold text-gray-800 mb-2">Quick Links</h3>
           <ul className="space-y-1.5 text-gray-500 text-xs">
-            <li className="hover:text-gray-900 cursor-pointer transition-colors">Dashboard</li>
-            <li className="hover:text-gray-900 cursor-pointer transition-colors">Worker Info</li>
-            <li className="hover:text-gray-900 cursor-pointer transition-colors">User Info</li>
-            <li className="hover:text-gray-900 cursor-pointer transition-colors">Analytics</li>
+            <li><span onClick={handleDashboardClick} className="cursor-pointer hover:text-gray-900 transition">Dashboard</span></li>
+            <li><span onClick={() => navigate('/supervisor/workers')} className="cursor-pointer hover:text-gray-900 transition">Worker Info</span></li>
+            <li><span onClick={() => navigate('/user-info')} className="cursor-pointer hover:text-gray-900 transition">User Info</span></li>
+            <li><span onClick={() => navigate('/analytics')} className="cursor-pointer hover:text-gray-900 transition">Analytics</span></li>
           </ul>
           
-          <h3 className="font-semibold text-gray-800 mt-4 mb-2">Contact / Support</h3>
+          <h3 className="font-semibold text-gray-800 mt-4 mb-2">Contact</h3>
           <ul className="space-y-1.5 text-gray-500 text-xs">
-            <li>Email: <a href="mailto:support@swachhdrishti.gov.in" className="hover:text-gray-900 transition-colors">support@swachhdrishti.gov.in</a></li>
-            <li>Helpline: <a href="tel:1800000000" className="hover:text-gray-900 transition-colors">1800-000-000</a></li>
+            <li>Email: <a href="mailto:support@swachhdrishti.gov.in" className="hover:text-gray-900 transition">support@swachhdrishti.gov.in</a></li>
+            <li>Helpline: <a href="tel:1800000000" className="hover:text-gray-900 transition">1800-000-000</a></li>
           </ul>
         </div>
       </div>
 
-      {/* Bottom bar */}
+      {/* Legal & Bottom bar */}
       <div className="text-center text-xs text-gray-400 py-4 border-t border-gray-200">
-        © 2026 SwachhDrishti | Government of India Initiative
+        <p className="mb-1">Content owned and maintained by SwachhDrishti Team | Designed under Digital India Programme</p>
+        <p>© 2026 SwachhDrishti | Government of India Initiative</p>
       </div>
     </footer>
   )
