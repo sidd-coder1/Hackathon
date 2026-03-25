@@ -147,36 +147,16 @@ export default function SupervisorDashboard() {
   const [dismissedAlerts, setDismissedAlerts] = useState([])
   const [workersList, setWorkersList] = useState([])
 
-  const loadData = () => {
-    setLoading(true)
-    
-    // Subscribe to attendance
-    const unsubAttendance = subscribeToAttendance((attendance) => {
-        setRealAttendance(attendance);
-        processDashboardData(workersList, attendance);
-        setLoading(false);
-    });
-
-    // Subscribe to users/workers
-    const unsubUsers = subscribeToUsers((users) => {
-        const workers = users.filter(u => u.role === 'worker');
-        setWorkersList(workers);
-        processDashboardData(workers, realAttendance);
-    });
-
-    return () => {
-        unsubAttendance();
-        unsubUsers();
-    }
-  }
+  // Refs to always hold latest data across both subscriptions (avoids stale closures)
+  const workersRef = useRef([])
+  const attendanceRef = useRef([])
 
   const processDashboardData = (workers, attendance) => {
     setWorkersList(workers)
     const totalWorkers = workers.length
     const today = new Date().toISOString().split('T')[0]
-    const activeToday = attendance.filter(a => a.date === today && a.status === 'present').length
-    
-    // Average score calculation
+    const activeToday = attendance.filter(a => a.date === today && a.location).length
+
     const avgScore = workers.length ? Math.round(workers.reduce((acc, w) => acc + (w.trustScore || 85), 0) / workers.length) : 84
 
     setStats([
@@ -189,8 +169,25 @@ export default function SupervisorDashboard() {
   }
 
   useEffect(() => {
-    const unsub = loadData();
-    return () => unsub && unsub();
+    setLoading(true)
+
+    const unsubAttendance = subscribeToAttendance((attendance) => {
+      attendanceRef.current = attendance
+      setRealAttendance(attendance)
+      processDashboardData(workersRef.current, attendance)
+      setLoading(false)
+    })
+
+    const unsubUsers = subscribeToUsers((users) => {
+      const workers = users.filter(u => u.role === 'worker')
+      workersRef.current = workers
+      processDashboardData(workers, attendanceRef.current)
+    })
+
+    return () => {
+      unsubAttendance()
+      unsubUsers()
+    }
   }, [])
 
   useEffect(() => {
