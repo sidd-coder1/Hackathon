@@ -1,7 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Shield, MapPin, Users, BarChart3, ArrowRight, CheckCircle2, Zap, Lock } from 'lucide-react'
-import Footer from '../components/layout/Footer'
 
 const features = [
   { icon: MapPin,    title: 'GPS-Based Tracking',    desc: 'Real-time location tracking of every field worker with spoofing detection' },
@@ -140,7 +139,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <Footer />
+      {/* Footer */}
+      <footer className="border-t border-gray-200 py-8 px-6 md:px-12 bg-transparent">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-lg bg-saffron-50 flex items-center justify-center">
+              <Shield size={14} className="text-saffron-500" />
+            </div>
+            <span className="text-sm text-gray-500">SwachhDrishti © 2026 · Govt. of India · All rights reserved</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-600">
+            <CheckCircle2 size={13} className="text-green-600" />
+            ISO 27001 · GDPR Compliant · NICT Certified
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

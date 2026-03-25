@@ -37,7 +37,7 @@ export function StatusDot({ status }) {
 // StatCard component
 export function StatCard({ label, value, icon: Icon, trend, color = 'saffron', children }) {
   const colorMap = {
-    saffron: 'text-orange-600 bg-orange-50 border-orange-100',
+    saffron: 'text-saffron-600 bg-saffron-50 border-saffron-100',
     green:   'text-green-600 bg-green-50 border-green-100',
     blue:    'text-blue-600 bg-blue-50 border-blue-100',
     red:     'text-red-600 bg-red-50 border-red-100',

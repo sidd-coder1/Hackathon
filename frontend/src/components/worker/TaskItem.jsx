@@ -25,7 +25,7 @@ const TaskItem = ({ task, onComplete }) => {
             {task.title}
           </h3>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">+{task.points} PTS</span>
+            <span className="text-[11px] font-bold text-saffron-600 bg-saffron-50 px-2 py-0.5 rounded-md">+{task.points} PTS</span>
           </div>
         </div>
       </div>
@@ -37,7 +37,7 @@ const TaskItem = ({ task, onComplete }) => {
           "px-4 py-2 rounded-lg text-sm font-bold transition-all focus:ring-2 focus:ring-offset-2",
           task.completed 
             ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-            : "bg-orange-50 text-orange-600 hover:bg-orange-100 focus:ring-orange-500"
+            : "bg-saffron-50 text-saffron-600 hover:bg-saffron-100 focus:ring-orange-500"
         )}
       >
         {task.completed ? "Completed" : "Start Task"}
