@@ -230,22 +230,41 @@ export default function WorkerDashboard() {
       setValidationMessage('AI Validation Passed! Uploading to server...');
       await new Promise(r => setTimeout(r, 500));
 
-      let downloadURL = '';
+      let downloadURL = photoPreview || '';
       try {
+        // Create a timeout promise
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Storage timeout')), 5000)
+        );
+
         const storageRef = ref(storage, `work_photos/${user?.id || user?.uid || 'unknown'}_${Date.now()}.jpg`);
         const metadata = {
+          contentType: 'image/jpeg',
           customMetadata: {
              lat: photoLocation?.lat || 'unknown',
              lng: photoLocation?.lng || 'unknown'
           }
         };
-        const snapshot = await uploadBytes(storageRef, photoFile, metadata);
-        downloadURL = await getDownloadURL(snapshot.ref);
+        
+        // Attempt upload with timeout
+        setValidationMessage('Uploading file to cloud storage (Max 5s wait)...');
+        await Promise.race([
+          uploadBytes(storageRef, photoFile, metadata),
+          timeoutPromise
+        ]);
+        
+        downloadURL = await Promise.race([
+          getDownloadURL(storageRef),
+          timeoutPromise
+        ]);
       } catch (storageErr) {
-        console.warn("Firebase Storage failed (ignoring for Demo):", storageErr);
-        downloadURL = photoPreview || 'fallback-url';
+        console.warn("Cloud Storage skip (Demo Fallback enabled):", storageErr);
+        // We use the photoPreview (blob URL) as a temporary fallback for the real-time UI
+        // In a real app, this would be a placeholder, but for a hackatho, this keeps the flow moving
+        downloadURL = photoPreview || 'demo-fallback-url';
       }
 
+      setValidationMessage('Finalizing Firestore record...');
       await addDoc(collection(db, 'work_photos'), {
         userId: user?.id || user?.uid || 'unknown',
         userName: user?.name || 'Worker',

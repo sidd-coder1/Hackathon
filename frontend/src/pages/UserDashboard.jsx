@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
-import ScanPage from './user/ScanPage'
+// import ScanPage from './user/ScanPage'
 import { 
   MapPin, 
   Camera, 
@@ -266,13 +266,18 @@ function DailyQR({ onAddLog, user }) {
   const [verified, setVerified] = useState(false)
   
   const today = new Date().toISOString().split('T')[0]
+  // Date-based token for zero-config daily rotation
   const dailyCode = `SWDR-${today}`
+  
   const qrData = JSON.stringify({
-    userId: user?.id || 'unknown',
+    userId: user?.id || user?.uid || 'unknown',
+    userName: user?.name || 'Supervisor',
     date: today,
-    token: dailyCode
+    token: dailyCode,
+    type: 'attendance_portal'
   })
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrData)}&size=200x200&bgcolor=ffffff&color=2563eb&margin=10`
+  
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrData)}&size=250x250&bgcolor=ffffff&color=2563eb&margin=10`
 
   const handleVerify = () => {
     setVerifying(true)
@@ -540,7 +545,7 @@ export default function UserDashboard({ view = 'dashboard' }) {
     <div className="min-h-[calc(100vh-120px)] w-full animate-fade-in pb-10">
       <main className="flex-1 min-w-0 pt-2">
         {view === 'dashboard' && <DashboardHome user={user} activityLog={activityLog} />}
-        {view === 'scan' && <ScanPage onAddLog={addLogEntry} />}
+        {view === 'scan' && <DailyQR onAddLog={addLogEntry} user={user} />}
         {view === 'report' && <ReportIssue onAddLog={addLogEntry} />}
         {view === 'feedback' && <WorkerFeedback onAddLog={addLogEntry} />}
       </main>
