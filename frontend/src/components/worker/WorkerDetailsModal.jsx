@@ -31,27 +31,29 @@ export default function WorkerDetailsModal({ workerId, onClose }) {
   useEffect(() => {
     const fetchWorker = async () => {
       try {
+        setLoading(true);
         console.log("Selected ID:", workerId);
         let found = null;
         
-        const q = query(collection(db, 'users'), where('employeeId', '==', workerId));
-        const snap = await getDocs(q);
-        
-        if (!snap.empty) {
-          const doc = snap.docs[0];
-          found = { id: doc.id, ...doc.data() };
-        } else {
-          // fallback to doc id
-          const allSnap = await getDocs(collection(db, 'users'));
-          allSnap.forEach(doc => {
-            const user = { id: doc.id, ...doc.data() };
-            const idToUse = user.employeeId || user.id;
-            if (idToUse === workerId) found = user;
+        // 1. Try Doc ID
+        try {
+          const docSnap = await getDocs(query(collection(db, 'users')));
+          docSnap.forEach(d => {
+            const data = d.data();
+            if (d.id === workerId || data.uid === workerId || data.employeeId === workerId) {
+              found = { id: d.id, ...data };
+            }
           });
+        } catch (e) {
+          console.error("Doc lookup failed", e);
         }
         
-        const data = found;
-        console.log("Fetched Data:", data);
+        if (!found) {
+           const q = query(collection(db, 'users'), where('employeeId', '==', workerId));
+           const snap = await getDocs(q);
+           if (!snap.empty) found = { id: snap.docs[0].id, ...snap.docs[0].data() };
+        }
+        
         setWorker(found);
       } catch (err) {
         console.error('Error fetching worker:', err);
@@ -64,16 +66,30 @@ export default function WorkerDetailsModal({ workerId, onClose }) {
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
-        const q = query(collection(db, 'attendance'), where('workerId', '==', workerId))
+        // Query by 'userId' as saved in WorkerDashboard
+        const q = query(collection(db, 'attendance'), where('userId', '==', workerId))
         const snap = await getDocs(q)
         const records = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-        // Sort by date descending
+        
+        // Sort by date/timestamp descending
         records.sort((a, b) => {
-          const da = a.date?.toDate?.() ?? new Date(a.date ?? 0)
-          const db_ = b.date?.toDate?.() ?? new Date(b.date ?? 0)
-          return db_ - da
+          const t1 = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+          const t2 = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+          return t2 - t1;
         })
         setAttendance(records)
+        
+        // If locations collection is empty, use the latest attendance for live position
+        if (records.length > 0 && !liveLocation) {
+          const latest = records[0];
+          if (latest.location) {
+            setLiveLocation({
+              latitude: latest.location.lat,
+              longitude: latest.location.lng,
+              timestamp: latest.timestamp
+            });
+          }
+        }
       } catch (err) {
         console.error('Error fetching attendance:', err)
       }
@@ -86,21 +102,23 @@ export default function WorkerDetailsModal({ workerId, onClose }) {
     let unsubscribe = () => {}
     const fetchLocations = async () => {
       try {
-        // Past locations
         const q = query(
           collection(db, 'locations'),
-          where('workerId', '==', workerId),
+          where('userId', '==', workerId),
           orderBy('timestamp', 'desc')
         )
         const snap = await getDocs(q)
         const locs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
         setLocations(locs)
-        if (locs.length > 0) setLiveLocation(locs[0])
+        
+        if (locs.length > 0) {
+           setLiveLocation(locs[0]);
+        }
 
-        // Live listener for newest location
+        // Live listener
         const liveQ = query(
           collection(db, 'locations'),
-          where('workerId', '==', workerId),
+          where('userId', '==', workerId),
           orderBy('timestamp', 'desc'),
           limit(1)
         )
@@ -110,8 +128,7 @@ export default function WorkerDetailsModal({ workerId, onClose }) {
           }
         })
       } catch (err) {
-        // Collection might not exist yet – fail silently
-        console.warn('Locations collection not available:', err.message)
+        // Collection might not exist
       } finally {
         setLoading(false)
       }

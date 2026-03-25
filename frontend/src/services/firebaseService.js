@@ -45,6 +45,26 @@ export const getUsers = async () => {
     }));
 };
 
+// ✅ Get User by UID
+export const getUserByUid = async (uid) => {
+    const q = query(collection(db, "users"), where("uid", "==", uid));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+        return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+    }
+    return null;
+};
+
+// ✅ Get User by Email
+export const getUserByEmail = async (email) => {
+    const q = query(collection(db, "users"), where("email", "==", email));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+        return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+    }
+    return null;
+};
+
 // ✅ Get All Attendance
 export const getAttendance = async () => {
     const snapshot = await getDocs(collection(db, "attendance"));

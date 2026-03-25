@@ -33,16 +33,17 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     if (!email || !password) { setError('Please enter your credentials.'); return }
-    const expected = DEMO_CREDS[role]
-    if (email !== expected.email || password !== expected.password) {
-      setError('Invalid credentials. Access denied.')
-      return
-    }
+    
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1200))
-    await login(role, { email })
-    setLoading(false)
-    navigate(role === 'worker' ? '/worker' : role === 'user' ? '/user' : '/supervisor')
+    try {
+      await login(role, { email, password })
+      navigate(role === 'worker' ? '/worker' : role === 'user' ? '/user' : '/supervisor')
+    } catch (err) {
+      console.error("Login failed:", err)
+      setError(err.message || "Invalid credentials or unauthorized access.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const roles = [

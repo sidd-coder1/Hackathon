@@ -50,8 +50,19 @@ export function StatCard({ label, value, icon: Icon, trend, color = 'saffron', c
           <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">{label}</p>
           <p className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</p>
           {trend && (
-            <p className={clsx('text-xs mt-1 font-bold', trend > 0 ? 'text-green-600' : 'text-red-600')}>
-              {trend > 0 ? '▲' : '▼'} {Math.abs(trend)}% vs last week
+            <p className={clsx(
+              'text-xs mt-1 font-bold', 
+              typeof trend === 'number' 
+                ? (trend > 0 ? 'text-green-600' : (trend < 0 ? 'text-red-600' : 'text-gray-500'))
+                : 'text-gray-500'
+            )}>
+              {typeof trend === 'number' ? (
+                <>
+                  {trend > 0 ? '▲' : trend < 0 ? '▼' : '•'} {Math.abs(trend)}% vs last week
+                </>
+              ) : (
+                trend
+              )}
             </p>
           )}
         </div>

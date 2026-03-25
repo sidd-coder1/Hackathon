@@ -112,6 +112,8 @@ export default function AssignWorkerTaskPage() {
         description: description,
         points: parseInt(points),
         status: "pending",
+        dateFrom: dateFrom,
+        dateTo: dateTo,
         createdAt: serverTimestamp()
       })
       
@@ -239,6 +241,28 @@ export default function AssignWorkerTaskPage() {
                 </div>
               </div>
 
+              {/* Dates */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Date From</label>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-saffron-500 focus:border-saffron-500 block p-3 outline-none transition-colors shadow-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Date To</label>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-saffron-500 focus:border-saffron-500 block p-3 outline-none transition-colors shadow-sm"
+                  />
+                </div>
+              </div>
+
 
               <div className="pt-2">
                 <button
@@ -273,7 +297,7 @@ export default function AssignWorkerTaskPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-white sticky top-0 z-10 shadow-sm">
                     <tr className="border-b border-gray-100">
-                      {['Worker', 'Task', 'Ward', 'Points', 'Status'].map(h => (
+                      {['Worker', 'Task', 'Ward', 'Dates', 'Points', 'Status'].map(h => (
                         <th key={h} className="text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest px-4 py-3 first:pl-6">{h}</th>
                       ))}
                     </tr>
@@ -286,6 +310,9 @@ export default function AssignWorkerTaskPage() {
                         </td>
                         <td className="px-4 py-3 text-xs text-gray-600">{t.title}</td>
                         <td className="px-4 py-3 text-xs text-gray-500">{t.ward}</td>
+                        <td className="px-4 py-3 text-[10px] text-gray-500 whitespace-nowrap">
+                          {t.dateFrom} <br/> to {t.dateTo}
+                        </td>
                         <td className="px-4 py-3 font-mono text-xs text-saffron-600 font-bold">{t.points}</td>
                         <td className="px-4 py-3">
                           <Badge variant={t.status === 'pending' ? 'warning' : t.status === 'completed' ? 'primary' : 'success'} className="text-[9px] px-2 py-0.5">
