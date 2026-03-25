@@ -342,6 +342,58 @@ export default function SupervisorDashboard() {
         </div>
         <CivicTrustScore score={parseInt(stats.find(s => s.label === 'Avg Trust Score')?.value || '85', 10)} />
       </div>
+
+      <div className="glass-card p-5 mt-6">
+        <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2 mb-4">
+          <Users size={16} className="text-blue-500" /> Worker Analytics Table
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest px-4 py-3">Worker / ID</th>
+                <th className="text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest px-4 py-3">Ward</th>
+                <th className="text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest px-4 py-3">Attendance</th>
+                <th className="text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest px-4 py-3">Trust Score</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {workersList.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-gray-400 font-medium italic">
+                    No active workers found in record.
+                  </td>
+                </tr>
+              ) : (
+                workersList.map((w) => (
+                  <tr key={w.id || w.employeeId} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-4 py-4">
+                      <div>
+                        <p className="text-gray-900 text-sm font-bold">{w.name || 'Unknown'}</p>
+                        <p className="text-gray-400 text-[10px] font-mono tracking-widest mt-0.5">{w.id || w.employeeId || 'N/A'}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-xs font-bold text-gray-600">{w.ward || 'General'}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-saffron-500 rounded-full" style={{ width: `${w.attendance || 80}%` }} />
+                        </div>
+                        <span className="text-xs font-black text-gray-600">{w.attendance || 80}%</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={clsx('text-sm font-black', (w.trustScore || 85) >= 80 ? 'text-green-600' : (w.trustScore || 85) >= 60 ? 'text-amber-500' : 'text-red-600')}>
+                        {w.trustScore || 85}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }
