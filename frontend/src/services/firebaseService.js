@@ -210,3 +210,32 @@ export const rewardTaskPoints = async (userId, points) => {
     }
     return null;
 };
+
+// ✅ Save Issue Report
+export const saveReport = async ({ userId, userName, ward, description, timestamp }) => {
+    if (!userId || !description?.trim()) throw new Error("Missing required report fields");
+    return await addDoc(collection(db, "reports"), {
+        userId,
+        userName: userName || "Unknown",
+        ward: ward || "Unassigned",
+        description: description.trim(),
+        timestamp: timestamp || serverTimestamp(),
+        status: "open",
+        createdAt: serverTimestamp()
+    });
+};
+
+// ✅ Save Worker Feedback
+export const saveFeedback = async ({ fromUserId, fromUserName, workerName, rating, comment, timestamp }) => {
+    const numRating = Number(rating)
+    if (!fromUserId || numRating < 1 || numRating > 5) throw new Error("Invalid feedback data");
+    return await addDoc(collection(db, "feedback"), {
+        fromUserId,
+        fromUserName: fromUserName || "Unknown",
+        workerName: workerName || "Regional Team",
+        rating: numRating,
+        comment: comment?.trim() || "",
+        timestamp: timestamp || serverTimestamp(),
+        createdAt: serverTimestamp()
+    });
+};

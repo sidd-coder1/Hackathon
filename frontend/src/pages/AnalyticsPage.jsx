@@ -10,11 +10,13 @@ import clsx from 'clsx'
 
 // Helper: filter records by time period using date or timestamp field
 function filterDataByTime(data, filter) {
+  if (!Array.isArray(data)) return []
   const now = new Date()
   return data.filter(item => {
-    const raw = item.date || item.timestamp
+    const raw = item?.date || item?.timestamp
     if (!raw) return false
     const itemDate = new Date(raw)
+    if (isNaN(itemDate)) return false  // skip invalid timestamps
     if (filter === 'week') {
       const last7 = new Date()
       last7.setDate(now.getDate() - 7)
@@ -83,10 +85,6 @@ export default function AnalyticsPage() {
   const filteredAttendance = filterDataByTime(attendance, period)
   const filteredTasks      = filterDataByTime(tasks, period)
 
-  console.log('Filter:', period)
-  console.log('Filtered attendance:', filteredAttendance)
-  console.log('Filtered tasks:', filteredTasks)
-
   // Process Chart 1: Attendance by Date (filtered)
   const sliceCount = period === 'week' ? 7 : period === 'month' ? 30 : 90
   const attendanceBarData = Object.values(filteredAttendance.reduce((acc, curr) => {
@@ -102,9 +100,9 @@ export default function AnalyticsPage() {
     return acc
   }, {})
   const taskCompletionData = [
-    { name: 'Pending', value: taskCounts['pending'] || 0, color: '#9ca3af' },
-    { name: 'Completed', value: taskCounts['completed'] || 0, color: '#3b82f6' },
-    { name: 'Verified', value: taskCounts['verified'] || 0, color: '#138808' },
+    { name: 'Pending',   value: Number(taskCounts['pending'])   || 0, color: '#9ca3af' },
+    { name: 'Completed', value: Number(taskCounts['completed']) || 0, color: '#3b82f6' },
+    { name: 'Verified',  value: Number(taskCounts['verified'])  || 0, color: '#138808' },
   ]
 
   // Process Chart 3: Zone wise (Ward) tasks (filtered)
@@ -134,6 +132,90 @@ export default function AnalyticsPage() {
         { day: 'Jul', score: 86 }, { day: 'Aug', score: 90 }, { day: 'Sep', score: 89 },
         { day: 'Oct', score: 93 }, { day: 'Nov', score: 91 }, { day: 'Dec', score: 95 }
       ]
+
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-fade-in w-full pb-8">
+        <div className="flex items-center justify-center h-64 text-gray-400 font-medium">Loading analytics data…</div>
+      </div>
+    )
+  }
+
+  // ── Top Performers: weekly aggregation ──────────────────────────────────
+  // Field mapping confirmed from WorkerDashboard.jsx:
+  //   attendance: { userId: user.id (Firestore doc id), date: 'YYYY-MM-DD', timestamp: ISO string, NO status field }
+  //   tasks:      { assignedTo: user.uid (mock uid), status: 'pending'|'completed'|'verified' }
+
+  // Fix: compare date strings directly to avoid UTC-vs-local timezone shifts
+  // e.g. new Date("2026-03-25") parses as UTC midnight = previous day in IST
+  const isThisWeek = (dateVal) => {
+    if (!dateVal) return false
+    // If it's a YYYY-MM-DD string, compare as string directly
+    if (typeof dateVal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+      const cutoff = new Date()
+      cutoff.setDate(cutoff.getDate() - 7)
+      const cutoffStr = cutoff.toISOString().split('T')[0]
+      const todayStr  = new Date().toISOString().split('T')[0]
+      return dateVal >= cutoffStr && dateVal <= todayStr
+    }
+    // For ISO timestamps / Firestore Timestamps
+    const d = new Date(dateVal)
+    if (isNaN(d)) return false
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - 7)
+    return d >= cutoff && d <= new Date()
+  }
+
+  const getTaskDate = (t) => {
+    if (t.date) return t.date
+    if (t.createdAt?.toDate) { try { return t.createdAt.toDate() } catch { return null } }
+    return t.createdAt || null
+  }
+
+  // Debug: log raw data to confirm field names match
+  if (workers.length > 0 || attendance.length > 0 || tasks.length > 0) {
+    console.log('[TopPerformers] WORKERS sample:', workers[0])
+    console.log('[TopPerformers] ATTENDANCE sample:', attendance[0])
+    console.log('[TopPerformers] TASKS sample:', tasks[0])
+  }
+
+  const topPerformers = workers
+    .map(w => {
+      // Match by Firestore doc id (w.id) — what WorkerDashboard writes as userId
+      // Also try w.uid as fallback (the mock uid field)
+      const firestoreId = w.id || ''
+      const authUid     = w.uid || w.id || ''
+      const workerName  = w.name || ''
+
+      // Every attendance record = day present (no status field written)
+      // Fallback to matching by userName if ID fields are missing
+      const weekAtt = attendance.filter(a =>
+        (a.userId === firestoreId || a.userId === authUid || a.workerId === authUid || a.userName === workerName) &&
+        isThisWeek(a.date || a.timestamp)
+      )
+      // Count unique attendance dates this week
+      const uniqueDatesThisWeek = [...new Set(weekAtt.map(a => a.date).filter(Boolean))].length
+      const attPctFinal = uniqueDatesThisWeek > 0
+        ? Math.min(100, Math.round((uniqueDatesThisWeek / 7) * 100))
+        : 0
+
+      // Tasks: assignedTo = worker's uid OR userId fallback
+      // Fallback to matching by workerName if ID fields are missing
+      const weekTasks = tasks.filter(t =>
+        (t.assignedTo === authUid || t.assignedTo === firestoreId || t.userId === firestoreId || t.workerId === firestoreId || t.workerName === workerName || t.assignedToName === workerName) &&
+        isThisWeek(getTaskDate(t))
+      )
+      const tasksDone = weekTasks.filter(t =>
+        t.status?.toLowerCase() === 'completed' || t.status?.toLowerCase() === 'verified'
+      ).length
+
+      // Dynamic trust score
+      const trustScore = Math.min(100, Math.round((attPctFinal * 0.6) + (tasksDone * 2)))
+
+      return { ...w, attPct: attPctFinal, tasksDone, trustScore }
+    })
+    .sort((a, b) => b.trustScore - a.trustScore)
+    .slice(0, 5)
 
   return (
     <div className="space-y-6 animate-fade-in w-full pb-8">
@@ -290,13 +372,10 @@ export default function AnalyticsPage() {
                   </td>
                 </tr>
               ) : (
-                workers
-                  .sort((a, b) => (b.score || 0) - (a.score || 0))
-                  .slice(0, 5)
-                  .map((w, i) => {
-                    const trustScore = 80 + Math.min(20, Math.floor((w.score || 0) / 10)); 
-                    const attRate = Math.min(100, (w.totalAttendance || 0) * 10);
-                    const completedTasks = tasks.filter(t => t.assignedTo === (w.uid || w.id) && t.status === 'verified').length;
+                topPerformers.map((w, i) => {
+                    const attRate    = Number(w.attPct)    || 0
+                    const tasksDone  = Number(w.tasksDone) || 0
+                    const trustScore = Number(w.trustScore)|| 0
                     return (
                       <tr key={w.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-4 py-4 pl-4">
@@ -324,7 +403,7 @@ export default function AnalyticsPage() {
                             <span className="text-xs font-black text-gray-600">{attRate}%</span>
                           </div>
                         </td>
-                        <td className="px-4 py-4 text-xs font-bold text-gray-600">{completedTasks} tasks</td>
+                        <td className="px-4 py-4 text-xs font-bold text-gray-600">{tasksDone} tasks</td>
                         <td className="px-4 py-4">
                           <span className={clsx('text-sm font-black', trustScore >= 90 ? 'text-green-600' : 'text-amber-600')}>
                             {trustScore}
