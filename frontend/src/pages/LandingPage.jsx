@@ -42,12 +42,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
-            <button
-              onClick={() => navigate('/login')}
-              className="text-gray-600 hover:text-orange-600 font-bold text-xs md:text-sm px-2 md:px-3 py-1.5 transition-colors flex items-center gap-1.5"
-            >
-              <Lock size={14} /> <span className="hidden sm:inline">Secure Login</span><span className="sm:hidden">Login</span>
-            </button>
+
             <button
               onClick={() => navigate('/signup')}
               className="bg-orange-500 hover:bg-orange-600 text-white text-xs md:text-sm px-4 md:px-5 py-2.5 rounded-[10px] font-bold shadow-md shadow-orange-500/20 transition-all flex items-center gap-1.5"

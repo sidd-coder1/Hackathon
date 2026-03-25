@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import { useAuth } from '../../context/AuthContext'
 import { LayoutDashboard, Users, BarChart3, X, Camera, Star, QrCode, Target, LogOut, AlertTriangle } from 'lucide-react'
-import { SecureBadge, RoleBadge, ConfirmModal } from '../ui/UIComponents'
+import { SecureBadge, RoleBadge, ConfirmModal, TriColorMenu } from '../ui/UIComponents'
 import clsx from 'clsx'
 
 const supervisorNav = [
@@ -63,8 +63,22 @@ export default function AppLayout() {
         'fixed md:relative top-0 left-0 h-full w-[280px] bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none flex-shrink-0',
         sidebarOpen ? 'translate-x-0 md:ml-0' : '-translate-x-full md:translate-x-0 md:-ml-[280px]'
       )}>
-        {/* Sidebar Header — only X close button */}
-        <div className="flex items-center justify-end p-5 border-b border-gray-100">
+        {/* Sidebar Header — Logo and Close button */}
+        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center"
+          >
+            <TriColorMenu size={20} />
+          </button>
+
+          <div className="flex items-center select-none">
+            <h1 className="text-lg font-black leading-tight tracking-tighter">
+              <span className="text-saffron-600">Swachh</span>
+              <span className="text-green-600">Drishti</span>
+            </h1>
+          </div>
+
           <button
             onClick={() => setSidebarOpen(false)}
             className="text-gray-400 hover:text-gray-900 p-1.5 rounded-xl hover:bg-gray-100 transition-all"

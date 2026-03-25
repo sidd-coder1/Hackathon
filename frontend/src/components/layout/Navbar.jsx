@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useAlerts } from '../../context/AlertContext'
-import { Bell, Shield, Menu, X, LogOut, AlertTriangle } from 'lucide-react'
-import { RoleBadge, SecureBadge, ConfirmModal } from '../ui/UIComponents'
+import { Bell, Shield, X, LogOut, AlertTriangle } from 'lucide-react'
+import { RoleBadge, SecureBadge, ConfirmModal, TriColorMenu } from '../ui/UIComponents'
 import clsx from 'clsx'
 
 export default function Navbar({ onMenuToggle, menuOpen }) {
@@ -32,10 +32,10 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
         onClick={onMenuToggle}
         className={clsx(
           "mr-3 p-2 rounded-xl text-blue-100/70 hover:bg-white/10 hover:text-white transition-all flex-shrink-0",
-          menuOpen ? "md:hidden" : "flex"
+          menuOpen ? "hidden" : "flex items-center justify-center"
         )}
       >
-        <Menu size={20} />
+        <TriColorMenu size={20} />
       </button>
 
       {/* Logo */}

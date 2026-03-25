@@ -115,6 +115,27 @@ export function AlertBanner({ type = 'info', title, message, onClose }) {
   )
 }
 
+// TriColorMenu – Indian tri-color hamburger icon
+export function TriColorMenu({ size = 24, className }) {
+  const barH = size * 0.12
+  const gap  = size * 0.26
+  const w    = size
+  return (
+    <svg
+      width={w}
+      height={size}
+      viewBox={`0 0 ${w} ${size}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <rect x="0" y={size * 0.13}          width={w} height={barH} rx={barH / 2} fill="#FF6B00" />
+      <rect x="0" y={size * 0.13 + gap}    width={w} height={barH} rx={barH / 2} fill="currentColor" />
+      <rect x="0" y={size * 0.13 + gap*2}  width={w} height={barH} rx={barH / 2} fill="#138808" />
+    </svg>
+  )
+}
+
 // SecureBadge – visual trust indicator
 export function SecureBadge({ label = 'Secured', size = 'sm' }) {
   const isSm = size === 'sm';
