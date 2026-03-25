@@ -33,6 +33,27 @@ export default function WorkerDashboard() {
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+    
+    // Periodic Location Tracking (Every 5 minutes)
+    const locationInterval = setInterval(() => {
+        if (navigator.geolocation && (user?.uid || user?.id)) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                try {
+                    await addDoc(collection(db, 'locations'), {
+                        userId: user.uid || user.id,
+                        userName: user.name || 'Unknown',
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        timestamp: serverTimestamp()
+                    });
+                    console.log("Location updated periodically");
+                } catch (err) {
+                    console.error("Failed to update periodic location", err);
+                }
+            });
+        }
+    }, 5 * 60 * 1000); // 5 minutes
+
     setTimeout(() => {
       setGpsStatus('active')
       setCoords({ lat: '15.9047° N', lng: '73.8210° E', acc: '±4m' })
@@ -41,16 +62,31 @@ export default function WorkerDashboard() {
     // Subscribe to tasks
     if (user?.uid || user?.id) {
         const unsub = subscribeToTasks((fetchedTasks) => {
-            setTasks(fetchedTasks.filter(t => t.assignedTo === (user.uid || user.id)));
+            const today = new Date().toISOString().split('T')[0];
+            const myTasks = fetchedTasks.filter(t => {
+                const matchesUser = t.assignedTo === (user.uid || user.id);
+                const isNotVerified = t.status !== 'verified';
+                
+                // Date check: Show if today is within [dateFrom, dateTo] 
+                // or if dates are missing (fallback)
+                const isToday = !t.dateFrom || !t.dateTo || (today >= t.dateFrom && today <= t.dateTo);
+                
+                return matchesUser && isNotVerified && isToday;
+            });
+            setTasks(myTasks);
             setTasksLoading(false);
         });
         return () => {
             clearInterval(timer);
+            clearInterval(locationInterval);
             unsub();
         }
     }
     
-    return () => clearInterval(timer)
+    return () => {
+        clearInterval(timer);
+        clearInterval(locationInterval);
+    }
   }, [user])
 
   const [showScanner, setShowScanner] = useState(false)
