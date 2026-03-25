@@ -8,7 +8,7 @@ import clsx from 'clsx'
 
 export default function Navbar({ onMenuToggle, menuOpen }) {
   const { user, logout } = useAuth()
-  const { alerts } = useAlerts()
+  const { alerts, markAllRead } = useAlerts()
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -119,7 +119,10 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
                     <div className="p-6 text-center text-sm text-gray-500 font-medium">No new notifications</div>
                   )}
                 </div>
-                <div className="p-3 border-t border-gray-100 bg-gray-50/80 text-center cursor-pointer hover:bg-gray-100 transition-colors text-xs text-gray-600 hover:text-gray-900 font-bold uppercase tracking-widest">
+                <div
+                  onClick={markAllRead}
+                  className="p-3 border-t border-gray-100 bg-gray-50/80 text-center cursor-pointer hover:bg-gray-100 transition-colors text-xs text-gray-600 hover:text-gray-900 font-bold uppercase tracking-widest"
+                >
                   Mark all as read
                 </div>
               </div>

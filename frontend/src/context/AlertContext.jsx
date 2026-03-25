@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { getUsers, getAttendance } from '../services/firebaseService'
 
 const AlertContext = createContext(null)
@@ -28,6 +28,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 export function AlertProvider({ children }) {
   const [alerts, setAlerts] = useState([])
   const [loading, setLoading] = useState(true)
+  const dismissedIds = useRef(new Set())
 
   const checkAnomalies = async () => {
     try {
@@ -100,8 +101,11 @@ export function AlertProvider({ children }) {
         }
       })
 
-      // Sort alerts by newest first
-      setAlerts(newAlerts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)))
+      // Sort alerts by newest first, filter out dismissed ones
+      const filtered = newAlerts
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .filter(a => !dismissedIds.current.has(a.id))
+      setAlerts(filtered)
     } catch (err) {
       console.error("Failed to run anomaly engine:", err)
     } finally {
@@ -116,8 +120,15 @@ export function AlertProvider({ children }) {
     return () => clearInterval(interval)
   }, [])
 
+  const markAllRead = () => {
+    console.log('Before markAllRead:', alerts)
+    alerts.forEach(a => dismissedIds.current.add(a.id))
+    setAlerts([])
+    console.log('After markAllRead: alerts cleared')
+  }
+
   return (
-    <AlertContext.Provider value={{ alerts, refreshAlerts: checkAnomalies, loading }}>
+    <AlertContext.Provider value={{ alerts, refreshAlerts: checkAnomalies, markAllRead, loading }}>
       {children}
     </AlertContext.Provider>
   )
