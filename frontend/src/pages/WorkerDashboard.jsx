@@ -7,7 +7,8 @@ import { addAttendance, checkAttendanceExists, updateUserStats } from '../servic
 import { Scanner } from '@yudiel/react-qr-scanner'
 import { storage, db } from '../firebase'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, query, where, onSnapshot } from 'firebase/firestore'
+import { completeTask, subscribeToTasks } from '../services/firebaseService'
 
 export default function WorkerDashboard() {
   const { user } = useAuth()
@@ -27,14 +28,30 @@ export default function WorkerDashboard() {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
 
+  const [tasks, setTasks] = useState([])
+  const [tasksLoading, setTasksLoading] = useState(true)
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     setTimeout(() => {
       setGpsStatus('active')
-      setCoords({ lat: '28.6448° N', lng: '77.2167° E', acc: '±4m' })
+      setCoords({ lat: '15.9047° N', lng: '73.8210° E', acc: '±4m' })
     }, 2000)
+    
+    // Subscribe to tasks
+    if (user?.uid || user?.id) {
+        const unsub = subscribeToTasks((fetchedTasks) => {
+            setTasks(fetchedTasks.filter(t => t.assignedTo === (user.uid || user.id)));
+            setTasksLoading(false);
+        });
+        return () => {
+            clearInterval(timer);
+            unsub();
+        }
+    }
+    
     return () => clearInterval(timer)
-  }, [])
+  }, [user])
 
   const [showScanner, setShowScanner] = useState(false)
 
@@ -250,6 +267,16 @@ export default function WorkerDashboard() {
     }
   }
 
+  const handleCompleteTask = async (taskId) => {
+    try {
+        await completeTask(taskId);
+        alert("Task marked as completed!");
+    } catch (err) {
+        console.error("Failed to complete task", err);
+        alert("Error completing task.");
+    }
+  }
+
   const taskStatusMap = {
     'in-progress': { label: 'In Progress', variant: 'saffron' },
     'pending': { label: 'Pending', variant: 'default' },
@@ -274,9 +301,12 @@ export default function WorkerDashboard() {
           <p className="text-lg font-mono font-bold text-gray-800 tabular-nums">
             {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </p>
-          <p className="text-xs text-gray-500">
-            {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
-          </p>
+          <div className="flex items-center justify-end gap-2">
+            <Badge variant="primary" className="text-[10px]">Level {user?.level || 1}</Badge>
+            <p className="text-xs text-gray-500">
+                {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -405,15 +435,58 @@ export default function WorkerDashboard() {
       {/* Quick stats row */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Attendance', value: '96%', color: 'text-green-600' },
-          { label: 'Tasks Done', value: '3/4', color: 'text-saffron-600' },
-          { label: 'Trust Score', value: '92', color: 'text-blue-600' },
+          { label: 'Attendance', value: `${user?.totalAttendance || 0}`, color: 'text-green-600' },
+          { label: 'Tasks Done', value: `${tasks.filter(t => t.status === 'verified').length}`, color: 'text-saffron-600' },
+          { label: 'Total Score', value: `${user?.score || 0}`, color: 'text-blue-600' },
         ].map(s => (
           <div key={s.label} className="glass-card p-3 text-center">
             <p className={clsx('text-xl font-bold', s.color)}>{s.value}</p>
             <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Assigned Tasks Section */}
+      <div className="glass-card overflow-hidden">
+        <div className="p-5 border-b border-white/20 bg-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-blue-100 flex items-center justify-center shadow-sm">
+              <CheckCircle2 className="text-blue-600" size={22} />
+            </div>
+            <div>
+              <h2 className="font-bold text-gray-900 text-base">My assigned tasks</h2>
+              <p className="text-xs text-gray-500">Active tasks for your ward</p>
+            </div>
+          </div>
+          <Badge variant="primary">{tasks.filter(t => t.status !== 'verified').length} Active</Badge>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {tasksLoading ? (
+            <div className="flex justify-center p-6"><Spinner /></div>
+          ) : tasks.length === 0 ? (
+            <p className="text-center py-6 text-gray-400 text-sm">No tasks assigned today.</p>
+          ) : (
+            tasks.filter(t => t.status !== 'verified').map(task => (
+              <div key={task.id} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-between group">
+                <div>
+                  <h4 className="font-bold text-gray-900 text-sm">{task.title}</h4>
+                  <p className="text-xs text-gray-500">{task.ward} · {task.points} Points</p>
+                </div>
+                {task.status === 'pending' ? (
+                  <button 
+                    onClick={() => handleCompleteTask(task.id)}
+                    className="px-4 py-2 bg-saffron-500 text-white rounded-xl text-xs font-bold hover:bg-saffron-600 transition-colors shadow-sm"
+                  >
+                    Complete Task
+                  </button>
+                ) : (
+                  <Badge variant="success">Completed</Badge>
+                )}
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       {/* Photo Upload */}

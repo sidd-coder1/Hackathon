@@ -19,6 +19,9 @@ export default function AssignWorkerTaskPage() {
   // Form State
   const [selectedWorkerId, setSelectedWorkerId] = useState('')
   const [area, setArea] = useState('')
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [points, setPoints] = useState(10)
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
 
@@ -39,7 +42,7 @@ export default function AssignWorkerTaskPage() {
   // Fetch Assigned Tasks Live
   useEffect(() => {
     const q = query(
-      collection(db, 'workerTasks'),
+      collection(db, 'tasks'),
       orderBy('createdAt', 'desc')
     )
     const unsub = onSnapshot(q, (snap) => {
@@ -55,7 +58,7 @@ export default function AssignWorkerTaskPage() {
     }, (err) => {
       console.warn("Tasks listener failed (index may be required):", err.message)
       // Fallback if index fails
-      getDocs(query(collection(db, 'workerTasks')))
+      getDocs(query(collection(db, 'tasks')))
         .then(snap => setTasks(snap.docs.map(doc => {
           const d = doc.data();
           return {
@@ -75,7 +78,7 @@ export default function AssignWorkerTaskPage() {
     setFormError('')
     setFormSuccess('')
 
-    if (!selectedWorkerId || !area || !dateFrom || !dateTo) {
+    if (!selectedWorkerId || !area || !title || !description || !points) {
       setFormError('Please fill out all fields.')
       return
     }
@@ -99,15 +102,16 @@ export default function AssignWorkerTaskPage() {
 
     setLoading(true)
     try {
-      await addDoc(collection(db, 'workerTasks'), {
-        workerId: workerObj.id,
+      await addDoc(collection(db, 'tasks'), {
+        assignedTo: workerObj.uid || workerObj.id,
         workerName: workerObj.name || 'Unknown',
         assignedBy: user?.name || 'Supervisor',
-        assignedById: user?.id || user?.uid || 'unknown',
-        area: area,
-        dateFrom: Timestamp.fromDate(new Date(`${dateFrom}T00:00:00`)),
-        dateTo: Timestamp.fromDate(new Date(`${dateTo}T23:59:59`)),
-        status: "assigned",
+        assignedById: user?.uid || user?.id || 'unknown',
+        ward: area,
+        title: title,
+        description: description,
+        points: parseInt(points),
+        status: "pending",
         createdAt: serverTimestamp()
       })
       
@@ -115,6 +119,9 @@ export default function AssignWorkerTaskPage() {
       // Reset
       setSelectedWorkerId('')
       setArea('')
+      setTitle('')
+      setDescription('')
+      setPoints(10)
       setDateFrom('')
       setDateTo('')
     } catch (err) {
@@ -186,43 +193,52 @@ export default function AssignWorkerTaskPage() {
                 />
               </div>
 
-              {/* Area to be Assigned */}
+              {/* Task Title */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Area to be Assigned</label>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Task Title</label>
                 <input
                   type="text"
-                  placeholder="e.g. Ward 4, Sector A"
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
+                  placeholder="e.g. Garbage collection"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-saffron-500 focus:border-saffron-500 block p-3 outline-none transition-colors shadow-sm"
                 />
               </div>
 
-              {/* Date From & To */}
+              {/* Task Description */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Description</label>
+                <textarea
+                  placeholder="Task details..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-saffron-500 focus:border-saffron-500 block p-3 outline-none transition-colors shadow-sm min-h-[80px]"
+                />
+              </div>
+
+              {/* Points & Area */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Date From</label>
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => setDateFrom(e.target.value)}
-                      className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-saffron-500 focus:border-saffron-500 block p-3 outline-none transition-colors shadow-sm"
-                    />
-                  </div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Ward / Area</label>
+                  <input
+                    type="text"
+                    placeholder="Ward 4"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-saffron-500 focus:border-saffron-500 block p-3 outline-none transition-colors shadow-sm"
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Date To</label>
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => setDateTo(e.target.value)}
-                      className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-saffron-500 focus:border-saffron-500 block p-3 outline-none transition-colors shadow-sm"
-                    />
-                  </div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Task Points</label>
+                  <input
+                    type="number"
+                    value={points}
+                    onChange={(e) => setPoints(e.target.value)}
+                    className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-saffron-500 focus:border-saffron-500 block p-3 outline-none transition-colors shadow-sm"
+                  />
                 </div>
               </div>
+
 
               <div className="pt-2">
                 <button
@@ -257,7 +273,7 @@ export default function AssignWorkerTaskPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-white sticky top-0 z-10 shadow-sm">
                     <tr className="border-b border-gray-100">
-                      {['Worker', 'Area', 'Date From', 'Date To', 'Assigned By', 'Status'].map(h => (
+                      {['Worker', 'Task', 'Ward', 'Points', 'Status'].map(h => (
                         <th key={h} className="text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest px-4 py-3 first:pl-6">{h}</th>
                       ))}
                     </tr>
@@ -268,12 +284,11 @@ export default function AssignWorkerTaskPage() {
                         <td className="px-4 py-3 pl-6 font-semibold text-gray-900 text-xs">
                           {t.workerName}
                         </td>
-                        <td className="px-4 py-3 text-xs text-gray-600">{t.area}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-gray-500">{t.dateFrom}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-gray-500">{t.dateTo}</td>
-                        <td className="px-4 py-3 text-xs text-gray-500">{t.assignedBy}</td>
+                        <td className="px-4 py-3 text-xs text-gray-600">{t.title}</td>
+                        <td className="px-4 py-3 text-xs text-gray-500">{t.ward}</td>
+                        <td className="px-4 py-3 font-mono text-xs text-saffron-600 font-bold">{t.points}</td>
                         <td className="px-4 py-3">
-                          <Badge variant={t.status === 'assigned' ? 'success' : 'warning'} className="text-[9px] px-2 py-0.5">
+                          <Badge variant={t.status === 'pending' ? 'warning' : t.status === 'completed' ? 'primary' : 'success'} className="text-[9px] px-2 py-0.5">
                             {t.status}
                           </Badge>
                         </td>

@@ -56,7 +56,7 @@ function AppRoutes() {
         path="/login"
         element={
           isAuthenticated
-            ? <Navigate to={user.role === 'worker' ? '/worker' : user.role === 'user' ? '/user' : '/supervisor'} replace />
+            ? <Navigate to={user.role === 'worker' ? '/worker' : (user.role === 'user' || user.role === 'area_watchman') ? '/user' : '/supervisor'} replace />
             : <LoginPage />
         }
       />
@@ -64,7 +64,7 @@ function AppRoutes() {
         path="/signup"
         element={
           isAuthenticated
-            ? <Navigate to={user.role === 'worker' ? '/worker' : user.role === 'user' ? '/user' : '/supervisor'} replace />
+            ? <Navigate to={user.role === 'worker' ? '/worker' : (user.role === 'user' || user.role === 'area_watchman') ? '/user' : '/supervisor'} replace />
             : <SignupPage />
         }
       />
@@ -99,24 +99,24 @@ function AppRoutes() {
           </ProtectedRoute>
         } />
 
-        {/* User routes */}
+        {/* User / Watchman routes */}
         <Route path="/user" element={
-          <ProtectedRoute roles={['user']}>
+          <ProtectedRoute roles={['user', 'area_watchman']}>
             <UserDashboard />
           </ProtectedRoute>
         } />
         <Route path="/user/scan" element={
-          <ProtectedRoute roles={['user']}>
+          <ProtectedRoute roles={['user', 'area_watchman']}>
             <UserDashboard view="scan" />
           </ProtectedRoute>
         } />
         <Route path="/user/report" element={
-          <ProtectedRoute roles={['user']}>
+          <ProtectedRoute roles={['user', 'area_watchman']}>
             <UserDashboard view="report" />
           </ProtectedRoute>
         } />
         <Route path="/user/feedback" element={
-          <ProtectedRoute roles={['user']}>
+          <ProtectedRoute roles={['user', 'area_watchman']}>
             <UserDashboard view="feedback" />
           </ProtectedRoute>
         } />

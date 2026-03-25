@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { getUsers, getAttendance } from '../services/firebaseService'
+import { subscribeToAttendance, subscribeToUsers, subscribeToTasks } from '../services/firebaseService'
 import { useAlerts } from '../context/AlertContext'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -46,7 +46,7 @@ function RealTimeMap({ attendanceList }) {
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
-    const map = L.map(mapContainerRef.current).setView([28.6448, 77.2167], 11);
+    const map = L.map(mapContainerRef.current).setView([15.9047, 73.8210], 14);
     
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap'
@@ -147,21 +147,30 @@ export default function SupervisorDashboard() {
   const [dismissedAlerts, setDismissedAlerts] = useState([])
   const [workersList, setWorkersList] = useState([])
 
-  const loadData = async () => {
+  const loadData = () => {
     setLoading(true)
-    try {
-      const [users, attendance] = await Promise.all([getUsers(), getAttendance()])
-      setRealAttendance(attendance)
-      processDashboardData(users, attendance)
-    } catch (err) {
-      console.error('Data sync failed:', err)
-    } finally {
-      setLoading(false)
+    
+    // Subscribe to attendance
+    const unsubAttendance = subscribeToAttendance((attendance) => {
+        setRealAttendance(attendance);
+        processDashboardData(workersList, attendance);
+        setLoading(false);
+    });
+
+    // Subscribe to users/workers
+    const unsubUsers = subscribeToUsers((users) => {
+        const workers = users.filter(u => u.role === 'worker');
+        setWorkersList(workers);
+        processDashboardData(workers, realAttendance);
+    });
+
+    return () => {
+        unsubAttendance();
+        unsubUsers();
     }
   }
 
-  const processDashboardData = (users, attendance) => {
-    const workers = users.filter(u => u.role === 'worker')
+  const processDashboardData = (workers, attendance) => {
     setWorkersList(workers)
     const totalWorkers = workers.length
     const today = new Date().toISOString().split('T')[0]
@@ -180,7 +189,8 @@ export default function SupervisorDashboard() {
   }
 
   useEffect(() => {
-    loadData()
+    const unsub = loadData();
+    return () => unsub && unsub();
   }, [])
 
   useEffect(() => {

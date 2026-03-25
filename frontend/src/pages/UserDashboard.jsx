@@ -20,6 +20,8 @@ import {
 } from 'lucide-react'
 import { Badge, Spinner } from '../components/ui/UIComponents'
 import clsx from 'clsx'
+import { subscribeToTasks, verifyTask } from '../services/firebaseService'
+import { where } from 'firebase/firestore'
 
 // --- Sub-components ---
 
@@ -82,8 +84,11 @@ function DashboardHome({ user, activityLog }) {
         </div>
       </div>
 
-      <div className="glass-card p-5">
-        <h3 className="text-xs font-black text-gray-900 mb-5 flex items-center gap-2 tracking-widest uppercase">
+      {user?.role === 'area_watchman' && (
+        <VerificationTasks user={user} />
+      )}
+     <div className="glass-card p-5">
+        <h3 className="text-sm font-black text-gray-900 mb-5 flex items-center gap-2 tracking-widest uppercase">
           <History size={14} className="text-saffron-600" /> Recent Ward Activity
         </h3>
         <div className="space-y-4">
@@ -449,7 +454,58 @@ function WorkerFeedback({ onAddLog }) {
   )
 }
 
-// --- Main Layout ---
+function VerificationTasks({ user }) {
+  const [tasks, setTasks] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const unsub = subscribeToTasks((fetchedTasks) => {
+        setTasks(fetchedTasks.filter(t => t.status === 'completed'));
+        setLoading(false);
+    });
+    return () => unsub();
+  }, [])
+
+  const handleVerify = async (task) => {
+    try {
+        await verifyTask(task.id, user.uid || user.id, task.points, task.assignedTo);
+        alert("Task verified successfully!");
+    } catch (err) {
+        console.error("Verification failed", err);
+        alert("Error verifying task.");
+    }
+  }
+
+  return (
+    <div className="glass-card p-5 border-l-4 border-l-blue-500 bg-gradient-to-br from-white to-blue-50/30 mb-6">
+        <h3 className="text-sm font-black text-gray-900 mb-5 flex items-center gap-2 tracking-widest uppercase">
+          <ShieldCheck size={16} className="text-blue-600" /> Tasks Pending Verification
+        </h3>
+        <div className="space-y-4">
+            {loading ? (
+                <div className="flex justify-center py-6"><Spinner /></div>
+            ) : tasks.length === 0 ? (
+                <p className="text-center py-6 text-gray-400 text-sm italic">No tasks pending verification.</p>
+            ) : (
+                tasks.map(task => (
+                    <div key={task.id} className="p-4 rounded-2xl bg-white border border-blue-100 flex items-center justify-between shadow-sm">
+                        <div>
+                            <p className="text-xs font-bold text-gray-900">{task.title}</p>
+                            <p className="text-[10px] text-gray-500 font-medium">{task.workerName} · {task.ward}</p>
+                        </div>
+                        <button 
+                            onClick={() => handleVerify(task)}
+                            className="bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-xl hover:bg-blue-700 transition-all shadow-md active:scale-95"
+                        >
+                            Verify Task
+                        </button>
+                    </div>
+                ))
+            )}
+        </div>
+    </div>
+  )
+}
 
 export default function UserDashboard({ view = 'dashboard' }) {
   const { user } = useAuth()
