@@ -3,9 +3,9 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import {
   LayoutDashboard, Users, BarChart3, MapPin, Bell, LogOut,
-  ShieldCheck, CheckCircle2, Shield, Menu, X, ChevronRight, Settings, FileText, Scan, Camera, Star, QrCode, Target
+  ShieldCheck, CheckCircle2, Shield, Menu, X, ChevronRight, Settings, FileText, Scan, Camera, Star, QrCode, Target, AlertTriangle
 } from 'lucide-react'
-import { RoleBadge, SecureBadge } from '../ui/UIComponents'
+import { RoleBadge, SecureBadge, ConfirmModal } from '../ui/UIComponents'
 import clsx from 'clsx'
 
 const supervisorNav = [
@@ -34,7 +34,13 @@ export default function Sidebar({ collapsed }) {
                  : user?.role === 'supervisor' ? supervisorNav 
                  : userNav
 
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
+
   const handleLogout = () => {
+    setIsLogoutModalOpen(true)
+  }
+
+  const confirmLogout = () => {
     logout()
     navigate('/')
   }
@@ -96,6 +102,18 @@ export default function Sidebar({ collapsed }) {
           {!collapsed && <span>Logout</span>}
         </button>
       </div>
+
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={confirmLogout}
+        title="Sign Out"
+        message="Are you sure you want to sign out of your account?"
+        confirmText="Sign Out"
+        cancelText="Cancel"
+        icon={LogOut}
+        isDestructive={true}
+      />
     </aside>
   )
 }

@@ -177,23 +177,32 @@ export default function LoginPage() {
                   Fill demo credentials for {role}
                 </button>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full justify-center mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <>
-                      <Spinner size="sm" />
-                      Authenticating...
-                    </>
-                  ) : (
-                    <>
-                      <Lock size={16} />
-                      Secure Sign In
-                    </>
-                  )}
-                </button>
+                <div className="flex gap-3 mt-4">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-primary flex-1 justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner size="sm" />
+                        Authenticating...
+                      </>
+                    ) : (
+                      <>
+                        <Lock size={16} />
+                        Login
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/signup')}
+                    className="btn-secondary flex-1 justify-center"
+                  >
+                    Sign Up
+                  </button>
+                </div>
               </form>
             </>
           )}

@@ -2,10 +2,14 @@ import React from 'react'
 import { useRewards } from '../hooks/useRewards'
 import PointsCard from '../components/worker/PointsCard'
 import TaskList from '../components/worker/TaskList'
-import { Target, Trophy, Star, ChevronRight } from 'lucide-react'
+import { Target, Trophy, Star, ChevronRight, Flame } from 'lucide-react'
 
 export default function WorkerMissionsPage() {
-  const { points, tasks: dailyTasks, completeTask, level } = useRewards()
+  const { points, tasks: dailyTasks, startTask, completeTask, level } = useRewards()
+  
+  const completedCount = dailyTasks.filter(t => t.completed).length
+  const totalCount = dailyTasks.length
+  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-10 animate-fade-in">
@@ -20,9 +24,25 @@ export default function WorkerMissionsPage() {
             <p className="text-sm text-gray-500 font-medium mt-1">Complete tasks to earn points & level up</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg">
-          <Trophy className="text-orange-500" size={18} />
-          <span className="text-sm font-bold text-gray-900">Level {level.label}</span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <button 
+            onClick={() => {
+              localStorage.removeItem('swachh_daily_tasks');
+              localStorage.removeItem('swachh_points_data');
+              window.location.reload();
+            }} 
+            className="text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest mr-2"
+          >
+            [ Reset System ]
+          </button>
+          <div className="flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-200/60 shadow-sm rounded-lg">
+            <Flame className="text-orange-500 fill-orange-500 animate-pulse-slow" size={18} />
+            <span className="text-sm font-extrabold text-orange-700">{points.streak || 1} Day Streak</span>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-lg">
+            <Trophy className="text-orange-500" size={18} />
+            <span className="text-sm font-bold text-gray-900">Level {level.label}</span>
+          </div>
         </div>
       </div>
 
@@ -31,18 +51,21 @@ export default function WorkerMissionsPage() {
 
       {/* Main Missions Section */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
             <h2 className="text-lg font-bold text-gray-900">Active Missions</h2>
           </div>
-          <span className="text-sm font-semibold text-orange-600 bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
-            {dailyTasks.filter(t => !t.completed).length} Remaining
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-bold text-gray-600">{completedCount}/{totalCount} Completed</span>
+            <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-orange-500 transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
         </div>
         
         <div className="p-0">
-          <TaskList tasks={dailyTasks} onCompleteTask={completeTask} />
+          <TaskList tasks={dailyTasks} onStartTask={startTask} onCompleteTask={completeTask} />
         </div>
       </div>
 

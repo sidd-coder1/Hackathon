@@ -1,10 +1,12 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { AlertProvider } from './context/AlertContext'
 import { Hammer, Ban } from 'lucide-react'
 import AppLayout from './components/layout/AppLayout'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
 import WorkerDashboard from './pages/WorkerDashboard'
 import WorkerMissionsPage from './pages/WorkerMissionsPage'
 import AnalyticsPage from './pages/AnalyticsPage'
@@ -56,6 +58,14 @@ function AppRoutes() {
           isAuthenticated
             ? <Navigate to={user.role === 'worker' ? '/worker' : user.role === 'user' ? '/user' : '/supervisor'} replace />
             : <LoginPage />
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          isAuthenticated
+            ? <Navigate to={user.role === 'worker' ? '/worker' : user.role === 'user' ? '/user' : '/supervisor'} replace />
+            : <SignupPage />
         }
       />
 
@@ -146,7 +156,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <AlertProvider>
+          <AppRoutes />
+        </AlertProvider>
       </AuthProvider>
     </BrowserRouter>
   )

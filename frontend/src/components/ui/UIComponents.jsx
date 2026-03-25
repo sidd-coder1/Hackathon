@@ -1,6 +1,6 @@
 import React from 'react'
 import clsx from 'clsx'
-import { AlertOctagon, AlertTriangle, CheckCircle2, Info, Lock } from 'lucide-react'
+import { AlertOctagon, AlertTriangle, CheckCircle2, Info, Lock, LogOut, X } from 'lucide-react'
 
 // Badge component
 export function Badge({ variant = 'default', children, className }) {
@@ -131,3 +131,50 @@ export function RoleBadge({ role }) {
   const r = map[role] || { label: role, variant: 'default' }
   return <Badge variant={r.variant}>{r.label}</Badge>
 }
+
+// ConfirmModal
+export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confirmText = 'Confirm', cancelText = 'Cancel', icon: Icon = AlertTriangle, isDestructive = false }) {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-slide-up border border-gray-100 p-6 text-center">
+        <div className={clsx("w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5", isDestructive ? "bg-red-50 text-red-500" : "bg-orange-50 text-orange-500")}>
+          <Icon size={32} />
+        </div>
+        
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
+        <p className="text-sm text-gray-500 mb-8 leading-relaxed px-2">{message}</p>
+        
+        <div className="flex gap-3 w-full">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={() => {
+              onConfirm()
+              onClose()
+            }}
+            className={clsx(
+              "flex-1 px-4 py-2.5 rounded-xl text-white font-semibold transition-colors shadow-lg shadow-black/5",
+              isDestructive ? "bg-red-500 hover:bg-red-600" : "bg-orange-500 hover:bg-orange-600"
+            )}
+          >
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+

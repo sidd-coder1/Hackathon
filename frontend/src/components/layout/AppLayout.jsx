@@ -3,8 +3,8 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import Footer from './Footer'
 import { useAuth } from '../../context/AuthContext'
-import { LayoutDashboard, Users, BarChart3, X, Camera, Star, QrCode, Target, LogOut } from 'lucide-react'
-import { SecureBadge, RoleBadge } from '../ui/UIComponents'
+import { LayoutDashboard, Users, BarChart3, X, Camera, Star, QrCode, Target, LogOut, AlertTriangle } from 'lucide-react'
+import { SecureBadge, RoleBadge, ConfirmModal } from '../ui/UIComponents'
 import clsx from 'clsx'
 
 const supervisorNav = [
@@ -31,6 +31,7 @@ const userNav = [
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -39,6 +40,10 @@ export default function AppLayout() {
       : userNav
 
   const handleLogout = () => {
+    setIsLogoutModalOpen(true)
+  }
+
+  const confirmLogout = () => {
     logout()
     navigate('/')
   }
@@ -143,6 +148,18 @@ export default function AppLayout() {
         </main>
         <Footer />
       </div>
+
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={confirmLogout}
+        title="Sign Out"
+        message="Are you sure you want to sign out of your account? You will need to login again to access your dashboard."
+        confirmText="Sign Out"
+        cancelText="Cancel"
+        icon={LogOut}
+        isDestructive={true}
+      />
     </div>
   )
 }

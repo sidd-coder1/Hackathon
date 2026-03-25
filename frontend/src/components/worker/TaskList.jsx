@@ -2,22 +2,34 @@ import React from 'react';
 import { Target, Info } from 'lucide-react';
 import TaskItem from './TaskItem';
 
-const TaskList = ({ tasks, onCompleteTask }) => {
+const TaskList = ({ tasks, onStartTask, onCompleteTask }) => {
+  // Sort: Highest reward first
+  const activeTasks = [...tasks].filter(t => !t.completed).sort((a, b) => b.points - a.points);
+  const completedTasks = tasks.filter(t => t.completed);
+
   return (
-    <div className="flex flex-col divide-y divide-gray-100">
-      {tasks.map((task) => (
-        <TaskItem 
-          key={task.id} 
-          task={task} 
-          onComplete={onCompleteTask} 
-        />
-      ))}
-      <div className="p-5 bg-blue-50/50 flex items-start gap-3">
-        <Info size={14} className="text-blue-500 mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-blue-700 leading-relaxed font-medium">
-          Missions refresh every 24 hours at midnight. Complete all tasks to unlock bonus multiplier!
-        </p>
+    <div className="flex flex-col">
+      <div className="divide-y divide-gray-100">
+        {activeTasks.map((task) => (
+          <TaskItem 
+            key={task.id} 
+            task={task} 
+            onStart={onStartTask}
+            onComplete={onCompleteTask} 
+          />
+        ))}
       </div>
+
+      {completedTasks.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest px-6 mb-3">Completed Today</h3>
+          <div className="divide-y divide-gray-100 opacity-60 grayscale-[0.5]">
+            {completedTasks.map((task) => (
+              <TaskItem key={task.id} task={task} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

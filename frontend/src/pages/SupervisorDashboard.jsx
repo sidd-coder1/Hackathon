@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { getUsers, getAttendance } from '../services/firebaseService'
+import { useAlerts } from '../context/AlertContext'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 
@@ -133,6 +134,7 @@ function CivicTrustScore({ score = 84.7 }) {
 }
 
 export default function SupervisorDashboard() {
+  const { alerts } = useAlerts()
   const [stats, setStats] = useState([
     { label: 'Total Workers', value: '0', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', trend: 'Syncing...' },
     { label: 'Active Now', value: '0', icon: Activity, color: 'text-green-600', bg: 'bg-green-50', trend: 'Live' },
@@ -140,7 +142,6 @@ export default function SupervisorDashboard() {
     { label: 'Avg Trust Score', value: '0%', icon: ShieldCheck, color: 'text-purple-600', bg: 'bg-purple-50', trend: 'Stable' },
   ])
   const [loading, setLoading] = useState(true)
-  const [alerts, setAlerts] = useState([])
   const [recentActivity, setRecentActivity] = useState([])
   const [realAttendance, setRealAttendance] = useState([])
   const [dismissedAlerts, setDismissedAlerts] = useState([])
@@ -175,13 +176,26 @@ export default function SupervisorDashboard() {
       { label: 'Ward Alerts', value: '0', icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50', trend: 'No issues' },
       { label: 'Avg Trust Score', value: `${avgScore}%`, icon: ShieldCheck, color: 'text-purple-600', bg: 'bg-purple-50', trend: 'Stable' },
     ])
-    setAlerts([])
     setRecentActivity([])
   }
 
   useEffect(() => {
     loadData()
   }, [])
+
+  useEffect(() => {
+    setStats(prev => prev.map(s => 
+      s.label === 'Ward Alerts' 
+        ? { 
+            ...s, 
+            value: alerts.length.toString(), 
+            trend: alerts.length > 0 ? 'Action required' : 'No issues', 
+            color: alerts.length > 0 ? 'text-red-500' : 'text-amber-500', 
+            bg: alerts.length > 0 ? 'bg-red-50' : 'bg-amber-50' 
+          }
+        : s
+    ))
+  }, [alerts])
 
   const handleRefresh = async () => {
     await loadData()

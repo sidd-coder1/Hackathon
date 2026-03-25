@@ -1,17 +1,25 @@
 import React, { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { Bell, Shield, Menu, X, LogOut } from 'lucide-react'
-import { RoleBadge, SecureBadge } from '../ui/UIComponents'
+import { useAlerts } from '../../context/AlertContext'
+import { Bell, Shield, Menu, X, LogOut, AlertTriangle } from 'lucide-react'
+import { RoleBadge, SecureBadge, ConfirmModal } from '../ui/UIComponents'
 import clsx from 'clsx'
 
 export default function Navbar({ onMenuToggle, menuOpen }) {
   const { user, logout } = useAuth()
+  const { alerts } = useAlerts()
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
 
   const handleLogout = () => {
+    setProfileOpen(false)
+    setIsLogoutModalOpen(true)
+  }
+
+  const confirmLogout = () => {
     logout()
     navigate('/')
   }
@@ -70,27 +78,42 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
               )}
             >
               <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+              {alerts?.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full animate-pulse" />}
             </button>
 
             {notificationsOpen && (
               <div className="absolute right-0 top-full mt-2 w-72 md:w-80 bg-white rounded-2xl p-0 shadow-2xl shadow-gray-200/80 border border-gray-100 z-50 overflow-hidden animate-fade-in origin-top-right">
                 <div className="px-4 py-3 border-b border-gray-50 bg-gray-50/80 flex justify-between items-center">
                   <h3 className="text-sm font-bold text-gray-900 tracking-wide">Notifications</h3>
-                  <span className="text-[10px] bg-saffron-100 text-saffron-700 px-2 py-0.5 rounded-md font-black tracking-widest uppercase">2 New</span>
+                  {alerts?.length > 0 && <span className="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md font-black tracking-widest uppercase">{alerts.length} New</span>}
                 </div>
                 <div className="max-h-80 overflow-y-auto">
-                  <div className="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer relative bg-saffron-50/40">
-                    <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-saffron-500 rounded-r-md" />
-                    <p className="text-[13px] font-bold text-gray-900 mb-1">New complaint registered</p>
-                    <p className="text-xs text-gray-500 leading-relaxed font-medium">Sector 7 dustbin area requires immediate cleanup operation.</p>
-                    <p className="text-[10px] text-saffron-600 mt-2 font-mono uppercase tracking-widest font-bold">10 mins ago</p>
-                  </div>
-                  <div className="p-4 hover:bg-gray-50 transition-colors cursor-pointer relative">
-                    <p className="text-[13px] font-bold text-gray-900 mb-1">Attendance anomaly</p>
-                    <p className="text-xs text-gray-500 leading-relaxed font-medium">3 workers have marked themselves absent today in South Zone.</p>
-                    <p className="text-[10px] text-gray-400 mt-2 font-mono uppercase tracking-widest font-bold">1 hour ago</p>
-                  </div>
+                  {alerts?.length > 0 ? alerts.map((alert) => {
+                    const sev = alert.severity || 'medium';
+                    const styles = {
+                      high: { bg: 'bg-red-50/50', border: 'bg-red-500', text: 'text-red-600' },
+                      medium: { bg: 'bg-orange-50/40', border: 'bg-orange-500', text: 'text-orange-600' },
+                      low: { bg: 'bg-yellow-50/40', border: 'bg-yellow-500', text: 'text-yellow-600' },
+                    }[sev];
+
+                    return (
+                      <div key={alert.id} className={`p-4 border-b border-gray-50 transition-colors cursor-pointer relative hover:brightness-95 ${styles.bg}`}>
+                        <div className={`absolute left-0 top-0 bottom-0 w-[3px] rounded-r-md ${styles.border}`} />
+                        <div className="flex justify-between items-start mb-1">
+                          <p className="text-[13px] font-bold text-gray-900 capitalize">{alert.type} Alert</p>
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-black tracking-widest uppercase border ${styles.text} ${styles.border.replace('bg-', 'border-').replace('500', '200')}`}>
+                            {sev}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 leading-relaxed font-medium">{alert.message}</p>
+                        <p className={`text-[10px] mt-2 font-mono uppercase tracking-widest font-bold ${styles.text}`}>
+                          {new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    )
+                  }) : (
+                    <div className="p-6 text-center text-sm text-gray-500 font-medium">No new notifications</div>
+                  )}
                 </div>
                 <div className="p-3 border-t border-gray-100 bg-gray-50/80 text-center cursor-pointer hover:bg-gray-100 transition-colors text-xs text-gray-600 hover:text-gray-900 font-bold uppercase tracking-widest">
                   Mark all as read
@@ -141,6 +164,18 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={confirmLogout}
+        title="Sign Out"
+        message="Are you sure you want to sign out from the current session?"
+        confirmText="Sign Out"
+        cancelText="Cancel"
+        icon={LogOut}
+        isDestructive={true}
+      />
     </header>
   )
 }

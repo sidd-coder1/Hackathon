@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Shield, MapPin, Users, BarChart3, ArrowRight, CheckCircle2, Zap, Lock } from 'lucide-react'
+import FrontpageFooter from '../components/layout/FrontpageFooter'
 
 const features = [
   { icon: MapPin,    title: 'GPS-Based Tracking',    desc: 'Real-time location tracking of every field worker with spoofing detection' },
@@ -24,31 +25,41 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen text-gray-900 overflow-hidden">
       {/* Tricolor top bar */}
-      <div className="h-1 bg-gradient-to-r from-saffron-500 via-white to-brand-green" />
+      <div className="h-1 bg-gradient-to-r from-orange-500 via-white to-green-600 w-full" />
 
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 md:px-12 py-4 border-b border-gray-200">
-        <div className="flex items-center gap-3 md:gap-4">
-          <img 
-            src="/emblem.svg" 
-            alt="Government of India" 
-            className="w-10 md:w-12 h-auto flex-shrink-0"
-          />
-          <div className="border-l-2 border-saffron-500 pl-3">
-            <h1 className="text-base md:text-lg font-extrabold text-gray-900 leading-tight tracking-tight">SwachhDrishti</h1>
-            <p className="text-[10px] md:text-xs text-saffron-600 font-bold uppercase tracking-wide leading-tight mt-0.5">Govt. of India Initiative</p>
+      <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-2.5 md:py-3">
+          <div className="flex items-center gap-2.5 md:gap-3">
+            <img 
+              src="/emblem.svg" 
+              alt="Government of India" 
+              className="w-8 md:w-9 h-auto flex-shrink-0"
+            />
+            <div className="border-l-none md:border-l-2 md:border-orange-500 md:pl-2.5 pt-0.5">
+              <h1 className="text-lg md:text-[21px] font-black text-gray-900 leading-none tracking-tight">SwachhDrishti</h1>
+              <p className="hidden md:block text-[9px] text-orange-600 font-extrabold uppercase tracking-widest leading-tight mt-1">Govt. of India Initiative</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 md:gap-4">
+            <button
+              onClick={() => navigate('/login')}
+              className="text-gray-600 hover:text-orange-600 font-bold text-xs md:text-sm px-2 md:px-3 py-1.5 transition-colors flex items-center gap-1.5"
+            >
+              <Lock size={14} /> <span className="hidden sm:inline">Secure Login</span><span className="sm:hidden">Login</span>
+            </button>
+            <button
+              onClick={() => navigate('/signup')}
+              className="bg-orange-500 hover:bg-orange-600 text-white text-xs md:text-sm px-4 md:px-5 py-2.5 rounded-[10px] font-bold shadow-md shadow-orange-500/20 transition-all flex items-center gap-1.5"
+            >
+              Sign Up <ArrowRight size={14} />
+            </button>
           </div>
         </div>
-        <button
-          onClick={() => navigate('/login')}
-          className="btn-primary text-sm px-4 py-2"
-        >
-          <Lock size={14} /> Login <ArrowRight size={14} />
-        </button>
       </nav>
 
       {/* Hero */}
-      <section className="relative min-h-[85vh] flex items-center justify-center px-6 md:px-12 py-20">
+      <section className="relative min-h-[85vh] flex items-center justify-center px-6 md:px-12 py-16 md:py-20">
         {/* Bg glows */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-20 right-20 w-80 h-80 bg-saffron-500/10 rounded-full blur-3xl" />
@@ -140,20 +151,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 py-8 px-6 md:px-12 bg-transparent">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-saffron-50 flex items-center justify-center">
-              <Shield size={14} className="text-saffron-500" />
-            </div>
-            <span className="text-sm text-gray-500">SwachhDrishti © 2026 · Govt. of India · All rights reserved</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            <CheckCircle2 size={13} className="text-green-600" />
-            ISO 27001 · GDPR Compliant · NICT Certified
-          </div>
-        </div>
-      </footer>
+      <FrontpageFooter />
     </div>
   )
 }
