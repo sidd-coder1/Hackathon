@@ -25,28 +25,32 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
   }
 
   return (
-    <header className="sticky top-0 z-50 h-16 flex items-center px-4 md:px-6 bg-white border-b border-gray-200 gap-2">
+    <header className="sticky top-0 z-50 h-16 flex items-center px-4 md:px-6 bg-[#002147] border-b border-blue-900/40 shadow-xl gap-2 text-white">
       
       {/* Menu toggle - visible on mobile, or on desktop when sidebar is closed */}
       <button
         onClick={onMenuToggle}
         className={clsx(
-          "mr-3 flex flex-col items-center justify-center gap-[5px] w-9 h-9 rounded-xl hover:bg-gray-100 transition-all flex-shrink-0 group",
+          "mr-3 p-2 rounded-xl text-blue-100/70 hover:bg-white/10 hover:text-white transition-all flex-shrink-0",
           menuOpen ? "md:hidden" : "flex"
         )}
-        aria-label="Toggle menu"
       >
-        <span className="block w-5 h-[2px] rounded-full bg-orange-500 group-hover:bg-orange-600 transition-colors" />
-        <span className="block w-4 h-[2px] rounded-full bg-gray-500 group-hover:bg-gray-800 transition-colors" />
-        <span className="block w-5 h-[2px] rounded-full bg-gray-500 group-hover:bg-gray-800 transition-colors" />
+        <Menu size={20} />
       </button>
 
-      {/* Logo (Always Visible & Non-Toggleable) */}
-      <div className="flex items-center gap-3 select-none">
-        <img src="/emblem.svg" alt="logo" className="h-8 w-auto mix-blend-multiply" />
-        <div className="flex flex-col leading-tight">
-          <span className="text-base sm:text-lg font-extrabold text-orange-600 tracking-tight">SwachhDrishti</span>
-          <span className="text-[10px] sm:text-xs text-green-700 font-bold tracking-wide">Empowering India's Municipal Workforce</span>
+      {/* Logo */}
+      <div className="flex items-center gap-3 md:gap-4 select-none">
+        <img 
+          src="/emblem.svg" 
+          alt="Government of India" 
+          className="w-8 md:w-10 h-auto flex-shrink-0 brightness-0 invert"
+        />
+        <div className="border-l-2 border-saffron-500 pl-3">
+          <h1 className="text-base md:text-lg font-black leading-tight tracking-tighter">
+            <span className="text-saffron-400">Swachh</span>
+            <span className="text-green-400">Drishti</span>
+          </h1>
+          <p className="text-[10px] md:text-xs text-blue-100/70 font-bold uppercase tracking-wide leading-tight mt-0.5">Govt. of India Initiative</p>
         </div>
       </div>
 
@@ -74,11 +78,15 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
               }}
               className={clsx(
                 "relative p-2 rounded-xl transition-all border border-transparent group",
-                notificationsOpen ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                notificationsOpen ? "bg-white/20 text-white" : "text-blue-100/70 hover:bg-white/10 hover:text-white"
               )}
             >
               <Bell size={18} />
+<<<<<<< HEAD
               {alerts?.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full animate-pulse" />}
+=======
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-saffron-500 rounded-full animate-pulse" />
+>>>>>>> 6e63e2818c95d3f627f4f79c0bf0b1581c73efac
             </button>
 
             {notificationsOpen && (
@@ -131,15 +139,15 @@ export default function Navbar({ onMenuToggle, menuOpen }) {
               }}
               className={clsx(
                 "flex items-center gap-3 p-1.5 pr-3 rounded-full transition-all border border-transparent",
-                profileOpen ? "bg-gray-100" : "hover:bg-gray-50"
+                profileOpen ? "bg-white/20" : "hover:bg-white/10"
               )}
             >
-              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
-                <span className="text-xs font-bold text-orange-600">{user?.name?.charAt(0) || 'U'}</span>
+              <div className="w-8 h-8 rounded-full bg-saffron-100 flex items-center justify-center border border-saffron-200">
+                <span className="text-xs font-bold text-saffron-600">{user?.name?.charAt(0) || 'U'}</span>
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-xs font-bold text-gray-900 leading-tight mb-0.5">{user?.name}</p>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold leading-tight">{user?.role}</p>
+                <p className="text-xs font-bold text-white leading-tight mb-0.5">{user?.name}</p>
+                <p className="text-[10px] text-blue-100/70 uppercase tracking-widest font-bold leading-tight">{user?.role}</p>
               </div>
             </button>
 
