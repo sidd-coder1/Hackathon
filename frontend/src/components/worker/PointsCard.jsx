@@ -4,7 +4,7 @@ import LevelBadge from './LevelBadge';
 
 const PointsCard = ({ points, level }) => {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div className="flex items-center gap-5">
         <div className="w-14 h-14 rounded-full bg-saffron-50 border border-saffron-100 flex items-center justify-center flex-shrink-0">
           <Award size={24} className="text-saffron-500" />

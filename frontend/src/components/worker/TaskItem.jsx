@@ -24,10 +24,18 @@ const TaskItem = ({ task, onStart, onComplete }) => {
 
   return (
     <div className={clsx(
-      "flex flex-col sm:flex-row sm:items-center justify-between py-4 px-6 transition-all duration-300 hover:bg-gray-50/50 gap-4",
+      "flex flex-col sm:flex-row sm:items-center justify-between py-5 px-6 transition-all duration-300 hover:bg-gray-50/50 gap-4 relative",
       justCompleted && "bg-green-50/30"
     )}>
-      <div className="flex items-start gap-4">
+      {/* Task Path Node */}
+      <div className="absolute left-[14px] top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center">
+        <div className={clsx(
+          "w-3 h-3 rounded-full border-2 border-white shadow-sm transition-all duration-500",
+          task.completed ? "bg-green-500 scale-125 shadow-green-100" : "bg-saffron-500 group-hover:scale-110 shadow-saffron-100"
+        )} />
+      </div>
+
+      <div className="flex items-start gap-4 pl-6">
         <div>
           <h3 className={clsx(
             "text-[15px] font-bold tracking-tight mb-1.5",

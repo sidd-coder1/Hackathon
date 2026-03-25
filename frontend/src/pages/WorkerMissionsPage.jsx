@@ -17,7 +17,7 @@ export default function WorkerMissionsPage() {
   const missionsLeft = 5 - (totalCompleted % 5)
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 pb-10 animate-fade-in">
+    <div className="max-w-5xl mx-auto space-y-6 pb-10 animate-fade-in w-full">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -55,8 +55,8 @@ export default function WorkerMissionsPage() {
       <PointsCard points={points} level={level} />
 
       {/* Main Missions Section */}
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-gray-50/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 bg-saffron-500 rounded-full animate-pulse" />
             <h2 className="text-lg font-bold text-gray-900">Active Missions</h2>

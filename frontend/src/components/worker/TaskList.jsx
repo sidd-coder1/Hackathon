@@ -8,8 +8,11 @@ const TaskList = ({ tasks, onStartTask, onCompleteTask }) => {
   const completedTasks = tasks.filter(t => t.completed);
 
   return (
-    <div className="flex flex-col">
-      <div className="divide-y divide-gray-100">
+    <div className="flex flex-col relative">
+      {/* Task Path Line */}
+      <div className="absolute left-[20px] top-6 bottom-6 w-0.5 bg-gradient-to-b from-saffron-500/30 via-saffron-500/10 to-transparent hidden sm:block" />
+      
+      <div className="divide-y divide-gray-100 relative z-10">
         {activeTasks.map((task) => (
           <TaskItem 
             key={task.id} 
