@@ -29,6 +29,7 @@ export function AuthProvider({ children }) {
             }
             const standardizedProfile = { 
               ...profile, 
+              id: profile.id || profile._id,
               role: roleMapping[profile.role?.toLowerCase()] || profile.role?.toLowerCase() 
             }
             setUser(standardizedProfile)
@@ -79,7 +80,7 @@ export function AuthProvider({ children }) {
       throw new Error(`Unauthorized. This account is registered as a ${profile.role}.`)
     }
 
-    const standardizedProfile = { ...profile, role: normalizedDocRole }
+    const standardizedProfile = { ...profile, id: profile.id || profile._id, role: normalizedDocRole }
     setUser(standardizedProfile)
     localStorage.setItem('swachh_user_session', JSON.stringify(standardizedProfile))
     return standardizedProfile
@@ -122,7 +123,7 @@ export function AuthProvider({ children }) {
     }
 
     const docRef = await addUser(newProfile)
-    const finalProfile = { id: docRef.id, ...newProfile }
+    const finalProfile = { id: docRef.id || docRef._id || docRef.uid, ...newProfile }
     
     setUser(finalProfile)
     localStorage.setItem('swachh_user_session', JSON.stringify(finalProfile))

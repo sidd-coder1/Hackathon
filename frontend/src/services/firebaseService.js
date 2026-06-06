@@ -55,6 +55,14 @@ export const getUserByUid = async (uid) => {
     return data || null;
 };
 
+// 5b. Get User by ID (either MongoDB _id or UID)
+export const getUserById = async (id) => {
+    const res = await fetch(`${BASE_URL}/api/users/${id}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data || null;
+};
+
 // 6. Get User by Email
 export const getUserByEmail = async (email) => {
     const res = await fetch(`${BASE_URL}/api/users/email/${email}`);
@@ -115,7 +123,7 @@ export const checkAttendanceExists = async (userId, date) => {
 
 // 12. Update User Stats (on Scan)
 export const updateUserStats = async (userId) => {
-    const user = await getUserByUid(userId) || await getUserByEmployeeId(userId);
+    const user = await getUserById(userId);
     if (!user) return null;
     
     const currentScore = user.score || 0;
@@ -181,7 +189,7 @@ export const verifyTask = async (taskId, watchmanId, points, workerId) => {
 
 // 16. Reward Task Points
 export const rewardTaskPoints = async (userId, points) => {
-    const user = await getUserByUid(userId) || await getUserByEmployeeId(userId);
+    const user = await getUserById(userId);
     if (!user) return null;
 
     const res = await fetch(`${BASE_URL}/api/users/uid/${user.uid}/reward`, {
