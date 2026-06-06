@@ -3,12 +3,17 @@ import { useAuth } from '../context/AuthContext'
 import { MapPin, Camera, CheckCircle2, AlertCircle, ChevronRight, Battery, Wifi, Fingerprint, ImagePlus, X } from 'lucide-react'
 import { StatCard, Badge, StatusDot, Spinner } from '../components/ui/UIComponents'
 import clsx from 'clsx'
-import { addAttendance, checkAttendanceExists, updateUserStats } from '../services/firebaseService'
-import { Scanner } from '@yudiel/react-qr-scanner'
-import { storage, db } from '../firebase'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { collection, addDoc, serverTimestamp, query, where, onSnapshot } from 'firebase/firestore'
-import { completeTask, subscribeToTasks, rewardTaskPoints } from '../services/firebaseService'
+import { 
+  addAttendance, 
+  checkAttendanceExists, 
+  updateUserStats, 
+  completeTask, 
+  subscribeToTasks, 
+  rewardTaskPoints,
+  addLocation,
+  addWorkPhoto,
+  uploadWorkPhoto
+} from '../services/firebaseService'
 
 export default function WorkerDashboard() {
   const { user } = useAuth()
@@ -39,12 +44,11 @@ export default function WorkerDashboard() {
         if (navigator.geolocation && (user?.uid || user?.id)) {
             navigator.geolocation.getCurrentPosition(async (position) => {
                 try {
-                    await addDoc(collection(db, 'locations'), {
+                    await addLocation({
                         userId: user.uid || user.id,
                         userName: user.name || 'Unknown',
                         latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        timestamp: serverTimestamp()
+                        longitude: position.coords.longitude
                     });
                     console.log("Location updated periodically");
                 } catch (err) {
@@ -265,46 +269,21 @@ export default function WorkerDashboard() {
 
       let downloadURL = photoPreview || '';
       try {
-        // Create a timeout promise
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Storage timeout')), 5000)
-        );
-
-        const storageRef = ref(storage, `work_photos/${user?.id || user?.uid || 'unknown'}_${Date.now()}.jpg`);
-        const metadata = {
-          contentType: 'image/jpeg',
-          customMetadata: {
-             lat: photoLocation?.lat || 'unknown',
-             lng: photoLocation?.lng || 'unknown'
-          }
-        };
-        
-        // Attempt upload with timeout
-        setValidationMessage('Uploading file to cloud storage (Max 5s wait)...');
-        await Promise.race([
-          uploadBytes(storageRef, photoFile, metadata),
-          timeoutPromise
-        ]);
-        
-        downloadURL = await Promise.race([
-          getDownloadURL(storageRef),
-          timeoutPromise
-        ]);
+        setValidationMessage('Uploading file to backend server...');
+        const uploadRes = await uploadWorkPhoto(photoFile);
+        downloadURL = uploadRes.url;
       } catch (storageErr) {
-        console.warn("Cloud Storage skip (Demo Fallback enabled):", storageErr);
-        // We use the photoPreview (blob URL) as a temporary fallback for the real-time UI
-        // In a real app, this would be a placeholder, but for a hackatho, this keeps the flow moving
+        console.warn("Storage upload failed, using fallback:", storageErr);
         downloadURL = photoPreview || 'demo-fallback-url';
       }
 
-      setValidationMessage('Finalizing Firestore record...');
-      await addDoc(collection(db, 'work_photos'), {
+      setValidationMessage('Finalizing database record...');
+      await addWorkPhoto({
         userId: user?.id || user?.uid || 'unknown',
         userName: user?.name || 'Worker',
         ward: user?.ward || 'Unknown Ward',
         photoUrl: downloadURL,
-        location: photoLocation || coords || { lat: 'Unknown', lng: 'Unknown' },
-        timestamp: serverTimestamp()
+        location: photoLocation || coords || { lat: 'Unknown', lng: 'Unknown' }
       });
 
       setPhotoUploaded(true);

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { db } from '../firebase'
-import { collection, query, where, getDocs, addDoc, serverTimestamp, orderBy, onSnapshot, Timestamp } from 'firebase/firestore'
+import { getUsersByRole, subscribeToTasks, assignTask } from '../services/firebaseService'
 import { useAuth } from '../context/AuthContext'
 import { Target, Search, Calendar as CalendarIcon, Save } from 'lucide-react'
 import { Badge, StatusDot, Spinner } from '../components/ui/UIComponents'
@@ -30,9 +29,8 @@ export default function AssignWorkerTaskPage() {
   useEffect(() => {
     const fetchWorkers = async () => {
       try {
-        const q = query(collection(db, 'users'), where('role', '==', 'worker'))
-        const snap = await getDocs(q)
-        setWorkers(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+        const list = await getUsersByRole('worker')
+        setWorkers(list)
       } catch (err) {
         console.error("Failed to fetch workers", err)
       }
@@ -42,35 +40,13 @@ export default function AssignWorkerTaskPage() {
 
   // Fetch Assigned Tasks Live
   useEffect(() => {
-    const q = query(
-      collection(db, 'tasks'),
-      orderBy('createdAt', 'desc')
-    )
-    const unsub = onSnapshot(q, (snap) => {
-      setTasks(snap.docs.map(doc => {
-        const d = doc.data();
-        return {
-          id: doc.id,
-          ...d,
-          dateFrom: d.dateFrom?.toDate?.()?.toLocaleDateString('en-IN') || d.dateFrom,
-          dateTo: d.dateTo?.toDate?.()?.toLocaleDateString('en-IN') || d.dateTo
-        }
-      }))
-    }, (err) => {
-      console.warn("Tasks listener failed (index may be required):", err.message)
-      // Fallback if index fails
-      getDocs(query(collection(db, 'tasks')))
-        .then(snap => setTasks(snap.docs.map(doc => {
-          const d = doc.data();
-          return {
-            id: doc.id,
-            ...d,
-            dateFrom: d.dateFrom?.toDate?.()?.toLocaleDateString('en-IN') || d.dateFrom,
-            dateTo: d.dateTo?.toDate?.()?.toLocaleDateString('en-IN') || d.dateTo
-          }
-        })))
-        .catch(console.error)
-    })
+    const unsub = subscribeToTasks((fetchedTasks) => {
+      setTasks(fetchedTasks.map(t => ({
+        ...t,
+        dateFrom: t.dateFrom?.toDate?.()?.toLocaleDateString('en-IN') || t.dateFrom,
+        dateTo: t.dateTo?.toDate?.()?.toLocaleDateString('en-IN') || t.dateTo
+      })))
+    });
     return () => unsub()
   }, [])
 
@@ -103,7 +79,7 @@ export default function AssignWorkerTaskPage() {
 
     setLoading(true)
     try {
-      await addDoc(collection(db, 'tasks'), {
+      await assignTask({
         assignedTo: workerObj.uid || workerObj.id,
         workerName: workerObj.name || 'Unknown',
         assignedBy: user?.name || 'Supervisor',
@@ -112,10 +88,8 @@ export default function AssignWorkerTaskPage() {
         title: title,
         description: description,
         points: parseInt(points),
-        status: "pending",
         dateFrom: dateFrom,
-        dateTo: dateTo,
-        createdAt: serverTimestamp()
+        dateTo: dateTo
       })
       
       setFormSuccess('Task assigned successfully!')

@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { db } from '../../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { addCheckpoint } from '../../services/firebaseService';
 import { Camera, Flashlight, RefreshCw, CheckCircle2, AlertTriangle, SwitchCamera, X, MapPin } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -119,12 +118,11 @@ export default function WorkerScanPage() {
   const submitLog = async () => {
     setSubmitting(true);
     try {
-      await addDoc(collection(db, 'worker_checkpoints'), {
+      await addCheckpoint({
         workerId: user?.id || 'unknown',
         workerName: user?.name || 'Unknown Worker',
         checkpoint: scanResult.checkpoint,
-        raw_data: scanResult.raw,
-        timestamp: serverTimestamp()
+        raw_data: scanResult.raw
       });
       setSuccessLine('Checkpoint verified successfully!');
       setTimeout(() => resetScanner(), 2000);

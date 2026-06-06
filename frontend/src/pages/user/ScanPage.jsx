@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { db } from '../../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { addRating } from '../../services/firebaseService';
 import { Camera, Flashlight, RefreshCw, Star, CheckCircle2, AlertTriangle, SwitchCamera, X } from 'lucide-react';
 
 export default function ScanPage({ onAddLog }) {
@@ -129,12 +128,11 @@ export default function ScanPage({ onAddLog }) {
     if (rating === 0) return;
     setSubmitting(true);
     try {
-      await addDoc(collection(db, 'ratings'), {
+      await addRating({
         ward: scanResult.ward,
         worker: scanResult.worker,
         raw_data: scanResult.raw,
-        rating: rating,
-        timestamp: serverTimestamp()
+        rating: rating
       });
       if (onAddLog) {
         onAddLog({

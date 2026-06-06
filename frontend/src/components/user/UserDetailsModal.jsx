@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { db } from '../../firebase'
-import { collection, query, where, getDocs } from 'firebase/firestore'
+import { getUserByEmployeeId } from '../../services/firebaseService'
 import { X, User, MapPin, ShieldCheck, Mail, Phone, Calendar } from 'lucide-react'
 import { Spinner } from '../ui/UIComponents'
 import clsx from 'clsx'
@@ -20,23 +19,7 @@ export default function UserDetailsModal({ userId, onClose }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        let found = null;
-        
-        const q = query(collection(db, 'users'), where('employeeId', '==', userId));
-        const snap = await getDocs(q);
-        
-        if (!snap.empty) {
-          const doc = snap.docs[0];
-          found = { id: doc.id, ...doc.data() };
-        } else {
-          // fallback to doc id
-          const allSnap = await getDocs(collection(db, 'users'));
-          allSnap.forEach(doc => {
-            const data = { id: doc.id, ...doc.data() };
-            if (doc.id === userId) found = data;
-          });
-        }
-        
+        const found = await getUserByEmployeeId(userId);
         setUserData(found);
       } catch (err) {
         console.error('Error fetching user:', err);

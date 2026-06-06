@@ -21,7 +21,6 @@ import {
 import { Badge, Spinner } from '../components/ui/UIComponents'
 import clsx from 'clsx'
 import { subscribeToTasks, verifyTask, subscribeToAttendance, subscribeToUsers, saveReport, saveFeedback } from '../services/firebaseService'
-import { where } from 'firebase/firestore'
 
 // --- Sub-components ---
 
